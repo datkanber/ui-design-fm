@@ -1,5 +1,5 @@
-// RouteOptimization.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Dialog, Button } from '@mui/material';
 import OptimizationForm from '../components/OptimizationForm';
 import RouteOptimizationMap from '../components/RouteOptimizationMap';
 import CustomerPool from '../components/CustomerPool';
@@ -17,6 +17,9 @@ export default function RouteOptimization() {
   const [initialTemperature, setInitialTemperature] = useState(1000);
   const [alpha, setAlpha] = useState(0.95);
   const [selectedVehicles, setSelectedVehicles] = useState([]);
+  const [openOrderManagement, setOpenOrderManagement] = useState(false);
+  const [selectedDemand, setSelectedDemand] = useState('');
+  const [filteredCustomers, setFilteredCustomers] = useState(staticCustomers);
 
   const routeColors = {
     'Simulated Annealing': 'blue',
@@ -27,6 +30,29 @@ export default function RouteOptimization() {
   const plannedRoutes = (staticRoutes[algorithm] || []).map(r => ({ positions: r.path || [] }));
   const completedRoutes = (staticRoutes['Completed'] || []).map(r => ({ positions: r.path || [] }));
   const traffic = (staticRoutes['Traffic'] || []).map(r => ({ positions: r.path || [] }));
+
+  useEffect(() => {
+    if (selectedDemand) {
+      // Talep tipine göre müşterileri filtrele
+      const demandType = selectedDemand.substring(0, 1); // C, R veya RC
+      const demandSize = parseInt(selectedDemand.substring(1)); // 05, 10, 20, 40, 60
+
+      const filtered = staticCustomers.filter(customer => {
+        const customerType = customer.type || 'C'; // Varsayılan olarak C tipi
+        const customerDemand = customer.demand || 0;
+
+        return customerType === demandType && customerDemand <= demandSize;
+      });
+
+      setFilteredCustomers(filtered);
+    } else {
+      setFilteredCustomers(staticCustomers);
+    }
+  }, [selectedDemand]);
+
+  const handleDemandChange = (demand) => {
+    setSelectedDemand(demand);
+  };
 
   return (
     <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -44,6 +70,7 @@ export default function RouteOptimization() {
             vehicles={staticVehicles}
             selectedVehicles={selectedVehicles}
             setSelectedVehicles={setSelectedVehicles}
+            onDemandChange={handleDemandChange}
           />
         </div>
         <div style={{ flex: 3}}>
@@ -58,7 +85,15 @@ export default function RouteOptimization() {
           />
         </div>
         <div style={{ flex: 1, minWidth: '250px' }}>
-          <CustomerPool customers={staticCustomers} />
+          <CustomerPool 
+            customers={filteredCustomers} 
+            selectedDemand={selectedDemand}
+          />
+          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+            <Button variant="contained" color="primary" onClick={() => setOpenOrderManagement(true)}>
+              Talep Yönetimini Aç
+            </Button>
+          </div>
         </div>
       </div>
     </div>

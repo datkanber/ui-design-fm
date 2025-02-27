@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Home from './pages/Home';
 import RouteOptimization from './pages/RouteOptimization';
 import FleetMonitoring from './pages/FleetMonitoring';
 import ChatBox from './components/ChatBox';
@@ -21,7 +22,7 @@ export default function App() {
       <Navbar alertBlink={alertBlink} toggleChat={() => setChatOpen(!chatOpen)} vehicles={vehicles} />
       {chatOpen && <ChatBox vehicles={vehicles} />}
       <Routes>
-        <Route path="/" element={<RouteOptimization algorithm={algorithm} setAlgorithm={setAlgorithm} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/route-optimization" element={<RouteOptimization algorithm={algorithm} setAlgorithm={setAlgorithm} />} />
         <Route path="/fleet-monitoring" element={<FleetMonitoring algorithm={algorithm} />} />
       </Routes>
