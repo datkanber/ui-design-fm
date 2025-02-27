@@ -1,8 +1,9 @@
-// RouteOptimization.js
 import React, { useState } from 'react';
+import { Dialog, Button } from '@mui/material';
 import OptimizationForm from '../components/OptimizationForm';
 import RouteOptimizationMap from '../components/RouteOptimizationMap';
 import CustomerPool from '../components/CustomerPool';
+import OrderManagement from '../components/OrderManagement';
 import { vehicles as staticVehicles } from '../data/vehicles';
 import { chargingStations as staticChargingStations } from '../data/chargingStations';
 import { orders as staticOrders } from '../data/orders';
@@ -17,6 +18,7 @@ export default function RouteOptimization() {
   const [initialTemperature, setInitialTemperature] = useState(1000);
   const [alpha, setAlpha] = useState(0.95);
   const [selectedVehicles, setSelectedVehicles] = useState([]);
+  const [openOrderManagement, setOpenOrderManagement] = useState(false);
 
   const routeColors = {
     'Simulated Annealing': 'blue',
@@ -29,7 +31,7 @@ export default function RouteOptimization() {
   const traffic = (staticRoutes['Traffic'] || []).map(r => ({ positions: r.path || [] }));
 
   return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
         <div style={{ flex: 1, minWidth: '300px' }}>
           <OptimizationForm
@@ -59,8 +61,18 @@ export default function RouteOptimization() {
         </div>
         <div style={{ flex: 1, minWidth: '250px' }}>
           <CustomerPool customers={staticCustomers} />
+          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+            <Button variant="contained" color="primary" onClick={() => setOpenOrderManagement(true)}>
+              Talep Yönetimini Aç
+            </Button>
+          </div>
         </div>
       </div>
+      
+      {/* Talep Yönetimi direkt açılacak */}
+      <Dialog open={openOrderManagement} onClose={() => setOpenOrderManagement(false)} maxWidth="sm" fullWidth>
+        <OrderManagement />
+      </Dialog>
     </div>
   );
 }

@@ -30,6 +30,9 @@ export default function Navbar({ alertBlink, toggleChat }) {
         <Link to="/performance-monitoring">
           <BarChartHorizontalIcon size={20} /> Raporlar
         </Link>
+        <Link to="/performance-monitoring">
+          <BarChartHorizontalIcon size={20} /> BPMN Process
+        </Link>
       </div>
 
       {/* Sohbet Kutusu */}

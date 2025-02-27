@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di_1="http://www.omg.org/spec/DD/20100524/DI" xmlns:model="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bonitaConnector="http://www.bonitasoft.org/studio/connector/definition/6.0" xmlns:java="http://jcp.org/en/jsr/detail?id=270" targetNamespace="http://bonitasoft.com/_m8AWwPRGEe-6YaHbVGtGHA" expressionLanguage="http://groovy.apache.org/" exporter="Camunda Modeler" exporterVersion="4.12.0" xsi:schemaLocation="schemaLocation http://www.omg.org/spec/BPMN/20100524/MODEL schemas/BPMN20.xsd">
+  <model:collaboration id="process-bpmn-execute2">
+    <model:participant id="_5dYKwPRHEe-6YaHbVGtGHA" name="Pool1" processRef="_m8AWwfRGEe-6YaHbVGtGHA" />
+    <model:participant id="_m8AW2_RGEe-6YaHbVGtGHA" name="Employee actor">
+      <model:documentation>This is an example of actor that is mapped to any ACME users</model:documentation>
+    </model:participant>
+  </model:collaboration>
+  <model:process id="_m8AWwfRGEe-6YaHbVGtGHA" name="Pool1" isExecutable="false">
+    <model:ioSpecification id="_5dbOEPRHEe-6YaHbVGtGHA">
+      <model:inputSet id="_5dbOEfRHEe-6YaHbVGtGHA" />
+      <model:outputSet id="_5dccMPRHEe-6YaHbVGtGHA" />
+    </model:ioSpecification>
+    <model:laneSet id="pool1_laneSet">
+      <model:lane id="_m8AWwvRGEe-6YaHbVGtGHA" name="Employee lane">
+        <model:flowNodeRef>_m8AWw_RGEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_m8AWx_RGEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_vyi5oPRGEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_w8arwPRGEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_Nn0gQPRHEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_a-DhkPRHEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_gNmIkPRHEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_i-kbYPRHEe-6YaHbVGtGHA</model:flowNodeRef>
+        <model:flowNodeRef>_nC7osPRHEe-6YaHbVGtGHA</model:flowNodeRef>
+      </model:lane>
+    </model:laneSet>
+    <model:startEvent id="_m8AWw_RGEe-6YaHbVGtGHA" name="Start1" />
+    <model:userTask id="_m8AWx_RGEe-6YaHbVGtGHA" name="Sipariş Alınır" />
+    <model:parallelGateway id="_vyi5oPRGEe-6YaHbVGtGHA" name="Gateway1" />
+    <model:userTask id="_w8arwPRGEe-6YaHbVGtGHA" name="Ödeme Onayı" />
+    <model:userTask id="_Nn0gQPRHEe-6YaHbVGtGHA" name="Stok Kontrolü" />
+    <model:userTask id="_a-DhkPRHEe-6YaHbVGtGHA" name="Siparişi Hazırla ve Gönder" />
+    <model:sendTask id="_gNmIkPRHEe-6YaHbVGtGHA" name="Müşteriyi Bilgilendir " />
+    <model:endEvent id="_i-kbYPRHEe-6YaHbVGtGHA" name="Süreci Bitir" />
+    <model:userTask id="_nC7osPRHEe-6YaHbVGtGHA" name="Sipariş Tamamlandı" />
+    <model:sequenceFlow id="_o_VD8PRHEe-6YaHbVGtGHA" name="" sourceRef="_a-DhkPRHEe-6YaHbVGtGHA" targetRef="_nC7osPRHEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_lnlsEPRHEe-6YaHbVGtGHA" name="" sourceRef="_gNmIkPRHEe-6YaHbVGtGHA" targetRef="_i-kbYPRHEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_iHzygPRHEe-6YaHbVGtGHA" name="" sourceRef="_vyi5oPRGEe-6YaHbVGtGHA" targetRef="_gNmIkPRHEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_dpl6wPRHEe-6YaHbVGtGHA" name="" sourceRef="_w8arwPRGEe-6YaHbVGtGHA" targetRef="_a-DhkPRHEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_R1id4PRHEe-6YaHbVGtGHA" name="" sourceRef="_Nn0gQPRHEe-6YaHbVGtGHA" targetRef="_vyi5oPRGEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_RD3wYPRHEe-6YaHbVGtGHA" name="" sourceRef="_m8AWx_RGEe-6YaHbVGtGHA" targetRef="_Nn0gQPRHEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_OLRLkPRHEe-6YaHbVGtGHA" name="" sourceRef="_m8AWw_RGEe-6YaHbVGtGHA" targetRef="_m8AWx_RGEe-6YaHbVGtGHA" />
+    <model:sequenceFlow id="_yNVhEPRGEe-6YaHbVGtGHA" name="" sourceRef="_vyi5oPRGEe-6YaHbVGtGHA" targetRef="_w8arwPRGEe-6YaHbVGtGHA" />
+  </model:process>
+  <di:BPMNDiagram name="MyDiagram1">
+    <di:BPMNPlane id="plane__m8AWwPRGEe-6YaHbVGtGHA" bpmnElement="process-bpmn-execute2">
+      <di:BPMNShape id="_m8AW9vRGEe-6YaHbVGtGHA" bpmnElement="_5dYKwPRHEe-6YaHbVGtGHA" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1960" height="332" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_m8AW-fRGEe-6YaHbVGtGHA" bpmnElement="_m8AWwvRGEe-6YaHbVGtGHA" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1930" height="332" />
+      </di:BPMNShape>
+      <di:BPMNEdge id="_o_VrAPRHEe-6YaHbVGtGHA" bpmnElement="_o_VD8PRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="1525" y="198" />
+        <di_1:waypoint x="1582" y="198" />
+        <di_1:waypoint x="1582" y="219" />
+        <di_1:waypoint x="1639" y="219" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_lnmTIPRHEe-6YaHbVGtGHA" bpmnElement="_lnlsEPRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="1172" y="334" />
+        <di_1:waypoint x="1307" y="334" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_iH2OwPRHEe-6YaHbVGtGHA" bpmnElement="_iHzygPRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="876" y="206" />
+        <di_1:waypoint x="876" y="237" />
+        <di_1:waypoint x="1019" y="237" />
+        <di_1:waypoint x="1019" y="268" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_dpmh0PRHEe-6YaHbVGtGHA" bpmnElement="_dpl6wPRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="1187" y="155" />
+        <di_1:waypoint x="1245" y="155" />
+        <di_1:waypoint x="1245" y="214" />
+        <di_1:waypoint x="1303" y="214" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_R1jE8PRHEe-6YaHbVGtGHA" bpmnElement="_R1id4PRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="771" y="185" />
+        <di_1:waypoint x="854" y="185" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_RD4XcPRHEe-6YaHbVGtGHA" bpmnElement="_RD3wYPRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="510" y="162" />
+        <di_1:waypoint x="542" y="162" />
+        <di_1:waypoint x="542" y="175" />
+        <di_1:waypoint x="575" y="175" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_OLRyoPRHEe-6YaHbVGtGHA" bpmnElement="_OLRLkPRHEe-6YaHbVGtGHA">
+        <di_1:waypoint x="277" y="171" />
+        <di_1:waypoint x="323" y="171" />
+      </di:BPMNEdge>
+      <di:BPMNEdge id="_yNWIIPRGEe-6YaHbVGtGHA" bpmnElement="_yNVhEPRGEe-6YaHbVGtGHA">
+        <di_1:waypoint x="871" y="187" />
+        <di_1:waypoint x="871" y="162" />
+        <di_1:waypoint x="1023" y="162" />
+      </di:BPMNEdge>
+      <di:BPMNShape id="_m8Bk4_RGEe-6YaHbVGtGHA" bpmnElement="_m8AWw_RGEe-6YaHbVGtGHA">
+        <dc:Bounds x="250" y="148" width="30" height="30" />
+        <di:BPMNLabel id="_5dffgfRHEe-6YaHbVGtGHA" labelStyle="_5dffgPRHEe-6YaHbVGtGHA">
+          <dc:Bounds x="250" y="183" width="30" height="14" />
+        </di:BPMNLabel>
+      </di:BPMNShape>
+      <di:BPMNShape id="_m8Bk4PRGEe-6YaHbVGtGHA" bpmnElement="_m8AWx_RGEe-6YaHbVGtGHA">
+        <dc:Bounds x="323" y="134" width="187" height="93" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_vykHwPRGEe-6YaHbVGtGHA" bpmnElement="_vyi5oPRGEe-6YaHbVGtGHA">
+        <dc:Bounds x="840" y="178" width="43" height="43" />
+        <di:BPMNLabel id="_5dii0fRHEe-6YaHbVGtGHA" labelStyle="_5dffgPRHEe-6YaHbVGtGHA">
+          <dc:Bounds x="837" y="226" width="50" height="14" />
+        </di:BPMNLabel>
+      </di:BPMNShape>
+      <di:BPMNShape id="_w8b54PRGEe-6YaHbVGtGHA" bpmnElement="_w8arwPRGEe-6YaHbVGtGHA">
+        <dc:Bounds x="1023" y="128" width="164" height="82" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_Nn1HUPRHEe-6YaHbVGtGHA" bpmnElement="_Nn0gQPRHEe-6YaHbVGtGHA">
+        <dc:Bounds x="575" y="156" width="196" height="98" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_a-EvvPRHEe-6YaHbVGtGHA" bpmnElement="_a-DhkPRHEe-6YaHbVGtGHA">
+        <dc:Bounds x="1303" y="171" width="222" height="111" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_gNnWsPRHEe-6YaHbVGtGHA" bpmnElement="_gNmIkPRHEe-6YaHbVGtGHA">
+        <dc:Bounds x="995" y="250" width="204" height="102" />
+      </di:BPMNShape>
+      <di:BPMNShape id="_i-kbZPRHEe-6YaHbVGtGHA" bpmnElement="_i-kbYPRHEe-6YaHbVGtGHA">
+        <dc:Bounds x="1303" y="330" width="30" height="30" />
+        <di:BPMNLabel id="_5dkYAPRHEe-6YaHbVGtGHA" labelStyle="_5dffgPRHEe-6YaHbVGtGHA">
+          <dc:Bounds x="1291" y="365" width="55" height="14" />
+        </di:BPMNLabel>
+      </di:BPMNShape>
+      <di:BPMNShape id="_nC8PzPRHEe-6YaHbVGtGHA" bpmnElement="_nC7osPRHEe-6YaHbVGtGHA">
+        <dc:Bounds x="1639" y="190" width="188" height="94" />
+      </di:BPMNShape>
+    </di:BPMNPlane>
+    <di:BPMNLabelStyle id="_5dffgPRHEe-6YaHbVGtGHA">
+      <dc:Font name="Segoe UI" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" />
+    </di:BPMNLabelStyle>
+  </di:BPMNDiagram>
+</model:definitions>
