@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Info4ChargingStation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ChargingStations>
+    <ChargingStation Name="cs1" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.74409378336547</Latitude>
+        <Longitude>30.469245785506907</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>4201.457</X_Coordinates>
+        <Y_Coordinates>2123.246</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs2" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.74834946657972</Latitude>
+        <Longitude>30.477104070347714</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>4888.165</X_Coordinates>
+        <Y_Coordinates>2576.649</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs3" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.74658904001786</Latitude>
+        <Longitude>30.47476004031919</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>4681.8</X_Coordinates>
+        <Y_Coordinates>2386.894</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs4" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.75392997022956</Latitude>
+        <Longitude>30.484520671769562</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>5541.077</X_Coordinates>
+        <Y_Coordinates>3178.235</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs5" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.751377</Latitude>
+        <Longitude>30.481888</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>5307.25</X_Coordinates>
+        <Y_Coordinates>2900.51</Y_Coordinates>
+    </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs6" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.75121428626431</Latitude>
+        <Longitude>30.487696983750773</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>5804.767</X_Coordinates>
+        <Y_Coordinates>2869.139</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs7" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.752912728054795</Latitude>
+        <Longitude>30.489341531024138</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>5950.964</X_Coordinates>
+        <Y_Coordinates>3053.723</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs8" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.75085019506137</Latitude>
+        <Longitude>30.492754516229088</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>6236.984</X_Coordinates>
+        <Y_Coordinates>2816.577</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs9" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.75022898754287</Latitude>
+        <Longitude>30.474639057663563</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>4682.828</X_Coordinates>
+        <Y_Coordinates>2791.239</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+    <ChargingStation Name="cs10" CountryCode="tr" PartyId="" Id="" Publish="true" Address="Eskisehir ESOGU" City="Eskisehir" PostalCode="26100" State="" Country="Turkey">
+      <Location>
+        <Latitude>39.74961633910531</Latitude>
+        <Longitude>30.482464469369756</Longitude>
+        <Elevation>-1</Elevation>
+        <X_Coordinates>5351.438</X_Coordinates>
+        <Y_Coordinates>2704.351</Y_Coordinates>
+      </Location>
+    </ChargingStation>
+
+  </ChargingStations>
+</Info4ChargingStation>

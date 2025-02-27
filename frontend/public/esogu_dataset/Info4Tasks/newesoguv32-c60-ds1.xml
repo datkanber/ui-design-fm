@@ -1,0 +1,996 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Info4Task>
+	<Task>
+		<CEVRPTW NumberOfDelivery="60" NumberOfPickup="0">
+			<Nodes>
+				<Node No="121" Name="cs5" Type="Entrance">
+					<Location>
+						<Latitude>39.751377</Latitude>
+						<Longitude>30.481888</Longitude>
+						<X_Coordinates>5307.25</X_Coordinates>
+						<Y_Coordinates>2900.51</Y_Coordinates>
+					</Location>
+				</Node>
+				<Node No="121" Name="cs5" Type="Exit">
+					<Location>
+						<Latitude>39.751377</Latitude>
+						<Longitude>30.481888</Longitude>
+						<X_Coordinates>5307.25</X_Coordinates>
+						<Y_Coordinates>2900.51</Y_Coordinates>
+					</Location>
+				</Node>
+				<Node No="121" Name="cs5" Type="DepoCharging">
+					<Location>
+						<Latitude>39.751377</Latitude>
+						<Longitude>30.481888</Longitude>
+						<X_Coordinates>5307.25</X_Coordinates>
+						<Y_Coordinates>2900.51</Y_Coordinates>
+					</Location>
+				</Node>
+				<Node No="10" Name="10" Type="Delivery">
+					<Location>
+						<Latitude>39.75030524726876</Latitude>
+						<Longitude>30.491871515271733</Longitude>
+						<X_Coordinates>6159.63</X_Coordinates>
+						<Y_Coordinates>2758.204</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="48" ServiceTime="120" DueDate="715">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="23" Name="24" Type="Delivery">
+					<Location>
+						<Latitude>39.75075840001727</Latitude>
+						<Longitude>30.48876465362253</Longitude>
+						<X_Coordinates>5894.83</X_Coordinates>
+						<Y_Coordinates>2815.968</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="275" ServiceTime="120" DueDate="1184">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="101" Name="22D" Type="Delivery">
+					<Location>
+						<Latitude>39.75072910400898</Latitude>
+						<Longitude>30.489089361841106</Longitude>
+						<X_Coordinates>5922.561</X_Coordinates>
+						<Y_Coordinates>2811.935</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="411" ServiceTime="240" DueDate="1584">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="98" Name="22A" Type="Delivery">
+					<Location>
+						<Latitude>39.75073912772263</Latitude>
+						<Longitude>30.489428025110282</Longitude>
+						<X_Coordinates>5951.61</X_Coordinates>
+						<Y_Coordinates>2812.234</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="81" ServiceTime="240" DueDate="1253">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="13" Name="13" Type="Delivery">
+					<Location>
+						<Latitude>39.75071222428621</Latitude>
+						<Longitude>30.491328732190222</Longitude>
+						<X_Coordinates>6114.388</X_Coordinates>
+						<Y_Coordinates>2804.684</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="253" ServiceTime="120" DueDate="628">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="49" Name="53" Type="Delivery">
+					<Location>
+						<Latitude>39.750774430425665</Latitude>
+						<Longitude>30.480233946287743</Longitude>
+						<X_Coordinates>5163.931</X_Coordinates>
+						<Y_Coordinates>2838.281</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="131" ServiceTime="120" DueDate="1027">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="97" Name="154" Type="Delivery">
+					<Location>
+						<Latitude>39.750395950564595</Latitude>
+						<Longitude>30.478038567856153</Longitude>
+						<X_Coordinates>4974.638</X_Coordinates>
+						<Y_Coordinates>2801.564</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="535" ServiceTime="240" DueDate="884">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="14" Name="14" Type="Delivery">
+					<Location>
+						<Latitude>39.75043628839028</Latitude>
+						<Longitude>30.49134030075124</Longitude>
+						<X_Coordinates>6114.521</X_Coordinates>
+						<Y_Coordinates>2774.025</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="240" ServiceTime="120" DueDate="1256">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="22" Name="23" Type="Delivery">
+					<Location>
+						<Latitude>39.750541378622486</Latitude>
+						<Longitude>30.490440664984742</Longitude>
+						<X_Coordinates>6037.763</X_Coordinates>
+						<Y_Coordinates>2787.851</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="258" ServiceTime="120" DueDate="952">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="54" Name="59" Type="Delivery">
+					<Location>
+						<Latitude>39.75037141606683</Latitude>
+						<Longitude>30.47439066756152</Longitude>
+						<X_Coordinates>4661.991</X_Coordinates>
+						<Y_Coordinates>2807.65</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="68" ServiceTime="120" DueDate="758">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="30" Name="31" Type="Delivery">
+					<Location>
+						<Latitude>39.752940711050194</Latitude>
+						<Longitude>30.48307218165666</Longitude>
+						<X_Coordinates>5413.883</X_Coordinates>
+						<Y_Coordinates>3071.91</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="298" ServiceTime="120" DueDate="1770">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="82" Name="113" Type="Delivery">
+					<Location>
+						<Latitude>39.75308993647627</Latitude>
+						<Longitude>30.493415230335774</Longitude>
+						<X_Coordinates>6300.557</X_Coordinates>
+						<Y_Coordinates>3063.615</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="269" ServiceTime="100" DueDate="1625">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="29" Name="30" Type="Delivery">
+					<Location>
+						<Latitude>39.753119684164226</Latitude>
+						<Longitude>30.48427108545857</Longitude>
+						<X_Coordinates>5517.165</X_Coordinates>
+						<Y_Coordinates>3088.89</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="7" ServiceTime="120" DueDate="687">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="36" Name="38" Type="Delivery">
+					<Location>
+						<Latitude>39.752904643583115</Latitude>
+						<Longitude>30.48379437771617</Longitude>
+						<X_Coordinates>5475.649</X_Coordinates>
+						<Y_Coordinates>3066.167</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="480" ServiceTime="120" DueDate="963">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="27" Name="28" Type="Delivery">
+					<Location>
+						<Latitude>39.7530863824071</Latitude>
+						<Longitude>30.48559224006016</Longitude>
+						<X_Coordinates>5630.26</X_Coordinates>
+						<Y_Coordinates>3082.014</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="327" ServiceTime="240" DueDate="1420">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="85" Name="116" Type="Delivery">
+					<Location>
+						<Latitude>39.753952877591864</Latitude>
+						<Longitude>30.48821070669683</Longitude>
+						<X_Coordinates>5857.312</X_Coordinates>
+						<Y_Coordinates>3171.902</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="397" ServiceTime="100" DueDate="1612">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="25" Name="26" Type="Delivery">
+					<Location>
+						<Latitude>39.753632440087195</Latitude>
+						<Longitude>30.489956322270203</Longitude>
+						<X_Coordinates>6005.88</X_Coordinates>
+						<Y_Coordinates>3132.138</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="30" ServiceTime="120" DueDate="1407">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="33" Name="34" Type="Delivery">
+					<Location>
+						<Latitude>39.75298331855789</Latitude>
+						<Longitude>30.48744815284683</Longitude>
+						<X_Coordinates>5788.956</X_Coordinates>
+						<Y_Coordinates>3066.109</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="47" ServiceTime="240" DueDate="955">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="88" Name="119" Type="Delivery">
+					<Location>
+						<Latitude>39.75296835298104</Latitude>
+						<Longitude>30.48642990735077</Longitude>
+						<X_Coordinates>5701.665</X_Coordinates>
+						<Y_Coordinates>3066.897</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="532" ServiceTime="120" DueDate="871">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="5" Name="5" Type="Delivery">
+					<Location>
+						<Latitude>39.75305678374528</Latitude>
+						<Longitude>30.492723997544758</Longitude>
+						<X_Coordinates>6241.228</X_Coordinates>
+						<Y_Coordinates>3061.593</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="270" ServiceTime="120" DueDate="632">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="114" Name="61A/2" Type="Delivery">
+					<Location>
+						<Latitude>39.749061872484305</Latitude>
+						<Longitude>30.476343637468727</Longitude>
+						<X_Coordinates>4825.234</X_Coordinates>
+						<Y_Coordinates>2657.566</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="390" ServiceTime="240" DueDate="1442">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="100" Name="22C" Type="Delivery">
+					<Location>
+						<Latitude>39.74946757461258</Latitude>
+						<Longitude>30.48902185811116</Longitude>
+						<X_Coordinates>5912.85</X_Coordinates>
+						<Y_Coordinates>2672.061</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="392" ServiceTime="180" DueDate="1739">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="113" Name="60B/2" Type="Delivery">
+					<Location>
+						<Latitude>39.749213824841775</Latitude>
+						<Longitude>30.47485318704881</Longitude>
+						<X_Coordinates>4697.998</X_Coordinates>
+						<Y_Coordinates>2678.034</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="116" ServiceTime="240" DueDate="1600">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="52" Name="56" Type="Delivery">
+					<Location>
+						<Latitude>39.74949278866381</Latitude>
+						<Longitude>30.476697961471476</Longitude>
+						<X_Coordinates>4856.943</X_Coordinates>
+						<Y_Coordinates>2704.544</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="577" ServiceTime="180" DueDate="631">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="18" Name="18" Type="Delivery">
+					<Location>
+						<Latitude>39.748795691889484</Latitude>
+						<Longitude>30.48897276919715</Longitude>
+						<X_Coordinates>5906.553</X_Coordinates>
+						<Y_Coordinates>2597.597</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="538" ServiceTime="120" DueDate="895">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="16" Name="16" Type="Delivery">
+					<Location>
+						<Latitude>39.74931510328945</Latitude>
+						<Longitude>30.491439585100103</Longitude>
+						<X_Coordinates>6119.541</X_Coordinates>
+						<Y_Coordinates>2649.33</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="418" ServiceTime="120" DueDate="1328">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="115" Name="61B" Type="Delivery">
+					<Location>
+						<Latitude>39.74900578128717</Latitude>
+						<Longitude>30.476342860348183</Longitude>
+						<X_Coordinates>4824.992</X_Coordinates>
+						<Y_Coordinates>2651.341</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="54" ServiceTime="180" DueDate="683">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="21" Name="21" Type="Delivery">
+					<Location>
+						<Latitude>39.74942225982599</Latitude>
+						<Longitude>30.489007786633735</Longitude>
+						<X_Coordinates>5911.503</X_Coordinates>
+						<Y_Coordinates>2667.065</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="153" ServiceTime="180" DueDate="1562">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="48" Name="52" Type="Delivery">
+					<Location>
+						<Latitude>39.748849</Latitude>
+						<Longitude>30.480119</Longitude>
+						<X_Coordinates>5147.09</X_Coordinates>
+						<Y_Coordinates>2623.81</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="365" ServiceTime="120" DueDate="1118">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="112" Name="60A/2" Type="Delivery">
+					<Location>
+						<Latitude>39.74934297822463</Latitude>
+						<Longitude>30.474854039802576</Longitude>
+						<X_Coordinates>4698.475</X_Coordinates>
+						<Y_Coordinates>2692.368</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="462" ServiceTime="240" DueDate="1196">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="104" Name="37B" Type="Delivery">
+					<Location>
+						<Latitude>39.751350362874504</Latitude>
+						<Longitude>30.484797015789034</Longitude>
+						<X_Coordinates>5556.711</X_Coordinates>
+						<Y_Coordinates>2891.22</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="422" ServiceTime="180" DueDate="1221">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="43" Name="47" Type="Delivery">
+					<Location>
+						<Latitude>39.751345901985715</Latitude>
+						<Longitude>30.48509927283594</Longitude>
+						<X_Coordinates>5582.595</X_Coordinates>
+						<Y_Coordinates>2889.998</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="295" ServiceTime="180" DueDate="1122">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="35" Name="36" Type="Delivery">
+					<Location>
+						<Latitude>39.751425567513834</Latitude>
+						<Longitude>30.485662567755053</Longitude>
+						<X_Coordinates>5631.109</X_Coordinates>
+						<Y_Coordinates>2897.486</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="3" ServiceTime="180" DueDate="1427">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="7" Name="7" Type="Delivery">
+					<Location>
+						<Latitude>39.75107743507831</Latitude>
+						<Longitude>30.48922173857862</Longitude>
+						<X_Coordinates>5934.988</X_Coordinates>
+						<Y_Coordinates>2850.284</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="400" ServiceTime="120" DueDate="820">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="38" Name="40" Type="Delivery">
+					<Location>
+						<Latitude>39.751893</Latitude>
+						<Longitude>30.482335</Longitude>
+						<X_Coordinates>5347.13</X_Coordinates>
+						<Y_Coordinates>2956.65</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="155" ServiceTime="120" DueDate="1509">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="107" Name="42C" Type="Delivery">
+					<Location>
+						<Latitude>39.75107105065975</Latitude>
+						<Longitude>30.480669178576107</Longitude>
+						<X_Coordinates>5202.15</X_Coordinates>
+						<Y_Coordinates>2870.158</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="205" ServiceTime="120" DueDate="1766">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="9" Name="9" Type="Delivery">
+					<Location>
+						<Latitude>39.75131088559906</Latitude>
+						<Longitude>30.49188810970898</Longitude>
+						<X_Coordinates>6164.179</X_Coordinates>
+						<Y_Coordinates>2869.795</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="293" ServiceTime="120" DueDate="887">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="105" Name="42A" Type="Delivery">
+					<Location>
+						<Latitude>39.75108915733314</Latitude>
+						<Longitude>30.48163358411063</Longitude>
+						<X_Coordinates>5284.841</X_Coordinates>
+						<Y_Coordinates>2869.844</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="323" ServiceTime="240" DueDate="614">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="12" Name="12" Type="Delivery">
+					<Location>
+						<Latitude>39.751058578541745</Latitude>
+						<Longitude>30.491311405487185</Longitude>
+						<X_Coordinates>6113.98</X_Coordinates>
+						<Y_Coordinates>2843.172</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="266" ServiceTime="120" DueDate="803">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="45" Name="49" Type="Delivery">
+					<Location>
+						<Latitude>39.75117773935171</Latitude>
+						<Longitude>30.483082386576555</Longitude>
+						<X_Coordinates>5409.256</X_Coordinates>
+						<Y_Coordinates>2876.186</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="196" ServiceTime="120" DueDate="1138">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="61" Name="68" Type="Delivery">
+					<Location>
+						<Latitude>39.747956257937794</Latitude>
+						<Longitude>30.474851008026626</Longitude>
+						<X_Coordinates>4693.875</X_Coordinates>
+						<Y_Coordinates>2538.442</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="264" ServiceTime="120" DueDate="1532">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="56" Name="63" Type="Delivery">
+					<Location>
+						<Latitude>39.748464855467944</Latitude>
+						<Longitude>30.474884971587958</Longitude>
+						<X_Coordinates>4698.377</X_Coordinates>
+						<Y_Coordinates>2594.817</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="148" ServiceTime="180" DueDate="1483">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="64" Name="71" Type="Delivery">
+					<Location>
+						<Latitude>39.74768421914805</Latitude>
+						<Longitude>30.476333756801193</Longitude>
+						<X_Coordinates>4820.078</X_Coordinates>
+						<Y_Coordinates>2504.663</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="201" ServiceTime="120" DueDate="1492">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="63" Name="70" Type="Delivery">
+					<Location>
+						<Latitude>39.74794038568826</Latitude>
+						<Longitude>30.47633320231564</Longitude>
+						<X_Coordinates>4820.832</X_Coordinates>
+						<Y_Coordinates>2533.1</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="13" ServiceTime="120" DueDate="1035">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="87" Name="118" Type="Delivery">
+					<Location>
+						<Latitude>39.74851073694218</Latitude>
+						<Longitude>30.489483282334714</Longitude>
+						<X_Coordinates>5949.41</X_Coordinates>
+						<Y_Coordinates>2564.739</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="73" ServiceTime="120" DueDate="1370">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="59" Name="66" Type="Delivery">
+					<Location>
+						<Latitude>39.748241139426604</Latitude>
+						<Longitude>30.474886432197096</Longitude>
+						<X_Coordinates>4697.802</X_Coordinates>
+						<Y_Coordinates>2569.98</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="277" ServiceTime="180" DueDate="1695">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="19" Name="19" Type="Delivery">
+					<Location>
+						<Latitude>39.74831906648261</Latitude>
+						<Longitude>30.489033547115525</Longitude>
+						<X_Coordinates>5910.277</X_Coordinates>
+						<Y_Coordinates>2544.543</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="240" ServiceTime="120" DueDate="829">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="58" Name="65" Type="Delivery">
+					<Location>
+						<Latitude>39.7481624688637</Latitude>
+						<Longitude>30.476333162464826</Longitude>
+						<X_Coordinates>4821.523</X_Coordinates>
+						<Y_Coordinates>2557.752</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="186" ServiceTime="120" DueDate="1156">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="55" Name="62" Type="Delivery">
+					<Location>
+						<Latitude>39.74841280224095</Latitude>
+						<Longitude>30.474847997265556</Longitude>
+						<X_Coordinates>4695.046</X_Coordinates>
+						<Y_Coordinates>2589.128</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="142" ServiceTime="120" DueDate="1044">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="62" Name="69" Type="Delivery">
+					<Location>
+						<Latitude>39.74802002750638</Latitude>
+						<Longitude>30.474887896418267</Longitude>
+						<X_Coordinates>4697.235</X_Coordinates>
+						<Y_Coordinates>2545.432</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="562" ServiceTime="180" DueDate="1104">
+							<LoadInformation>
+								<Weight>57</Weight>
+								<Quantity>3</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="110" Name="43C" Type="Delivery">
+					<Location>
+						<Latitude>39.75222466450154</Latitude>
+						<Longitude>30.479998512975016</Longitude>
+						<X_Coordinates>5148.289</X_Coordinates>
+						<Y_Coordinates>2999.832</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="494" ServiceTime="120" DueDate="1424">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="4" Name="4" Type="Delivery">
+					<Location>
+						<Latitude>39.752002037312934</Latitude>
+						<Longitude>30.492349413277967</Longitude>
+						<X_Coordinates>6205.854</X_Coordinates>
+						<Y_Coordinates>2945.41</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="10" ServiceTime="120" DueDate="1603">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="84" Name="115" Type="Delivery">
+					<Location>
+						<Latitude>39.7523728688112</Latitude>
+						<Longitude>30.49019735592993</Longitude>
+						<X_Coordinates>6022.613</X_Coordinates>
+						<Y_Coordinates>2991.74</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="35" ServiceTime="180" DueDate="907">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="34" Name="35" Type="Delivery">
+					<Location>
+						<Latitude>39.75231982730744</Latitude>
+						<Longitude>30.48578821561364</Longitude>
+						<X_Coordinates>5644.662</X_Coordinates>
+						<Y_Coordinates>2996.451</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="122" ServiceTime="120" DueDate="957">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="31" Name="32" Type="Delivery">
+					<Location>
+						<Latitude>39.75248734145033</Latitude>
+						<Longitude>30.488123296873173</Longitude>
+						<X_Coordinates>5845.259</X_Coordinates>
+						<Y_Coordinates>3009.43</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="300" ServiceTime="180" DueDate="1103">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="2" Name="2" Type="Delivery">
+					<Location>
+						<Latitude>39.751938002852754</Latitude>
+						<Longitude>30.49231551642376</Longitude>
+						<X_Coordinates>6202.75</X_Coordinates>
+						<Y_Coordinates>2938.383</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="383" ServiceTime="120" DueDate="1347">
+							<LoadInformation>
+								<Weight>95</Weight>
+								<Quantity>5</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="3" Name="3" Type="Delivery">
+					<Location>
+						<Latitude>39.75225589833148</Latitude>
+						<Longitude>30.48966031185231</Longitude>
+						<X_Coordinates>5976.234</X_Coordinates>
+						<Y_Coordinates>2980.046</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="353" ServiceTime="120" DueDate="1759">
+							<LoadInformation>
+								<Weight>38</Weight>
+								<Quantity>2</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="1" Name="1" Type="Delivery">
+					<Location>
+						<Latitude>39.75250570103818</Latitude>
+						<Longitude>30.490999148931902</Longitude>
+						<X_Coordinates>6091.726</X_Coordinates>
+						<Y_Coordinates>3004.56</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="105" ServiceTime="120" DueDate="933">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="37" Name="39" Type="Delivery">
+					<Location>
+						<Latitude>39.752172063632734</Latitude>
+						<Longitude>30.483409077029524</Longitude>
+						<X_Coordinates>5440.351</X_Coordinates>
+						<Y_Coordinates>2985.775</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="325" ServiceTime="120" DueDate="1665">
+							<LoadInformation>
+								<Weight>19</Weight>
+								<Quantity>1</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+				<Node No="24" Name="25" Type="Delivery">
+					<Location>
+						<Latitude>39.752490346979194</Latitude>
+						<Longitude>30.48834488622482</Longitude>
+						<X_Coordinates>5864.255</X_Coordinates>
+						<Y_Coordinates>3009.231</Y_Coordinates>
+					</Location>
+					<Requests>
+						<Request ProductId="A" ProductName="A" ReadyTime="97" ServiceTime="120" DueDate="1746">
+							<LoadInformation>
+								<Weight>76</Weight>
+								<Quantity>4</Quantity>
+							</LoadInformation>
+						</Request>
+					</Requests>
+				</Node>
+			</Nodes>
+		</CEVRPTW>
+		<PerformanceMeasure>
+			<ObjectiveFunction Name="MinDistance"></ObjectiveFunction>
+		</PerformanceMeasure>
+	</Task>
+</Info4Task>

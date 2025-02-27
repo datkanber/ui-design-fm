@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Info4Vehicle 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        ID="1" 
+        BatteryCapacity="3000" 
+        SoC="3000" 
+        MaxSpeed="12.5" 
+        VehicleMass="1000" 
+        MaximumLoadCapacityVolume="-1" 
+        MaximumLoadCapacityKg="350" 
+        BatteryRechargingRate="0.18" 
+        EnergyConsumptionRate="1" 
+        SoH="95.0" 
+        Range="100" 
+        ChargingTime="-1" 
+        FrontSurfaceArea="2.3" 
+        Type="EV" 
+        Model="Musoshi" 
+        Year="2022" 
+        Torque="-1">
+
+    <!-- Charging strategy details -->
+    <ChargingStrategy>FullCharge</ChargingStrategy>
+
+    <!-- Driver information -->
+    <DriverInformation Id="DRIVER001" Style="option1"/>
+
+    <!-- Current location details -->
+    <CurrentLocation>
+        <Latitude>39.751377</Latitude>
+        <Longitude>30.481888</Longitude>
+        <Elevation>-1</Elevation>
+    </CurrentLocation>
+
+    <CurrentLoadCapacity>
+        <Weight>350</Weight>
+        <Volume>-1</Volume>
+    </CurrentLoadCapacity>
+
+</Info4Vehicle>

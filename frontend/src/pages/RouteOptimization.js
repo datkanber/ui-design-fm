@@ -8,7 +8,7 @@ import { vehicles as staticVehicles } from '../data/vehicles';
 import { chargingStations as staticChargingStations } from '../data/chargingStations';
 import { orders as staticOrders } from '../data/orders';
 import { routes as staticRoutes } from '../data/routes';
-import { customers as staticCustomers } from '../data/customers';
+import { loadTaskData } from '../services/taskService';
 import '../assets/styles/global.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -20,7 +20,8 @@ export default function RouteOptimization() {
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [openOrderManagement, setOpenOrderManagement] = useState(false);
   const [selectedDemand, setSelectedDemand] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState(staticCustomers);
+  const [nodes, setNodes] = useState([]);
+  const [chargingStations, setChargingStations] = useState(staticChargingStations);
 
   const routeColors = {
     'Simulated Annealing': 'blue',
@@ -34,20 +35,83 @@ export default function RouteOptimization() {
 
   useEffect(() => {
     if (selectedDemand) {
-      // Talep tipine göre müşterileri filtrele
-      const demandType = selectedDemand.substring(0, 1); // C, R veya RC
-      const demandSize = parseInt(selectedDemand.substring(1)); // 05, 10, 20, 40, 60
+      loadTaskData(selectedDemand)
+        .then(data => {
+          console.log("Yüklenen XML verisi:",data);
+          // Müşteri (Delivery) node'larını dönüştür
+          const deliveryNodes = data.customers.map(customer => ({
+            id: customer.id,
+            name: `Müşteri ${customer.name}`,
+            nodeType: 'Delivery',
+            type: selectedDemand.substring(0, selectedDemand.includes('RC') ? 2 : 1),
+            location: customer.location,
+            readyTime: customer.request.readyTime,
+            dueDate: customer.request.dueDate,
+            serviceTime: customer.request.serviceTime,
+            demand: customer.request.quantity,
+            weight: customer.request.weight,
+            productInfo: {
+              id: customer.request.productId,
+              name: customer.request.productName
+            }
+          }));
 
-      const filtered = staticCustomers.filter(customer => {
-        const customerType = customer.type || 'C'; // Varsayılan olarak C tipi
-        const customerDemand = customer.demand || 0;
+          // Depo node'larını dönüştür
+          const depotNodes = data.depot ? [
+            {
+              id: data.depot.id,
+              name: `Depo ${data.depot.name}`,
+              nodeType: 'Entrance',
+              type: 'Depot',
+              location: data.depot.location
+            }
+          ] : [];
 
-        return customerType === demandType && customerDemand <= demandSize;
-      });
+          // Şarj istasyonu node'larını dönüştür
+          const chargingNodes = data.chargingStations.map(station => ({
+            id: station.id,
+            name: `Şarj İstasyonu ${station.name}`,
+            nodeType: 'DepoCharging',
+            type: 'Charging',
+            location: station.location
+          }));
 
-      setFilteredCustomers(filtered);
+          // Tüm node'ları birleştir
+          const allNodes = [...deliveryNodes, ...depotNodes, ...chargingNodes];
+          console.log('Yüklenen node\'lar:', allNodes); // Debug için
+          setNodes(allNodes);
+          
+          // Harita için şarj istasyonlarını güncelle
+          if (data.depot) {
+            const updatedChargingStations = [
+              {
+                id: data.depot.id,
+                name: `Depo ${data.depot.name}`,
+                location: {
+                  lat: data.depot.location.lat,
+                  lng: data.depot.location.lng
+                },
+                type: 'depot'
+              },
+              ...data.chargingStations.map(station => ({
+                id: station.id,
+                name: `Şarj İstasyonu ${station.name}`,
+                location: {
+                  lat: station.location.lat,
+                  lng: station.location.lng
+                },
+                type: 'charging'
+              }))
+            ];
+            setChargingStations(updatedChargingStations);
+          }
+        })
+        .catch(error => {
+          console.error('XML yükleme hatası:', error);
+          setNodes([]);
+        });
     } else {
-      setFilteredCustomers(staticCustomers);
+      setNodes([]);
     }
   }, [selectedDemand]);
 
@@ -77,7 +141,7 @@ export default function RouteOptimization() {
         <div style={{ flex: 3}}>
           <RouteOptimizationMap
             vehicles={staticVehicles}
-            chargingStations={staticChargingStations}
+            chargingStations={chargingStations}
             routeColors={routeColors}
             orders={staticOrders}
             plannedRoutes={plannedRoutes}
@@ -87,7 +151,7 @@ export default function RouteOptimization() {
         </div>
         <div style={{ flex: 1, minWidth: '250px' }}>
           <CustomerPool 
-            customers={filteredCustomers} 
+            nodes={nodes}
             selectedDemand={selectedDemand}
           />
           <div style={{ textAlign: 'center', marginTop: '16px' }}>
@@ -98,7 +162,6 @@ export default function RouteOptimization() {
         </div>
       </div>
       
-      {/* Talep Yönetimi direkt açılacak */}
       <Dialog open={openOrderManagement} onClose={() => setOpenOrderManagement(false)} maxWidth="sm" fullWidth>
         <OrderManagement />
       </Dialog>
