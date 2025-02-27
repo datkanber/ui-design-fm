@@ -1,10 +1,27 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem, TextField, FormGroup, FormControlLabel, Checkbox, Button, Divider, Collapse } from '@mui/material';
+import { Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem, TextField, FormGroup, FormControlLabel, Checkbox, Button, Divider, Collapse, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Stack } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function OptimizationForm({ algorithm, setAlgorithm, iterationNumber, setIterationNumber, initialTemperature, setInitialTemperature, alpha, setAlpha, vehicles, selectedVehicles, setSelectedVehicles }) {
+export default function OptimizationForm({ algorithm, setAlgorithm, iterationNumber, setIterationNumber, initialTemperature, setInitialTemperature, alpha, setAlpha, vehicles, selectedVehicles, setSelectedVehicles, onDemandChange }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVehiclesExpanded, setIsVehiclesExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedDemand, setSelectedDemand] = useState('');
+  const [isDemandExpanded, setIsDemandExpanded] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [taskModalMode, setTaskModalMode] = useState('add');
+  const [taskFormData, setTaskFormData] = useState({
+    id: '',
+    customerName: '',
+    location: '',
+    demand: 0,
+    timeWindow: {
+      start: '',
+      end: ''
+    }
+  });
   const startIndexRef = useRef(null);
 
   const handleMouseDown = (index) => {
@@ -33,6 +50,114 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
   const deselectAllVehicles = () => {
     setSelectedVehicles([]);
   };
+
+  const handleDemandChange = (event) => {
+    const newValue = event.target.value;
+    setSelectedDemand(newValue);
+    if (onDemandChange) {
+      onDemandChange(newValue);
+    }
+  };
+
+  const handleTaskModalOpen = (mode, taskData = null) => {
+    setTaskModalMode(mode);
+    if (taskData) {
+      setTaskFormData(taskData);
+    } else {
+      setTaskFormData({
+        id: '',
+        customerName: '',
+        location: '',
+        demand: 0,
+        timeWindow: {
+          start: '',
+          end: ''
+        }
+      });
+    }
+    setIsTaskModalOpen(true);
+  };
+
+  const handleTaskModalClose = () => {
+    setIsTaskModalOpen(false);
+  };
+
+  const handleTaskFormSubmit = () => {
+    console.log('Task Form Data:', taskFormData);
+    handleTaskModalClose();
+  };
+
+  const TaskModal = () => (
+    <Dialog open={isTaskModalOpen} onClose={handleTaskModalClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        {taskModalMode === 'add' ? 'Yeni Görev Ekle' : 
+         taskModalMode === 'edit' ? 'Görevi Düzenle' : 
+         'Görevi Sil'}
+      </DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField
+            fullWidth
+            label="Müşteri Adı"
+            value={taskFormData.customerName}
+            onChange={(e) => setTaskFormData({...taskFormData, customerName: e.target.value})}
+          />
+          <TextField
+            fullWidth
+            label="Konum"
+            value={taskFormData.location}
+            onChange={(e) => setTaskFormData({...taskFormData, location: e.target.value})}
+          />
+          <TextField
+            fullWidth
+            type="number"
+            label="Talep Miktarı"
+            value={taskFormData.demand}
+            onChange={(e) => setTaskFormData({...taskFormData, demand: e.target.value})}
+          />
+          <Stack direction="row" spacing={2}>
+            <TextField
+              fullWidth
+              type="time"
+              label="Başlangıç Zamanı"
+              value={taskFormData.timeWindow.start}
+              onChange={(e) => setTaskFormData({
+                ...taskFormData, 
+                timeWindow: {...taskFormData.timeWindow, start: e.target.value}
+              })}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              type="time"
+              label="Bitiş Zamanı"
+              value={taskFormData.timeWindow.end}
+              onChange={(e) => setTaskFormData({
+                ...taskFormData, 
+                timeWindow: {...taskFormData.timeWindow, end: e.target.value}
+              })}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleTaskModalClose} color="primary">
+          İptal
+        </Button>
+        <Button 
+          onClick={handleTaskFormSubmit} 
+          color="primary" 
+          variant="contained"
+          disabled={taskModalMode === 'delete'}
+        >
+          {taskModalMode === 'add' ? 'Ekle' : 
+           taskModalMode === 'edit' ? 'Güncelle' : 
+           'Sil'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <Card style={{ borderRadius: '16px', padding: '16px', backgroundColor: '#f9f9f9', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid #ddd', width: '100%' }}>
@@ -115,9 +240,86 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
         <Button 
           variant="contained" 
           fullWidth 
+          onClick={() => setIsDemandExpanded(!isDemandExpanded)}
+          style={{
+            marginTop: '16px', 
+            marginBottom: '16px', 
+            backgroundColor: '#004085', 
+            color: '#fff', 
+            borderRadius: '6px', 
+            fontWeight: 500, 
+            textTransform: 'none', 
+            padding: '10px'
+          }}
+        >
+          {isDemandExpanded ? 'Talep Yönetimini Gizle' : 'Talep Yönetimini Göster'}
+        </Button>
+
+        <Collapse in={isDemandExpanded}>
+          <div style={{ padding: '16px', backgroundColor: '#fff', borderRadius: '8px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <Typography variant="h6" style={{ color: '#333', fontWeight: 500 }}>
+                Talep Yönetimi
+              </Typography>
+              <div>
+                <IconButton 
+                  color="primary" 
+                  onClick={() => handleTaskModalOpen('add')}
+                  title="Yeni Görev Ekle"
+                >
+                  <AddIcon />
+                </IconButton>
+                <IconButton 
+                  color="primary" 
+                  onClick={() => handleTaskModalOpen('edit')}
+                  title="Görevi Düzenle"
+                  disabled={!selectedDemand}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton 
+                  color="error" 
+                  onClick={() => handleTaskModalOpen('delete')}
+                  title="Görevi Sil"
+                  disabled={!selectedDemand}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+            </div>
+            <FormControl fullWidth>
+              <InputLabel>Talep Seçin</InputLabel>
+              <Select
+                value={selectedDemand}
+                onChange={handleDemandChange}
+                label="Talep Seçin"
+              >
+                <MenuItem value="C05">C05</MenuItem>
+                <MenuItem value="C10">C10</MenuItem>
+                <MenuItem value="C20">C20</MenuItem>
+                <MenuItem value="C40">C40</MenuItem>
+                <MenuItem value="C60">C60</MenuItem>
+                <MenuItem value="R05">R05</MenuItem>
+                <MenuItem value="R10">R10</MenuItem>
+                <MenuItem value="R20">R20</MenuItem>
+                <MenuItem value="R40">R40</MenuItem>
+                <MenuItem value="R60">R60</MenuItem>
+                <MenuItem value="RC05">RC05</MenuItem>
+                <MenuItem value="RC10">RC10</MenuItem>
+                <MenuItem value="RC20">RC20</MenuItem>
+                <MenuItem value="RC40">RC40</MenuItem>
+                <MenuItem value="RC60">RC60</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+        </Collapse>
+
+        <Button 
+          variant="contained" 
+          fullWidth 
           style={{ 
             marginTop: '16px', 
-            backgroundColor: '#004085', 
+            backgroundColor: '#28a745', 
             color: '#fff', 
             borderRadius: '6px', 
             fontWeight: 500, 
@@ -127,6 +329,8 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
         >
           Optimizasyonu Başlat
         </Button>
+
+        <TaskModal />
       </CardContent>
     </Card>
   );

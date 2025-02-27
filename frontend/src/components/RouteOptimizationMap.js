@@ -41,7 +41,7 @@ export default function RouteOptimizationMap({ vehicles, chargingStations, route
           <LayerGroup>
             {chargingStations.map((station) => (
               <Marker key={station.id} position={station.position} icon={stationIcon}>
-                <Popup>Charging Station</Popup>
+                <Popup>Charging Station {station.id}</Popup>
               </Marker>
             ))}
           </LayerGroup>
