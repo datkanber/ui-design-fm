@@ -7,7 +7,15 @@
     font-weight: 400;
     font-style: normal;
 }
-
+.navbar-brand a {
+    text-decoration: none; /* Alt çizgiyi kaldır */
+    color: inherit; /* Varsayılan yazı rengini koru */
+    font-weight: bold; /* Yazıyı vurgulu yap */
+  }
+  
+  .navbar-brand a:hover {
+    color: #7abaff; /* Hover sırasında renk değiştir */
+  }
 
 * {
     margin: 0;

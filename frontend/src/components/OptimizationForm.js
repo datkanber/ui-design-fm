@@ -568,33 +568,103 @@ export default function OptimizationForm({
                 onChange={(e) => setSelectedAlgorithms(e.target.value)}
                 label="Algoritmalar"
                 renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value, index) => (
-                      <Tooltip key={value} title="Algoritma Ayarları">
-                        {" "}
-                        {/* ✅ key eklendi */}
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAlgorithmSettingsOpen(value);
-                          }}
-                        >
-                          <SettingsIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Box key={value} sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        bgcolor: '#e3f2fd', 
+                        borderRadius: 1,
+                        p: 0.5,
+                        m: 0.25
+                      }}>
+                        <Typography variant="body2" sx={{ mr: 1 }}>{value}</Typography>
+                        <Tooltip title="Algoritma Ayarları">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAlgorithmSettingsOpen(value);
+                            }}
+                            sx={{ 
+                              p: 0.5,
+                              '&:hover': {
+                                bgcolor: '#bbdefb'
+                              }
+                            }}
+                          >
+                            <SettingsIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     ))}
                   </Box>
                 )}
               >
                 <MenuItem value="Simulated Annealing">
-                  Simulated Annealing
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <Typography>Simulated Annealing</Typography>
+                    <Tooltip title="Algoritma Ayarları">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAlgorithmSettingsOpen("Simulated Annealing");
+                        }}
+                      >
+                        <SettingsIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </MenuItem>
-                <MenuItem value="Tabu Search">Tabu Search</MenuItem>
+                <MenuItem value="Tabu Search">
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <Typography>Tabu Search</Typography>
+                    <Tooltip title="Algoritma Ayarları">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAlgorithmSettingsOpen("Tabu Search");
+                        }}
+                      >
+                        <SettingsIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </MenuItem>
                 <MenuItem value="Adaptive Large Neighborhood Search">
-                  Adaptive Large Neighborhood Search
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <Typography>Adaptive Large Neighborhood Search</Typography>
+                    <Tooltip title="Algoritma Ayarları">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAlgorithmSettingsOpen("Adaptive Large Neighborhood Search");
+                        }}
+                      >
+                        <SettingsIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </MenuItem>
-                <MenuItem value="OR-Tools">OR-Tools</MenuItem>
+                <MenuItem value="OR-Tools">
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <Typography>OR-Tools</Typography>
+                    <Tooltip title="Algoritma Ayarları">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAlgorithmSettingsOpen("OR-Tools");
+                        }}
+                      >
+                        <SettingsIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </MenuItem>
               </Select>
             </FormControl>
 
@@ -605,9 +675,10 @@ export default function OptimizationForm({
                 onChange={(e) => setObjectiveFunction(e.target.value)}
                 label="Amaç Fonksiyonu"
               >
-                <MenuItem value="Minimum Distance">Minimum Mesafe</MenuItem>
-                <MenuItem value="Minimum Time">Minimum Zaman</MenuItem>
-                <MenuItem value="Minimum Energy">Minimum Enerji</MenuItem>
+                <MenuItem value="Minimum Distance">Minimum Distance</MenuItem>
+                <MenuItem value="Minimum Time">Minimum Time</MenuItem>
+                <MenuItem value="Minimum Energy">Minimum Energy</MenuItem>
+                <MenuItem value="Minimum Tardiness">Minimum Tardiness</MenuItem>
               </Select>
             </FormControl>
 
@@ -618,9 +689,9 @@ export default function OptimizationForm({
                 onChange={(e) => setChargingStrategy(e.target.value)}
                 label="Şarj Stratejisi"
               >
-                <MenuItem value="Full Charge">Tam Şarj</MenuItem>
-                <MenuItem value="Partial Charge">Kısmi Şarj</MenuItem>
-                <MenuItem value="%20-%80 Charge">%20-%80 Şarj</MenuItem>
+                <MenuItem value="Full Charge">Full Charge</MenuItem>
+                <MenuItem value="%20-%80 Charge">%20-%80 Charge</MenuItem>
+                <MenuItem value="Partial Charge">Partial Charge</MenuItem>
               </Select>
             </FormControl>
           </Stack>

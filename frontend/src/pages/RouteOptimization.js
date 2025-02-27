@@ -22,6 +22,8 @@ export default function RouteOptimization() {
   const [selectedDemand, setSelectedDemand] = useState('');
   const [nodes, setNodes] = useState([]);
   const [chargingStations, setChargingStations] = useState(staticChargingStations);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
 
   const routeColors = {
     'Simulated Annealing': 'blue',
@@ -37,14 +39,17 @@ export default function RouteOptimization() {
     if (selectedDemand) {
       loadTaskData(selectedDemand)
         .then(data => {
-          console.log("Yüklenen XML verisi:",data);
+          console.log("Yüklenen XML verisi:", data);
           // Müşteri (Delivery) node'larını dönüştür
           const deliveryNodes = data.customers.map(customer => ({
             id: customer.id,
             name: `Müşteri ${customer.name}`,
             nodeType: 'Delivery',
             type: selectedDemand.substring(0, selectedDemand.includes('RC') ? 2 : 1),
-            location: customer.location,
+            location: {
+              lat: customer.location.lat,
+              lng: customer.location.lng
+            },
             readyTime: customer.request.readyTime,
             dueDate: customer.request.dueDate,
             serviceTime: customer.request.serviceTime,
@@ -63,7 +68,10 @@ export default function RouteOptimization() {
               name: `Depo ${data.depot.name}`,
               nodeType: 'Entrance',
               type: 'Depot',
-              location: data.depot.location
+              location: {
+                lat: data.depot.location.lat,
+                lng: data.depot.location.lng
+              }
             }
           ] : [];
 
@@ -73,12 +81,15 @@ export default function RouteOptimization() {
             name: `Şarj İstasyonu ${station.name}`,
             nodeType: 'DepoCharging',
             type: 'Charging',
-            location: station.location
+            location: {
+              lat: station.location.lat,
+              lng: station.location.lng
+            }
           }));
 
           // Tüm node'ları birleştir
           const allNodes = [...deliveryNodes, ...depotNodes, ...chargingNodes];
-          console.log('Yüklenen node\'lar:', allNodes); // Debug için
+          console.log('Yüklenen node\'lar:', allNodes);
           setNodes(allNodes);
           
           // Harita için şarj istasyonlarını güncelle
@@ -119,6 +130,17 @@ export default function RouteOptimization() {
     setSelectedDemand(demand);
   };
 
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+    if (customer && customer.location) {
+      setMapCenter({
+        lat: customer.location.lat,
+        lng: customer.location.lng,
+        zoom: 15
+      });
+    }
+  };
+
   return (
     <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
@@ -147,12 +169,15 @@ export default function RouteOptimization() {
             plannedRoutes={plannedRoutes}
             completedRoutes={completedRoutes}
             traffic={traffic}
+            selectedCustomer={selectedCustomer}
+            mapCenter={mapCenter}
           />
         </div>
         <div style={{ flex: 1, minWidth: '250px' }}>
           <CustomerPool 
             nodes={nodes}
             selectedDemand={selectedDemand}
+            onCustomerSelect={handleCustomerSelect}
           />
           <div style={{ textAlign: 'center', marginTop: '16px' }}>
             <Button variant="contained" color="primary" onClick={() => setOpenOrderManagement(true)}>

@@ -239,7 +239,7 @@ export default function CustomerPool({ nodes, selectedDemand, onCustomerSelect, 
               <Box display="flex" alignItems="center">
                 <LocationOnIcon fontSize="small" color="action" />
                 <Typography variant="body2" style={{ marginLeft: '4px', color: '#666' }}>
-                  {`(${node.location.lat.toFixed(6)}, ${node.location.lng.toFixed(6)})`}
+                  {`(${node.location.lat}, ${node.location.lng})`}
                 </Typography>
               </Box>
             </Tooltip>
@@ -249,7 +249,7 @@ export default function CustomerPool({ nodes, selectedDemand, onCustomerSelect, 
               <Box display="flex" alignItems="center">
                 <PinDropIcon fontSize="small" color="action" />
                 <Typography variant="body2" style={{ marginLeft: '4px', color: '#666' }}>
-                  {`(${node.location.x.toFixed(2)}, ${node.location.y.toFixed(2)})`}
+                  {`(${node.location.x}, ${node.location.y})`}
                 </Typography>
               </Box>
             </Tooltip>
