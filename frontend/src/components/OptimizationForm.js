@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem, TextField, FormGroup, FormControlLabel, Checkbox, Button, Divider, Collapse } from '@mui/material';
 
-export default function OptimizationForm({ algorithm, setAlgorithm, iterationNumber, setIterationNumber, initialTemperature, setInitialTemperature, alpha, setAlpha, vehicles, selectedVehicles, setSelectedVehicles }) {
+export default function OptimizationForm({ algorithm, setAlgorithm, iterationNumber, setIterationNumber, initialTemperature, setInitialTemperature, alpha, setAlpha, vehicles, selectedVehicles, setSelectedVehicles, onEditVehicle }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVehiclesExpanded, setIsVehiclesExpanded] = useState(false);
+  const [isChargingExpanded, setIsChargingExpanded] = useState(false);
+  const [chargingStrategy, setChargingStrategy] = useState("Fast Charging");
   const [isDragging, setIsDragging] = useState(false);
   const startIndexRef = useRef(null);
 
@@ -38,7 +40,7 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
     <Card style={{ borderRadius: '16px', padding: '16px', backgroundColor: '#f9f9f9', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid #ddd', width: '100%' }}>
       <CardContent>
         <Typography variant="h5" gutterBottom style={{ color: '#222', fontWeight: 600, textAlign: 'center', marginBottom: '8px' }}>
-          Rota Optimizasyon Algoritması
+          Algoritma Seçim
         </Typography>
         
         <Button 
@@ -69,7 +71,6 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
                 <MenuItem value="OR-Tools">OR-Tools</MenuItem>
               </Select>
             </FormControl>
-
             <TextField label="Iteration Number" type="number" value={iterationNumber} onChange={(e) => setIterationNumber(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
             <TextField label="Initial Temperature" type="number" value={initialTemperature} onChange={(e) => setInitialTemperature(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
             <TextField label="Alpha" type="number" value={alpha} onChange={(e) => setAlpha(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
@@ -100,16 +101,54 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
           <Button variant="outlined" onClick={deselectAllVehicles} style={{ marginBottom: '8px' }}>Tümünü Kaldır</Button>
           <FormGroup style={{ marginBottom: '16px', paddingLeft: '8px' }} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
             {vehicles.map((vehicle, index) => (
-              <FormControlLabel
-                key={vehicle.id}
-                onMouseDown={() => handleMouseDown(index)}
-                onMouseMove={() => handleMouseMove(index)}
-                control={<Checkbox checked={selectedVehicles.includes(vehicle.name)} color="primary" />}
-                label={`${vehicle.name} (SoC: ${vehicle.soc}%)`}
-                style={{ marginBottom: '1px' }}
-              />
+              <div key={vehicle.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <FormControlLabel
+                  onMouseDown={() => handleMouseDown(index)}
+                  onMouseMove={() => handleMouseMove(index)}
+                  control={<Checkbox checked={selectedVehicles.includes(vehicle.name)} color="primary" />}
+                  label={`${vehicle.name} (SoC: ${vehicle.soc}%)`}
+                  style={{ marginBottom: '1px' }}
+                />
+                <Button size="small" variant="outlined" color="primary" onClick={() => onEditVehicle(vehicle)}>
+                  Düzenle
+                </Button>
+              </div>
             ))}
           </FormGroup>
+        </Collapse>
+
+        <Button 
+          variant="contained" 
+          fullWidth 
+          onClick={() => setIsChargingExpanded(!isChargingExpanded)}
+          style={{
+            marginTop: '16px', 
+            marginBottom: '16px', 
+            backgroundColor: '#004085', 
+            color: '#fff', 
+            borderRadius: '6px', 
+            fontWeight: 500, 
+            textTransform: 'none', 
+            padding: '10px'
+          }}
+        >
+          {isChargingExpanded ? 'Şarj Stratejisini Gizle' : 'Şarj Stratejisini Göster'}
+        </Button>
+
+        <Collapse in={isChargingExpanded}>
+          <FormControl fullWidth variant="outlined" style={{ marginBottom: '16px' }}>
+            <InputLabel id="charging-strategy-label">Şarj Stratejisi</InputLabel>
+            <Select
+              labelId="charging-strategy-label"
+              value={chargingStrategy}
+              onChange={(e) => setChargingStrategy(e.target.value)}
+              label="Şarj Stratejisi"
+            >
+              <MenuItem value="Fast Charging">Hızlı Şarj</MenuItem>
+              <MenuItem value="Smart Charging">Akıllı Şarj</MenuItem>
+              <MenuItem value="Scheduled Charging">Zamanlanmış Şarj</MenuItem>
+            </Select>
+          </FormControl>
         </Collapse>
 
         <Button 
@@ -122,16 +161,12 @@ export default function OptimizationForm({ algorithm, setAlgorithm, iterationNum
             borderRadius: '6px', 
             fontWeight: 500, 
             textTransform: 'none', 
-            padding: '12px'
+            padding: '20px'
           }}
         >
-          Optimizasyonu Başlat
+          Başlat
         </Button>
       </CardContent>
     </Card>
   );
 }
-
-
-
-//drag selection eklenmesi yapıldı

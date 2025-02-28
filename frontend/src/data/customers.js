@@ -38,6 +38,30 @@ export const customers = [
       position: [39.750500, 30.478900],
       demand: 90, // kg
       priority: 'Medium'
+    },
+    {
+      id: 5,
+      name: 'Mavi Gıda',
+      address: 'Çamlıca, Eskişehir',
+      position: [39.750500, 30.478900],
+      demand: 90, // kg
+      priority: 'Medium'
+    },
+    {
+      id: 5,
+      name: 'ABC Gıda',
+      address: 'Çamlıca, Eskişehir',
+      position: [39.750500, 30.478900],
+      demand: 90, // kg
+      priority: 'Medium'
+    },
+    {
+      id: 5,
+      name: 'Organik Gıda',
+      address: 'Çamlıca, Eskişehir',
+      position: [39.750500, 30.478900],
+      demand: 90, // kg
+      priority: 'Medium'
     }
   ];
   

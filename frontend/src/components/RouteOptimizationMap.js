@@ -3,7 +3,7 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
+import '../assets/styles/global.css';
 import vehicleIconImg from '../assets/icons/vehicle.png';
 import stationIconImg from '../assets/icons/station.png';
 import orderIconImg from '../assets/icons/order.png';

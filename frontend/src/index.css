@@ -1,13 +1,38 @@
+/* src/assets/styles/global.css */
+
+/* Varsayılan Açık Mod */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f4f4;
+  color: #222;
+  font-family: 'Segoe UI', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Dark Mode */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #f4f4f4;
+}
+
+/* Navbar Dark Mode */
+.dark-mode .navbar {
+  background-color: #333;
+  color: #f4f4f4;
+}
+
+/* Linkler Dark Mode'da Beyaz Olsun */
+.dark-mode .navbar-links a {
+  color: #f4f4f4;
+}
+
+/* Dark Mode Toggle Butonu */
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.dark-mode .dark-mode-toggle svg {
+  color: #FFD700; /* Güneş rengi */
 }

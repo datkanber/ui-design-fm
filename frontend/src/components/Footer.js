@@ -1,9 +1,7 @@
-// src/components/Footer.js
-
 import React from 'react';
 import '../assets/styles/global.css';
 
-export default function Footer({ vehicles = [], chargingStations = [] }) {
+export default function Footer({ vehicles = [], chargingStations = [], darkMode }) {
     // Acil durumda olan araçları filtreler
     const urgentVehicles = vehicles.filter(vehicle => 
         Number(vehicle.soc) < 20 || vehicle.velocity === 0 || vehicle.deliveryDeadlineApproaching
@@ -32,7 +30,7 @@ export default function Footer({ vehicles = [], chargingStations = [] }) {
     };
 
     return (
-        <footer className="footer">
+        <footer className={`footer ${darkMode ? 'dark-mode' : ''}`}>
             <div className="marquee">
                 <div className="marquee-content">
                     {urgentVehicles.length > 0 ? (

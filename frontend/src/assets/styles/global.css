@@ -53,7 +53,18 @@ body {
     border: 1px solid #BDC3C7;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
-
+.leaflet-control-layers {
+    background-color: black !important;
+    color: white !important;
+    border-radius: 8px;
+    padding: 6px;
+    opacity: 0.9;
+  }
+  
+  .leaflet-control-layers label {
+    color: white !important;
+  }
+  
 /* ===================================
    SCROLLING BANNER - IMPROVED DESIGN
 =================================== */
@@ -129,27 +140,36 @@ body {
 /* ===================================
    NAVBAR LOGO - CLEAN & PROFESSIONAL
 =================================== */
+/* === 🌞 Light Mode Varsayılan Navbar === */
 .navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #FFFFFF;
-    padding: 5px 5px;
-    color: #FFFFFF;
+    padding: 10px 20px;
+    color: #333333;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* === Navbar Brand === */
 .navbar-brand {
     display: flex;
     align-items: center;
     gap: 12px;
     font-size: 22px;
-    color: #000000;
     text-decoration: none;
-    margin-right: 32px;
+    color: #333333; /* Açık mod için koyu renk */
+    transition: color 0.3s ease;
 }
 
+/* === Navbar Brand Dark Mode === */
+.dark-mode .navbar-brand {
+    color: #f4f4f4; /* Karanlık mod için açık renk */
+}
+
+/* === Navbar Brand Logo === */
 .navbar-logo {
     width: 50px;
     height: 50px;
@@ -157,17 +177,18 @@ body {
     border-radius: 8px;
 }
 
+/* === Navbar Linkler === */
 .navbar-links {
     margin-left: auto;
-    display: flex;
-    gap: 206px;
+    display:contents;
+    gap: 20px;
 }
 
 .navbar-links a {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #333333;
+    color: #333333; /* Açık mod için koyu renk */
     text-decoration: none;
     font-size: 16px;
     transition: color 0.3s ease;
@@ -177,10 +198,25 @@ body {
     color: #5DADE2;
 }
 
+/* === Dark Mode Navbar Linkler === */
+.dark-mode .navbar {
+    background-color: #222222; /* Karanlık mod için arka plan */
+    color: #f4f4f4;
+}
+
+.dark-mode .navbar-links a {
+    color: #f4f4f4; /* Linkleri açık renk yap */
+}
+
+.dark-mode .navbar-links a:hover {
+    color: #5DADE2; /* Hover efekti */
+}
+
 .chatbox-icon {
-    margin-left: auto;
+    padding-right: 3%;
     cursor: pointer;
-    font-size: 22px;
+    color: #E74C3C;
+    font-size: 9px;
     transition: color 0.3s ease;
 }
 
@@ -188,7 +224,50 @@ body {
     color: #E74C3C;
 }
 
+.dark-mode-toggle {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
 
+/* 🌙 Dark Mode Genel */
+.dark-mode {
+    background-color: #222 !important;
+    color: #f4f4f4 !important;
+}
+
+/* 🔳 Footer İçin Dark Mode */
+.footer {
+    background-color: #fff;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    transition: all 0.3s ease-in-out;
+}
+
+.dark-mode .footer {
+    background-color: #181818;
+    color: #f4f4f4;
+    border-top: 1px solid #444;
+    font-weight: bold;
+}
+
+/* Marquee Efekti İçin Dark Mode */
+.dark-mode .marquee-content {
+    color: #f4f4f4;
+    font-weight: bold;
+}
+
+.dark-mode .urgent-text {
+    color: #101010; /* Acil mesajlar için daha görünür renk */
+    font-weight: bold;
+}
+
+.dark-mode .no-urgent {
+    color: #0f0; /* Yeşil mesaj rengi */
+    font-weight: bold;
+}
 
 /* ===================================
    FOOTER STYLES
@@ -198,6 +277,7 @@ body {
     bottom: 0;
     width: 100%;
     background-color: #F5F5F7;
+    font-weight: bold;
     color: #FFFFFF;
     padding: 9px 0;
     text-align: center;
@@ -208,6 +288,7 @@ body {
 /* Scrolling Text */
 .marquee {
     width: 100%;
+    font-weight: bold;
     overflow: hidden;
     white-space: nowrap;
     box-sizing: border-box;
@@ -215,6 +296,7 @@ body {
 
 .marquee-content {
     display: inline-block;
+    font-weight: bold;
     padding-left: 100%;
     animation: marquee 29s linear infinite;
 }
@@ -229,6 +311,7 @@ body {
 }
 /* Minimal Apple-Style CSS */
 .urgent-text {
+    font-weight: bold;
     display: inline-block;
     margin-right: 20px;
     color: #1D1D1F;  /* Apple'ın kullandığı siyah metin rengi */
@@ -246,12 +329,14 @@ body {
 
 /* ⚡ Low Battery - Soft Red */
 .low-battery {
+    font-weight: bold;
     background-color: #FFE4E1;  /* Daha yumuşak pastel kırmızı */
     border: 1px solid #FF3B30;  /* Apple'ın hata kırmızısı */
 }
 
 /* 🚨 Stopped - Kenarlık Blink Effect */
 .stopped {
+    font-weight: bold;
     background-color: #FFECD4;  /* Hafif ve estetik Peach (Şeftali) tonu */
     border: 2px solid #FF7F50;  /* Doygun mercan-turuncu */
     animation: blinkBorder 1s infinite alternate;  /* Border blink efekti */
@@ -260,12 +345,14 @@ body {
 
 /* ⏰ Delivery Deadline Approaching - Soft Yellow */
 .deadline-approaching {
+    font-weight: bold;
     background-color: #FFFCE1;  /* Hafif ve pastel sarı */
     border: 1px solid #FFD60A;  /* Apple'ın sarısı */
 }
 
 /* ✅ Normal Operation - Soft Green */
 .no-urgent {
+    font-weight: bold;
     color: #1D1D1F;
     background-color: #E6F7E6;  /* Hafif ve pastel yeşil */
     border: 1px solid #34C759;  /* Apple'ın yeşili */
@@ -277,6 +364,7 @@ body {
 
 /* İKONLAR */
 .urgent-icon {
+    font-weight: bold;
     display: inline-block;
     margin-right: 8px;
     font-size: 16px;
@@ -288,6 +376,7 @@ body {
 
 /* Hover Effect - Apple Tarzı */
 .urgent-text:hover {
+    font-weight: bold;
     background-color: #E5E5EA;
     border-color: #D1D1D6;
     cursor: pointer;
