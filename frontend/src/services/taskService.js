@@ -43,10 +43,10 @@ export const loadTaskData = async (taskType) => {
             type: taskType.substring(0, taskType.includes('RC') ? 2 : 1),
             nodeType: node["@_Type"],
             location: {
-            lat: parseFloat(node.Location.Latitude),
-            lng: parseFloat(node.Location.Longitude),
-            x: parseFloat(node.Location.X_Coordinates),
-            y: parseFloat(node.Location.Y_Coordinates)
+              lat: parseFloat(node.Location.Latitude),
+              lng: parseFloat(node.Location.Longitude),
+              x: parseFloat(node.Location.X_Coordinates),
+              y: parseFloat(node.Location.Y_Coordinates)
             },
             request: {
             productId: node.Requests?.Request?.["@_ProductId"] || "N/A",
