@@ -1,7 +1,7 @@
 // src/components/Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, Route, Truck, Package, LucideLoader, BarChartHorizontalIcon, Moon, Sun } from 'lucide-react';
+import { MessageCircle, Route, Truck, Package, LucideLoader, BarChartHorizontalIcon, Sun} from 'lucide-react';
 import roadmapLogo from '../assets/icons/roadmap.gif';
 
 export default function Navbar({ alertBlink, toggleChat, darkMode, setDarkMode }) {
@@ -34,7 +34,7 @@ export default function Navbar({ alertBlink, toggleChat, darkMode, setDarkMode }
 
       {/* Dark Mode Butonu */}
       <button className="dark-mode-toggle" onClick={() => setDarkMode(!darkMode)}>
-        {darkMode ? <Sun size={34} color="#FFD700" /> : <Moon size={34} color="#222121" />}
+        {darkMode ? <Sun size={34} color="#FFD700" /> : <Sun  size={34} color="#222121" />}
       </button>
 
       {/* Sohbet Kutusu */}

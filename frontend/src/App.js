@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import RouteOptimization from './pages/RouteOptimization';
-import BpmnProcess from "./pages/BpmnProcess";
 import FleetMonitoring from './pages/FleetMonitoring';
 import ChatBox from './components/ChatBox';
 import Footer from './components/Footer';
@@ -49,7 +48,6 @@ export default function App() {
         <Route path="/" element={<RouteOptimization algorithm={algorithm} setAlgorithm={setAlgorithm} />} />
         <Route path="/route-optimization" element={<RouteOptimization algorithm={algorithm} setAlgorithm={setAlgorithm} />} />
         <Route path="/fleet-monitoring" element={<FleetMonitoring algorithm={algorithm} />} />
-        <Route path="/bpmn-process" element={<BpmnProcess />} />
       </Routes>
 
       {/* Footer'a Dark Mode Prop'u Eklendi */}

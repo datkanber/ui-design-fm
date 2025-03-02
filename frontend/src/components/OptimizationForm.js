@@ -1,170 +1,177 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem, TextField, FormGroup, FormControlLabel, Checkbox, Button, Divider, Collapse } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  TextField,
+  Button,
+  Divider,
+} from "@mui/material";
 
-export default function OptimizationForm({ algorithm, setAlgorithm, iterationNumber, setIterationNumber, initialTemperature, setInitialTemperature, alpha, setAlpha, vehicles, selectedVehicles, setSelectedVehicles, onEditVehicle }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isVehiclesExpanded, setIsVehiclesExpanded] = useState(false);
-  const [isChargingExpanded, setIsChargingExpanded] = useState(false);
-  const [chargingStrategy, setChargingStrategy] = useState("Fast Charging");
-  const [isDragging, setIsDragging] = useState(false);
-  const startIndexRef = useRef(null);
+export default function OptimizationForm({ algorithm, setAlgorithm }) {
+  const [parameters, setParameters] = useState({});
+  const [chargeStrategy, setChargeStrategy] = useState("Full");
+  const [objectiveFunction, setObjectiveFunction] = useState("Time");
 
-  const handleMouseDown = (index) => {
-    setIsDragging(true);
-    startIndexRef.current = index;
-    setSelectedVehicles([vehicles[index].name]);
-  };
+  // Algoritma seçildiğinde varsayılan parametreleri otomatik yükle
+  useEffect(() => {
+    const defaultParams = {
+      "Simulated Annealing": {
+        iterationNumber: 100000,
+        initialTemperature: 1000000,
+        alpha: 0.9999,
+      },
+      "Tabu Search": {
+        iterationNumber: 123,
+        tabuListLength: 5,
+        candidateListSize: 10,
+      },
+      "OR-Tools": {},
+    };
 
-  const handleMouseMove = (index) => {
-    if (isDragging && startIndexRef.current !== null) {
-      const start = Math.min(startIndexRef.current, index);
-      const end = Math.max(startIndexRef.current, index);
-      setSelectedVehicles(vehicles.slice(start, end + 1).map(vehicle => vehicle.name));
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    startIndexRef.current = null;
-  };
-
-  const selectAllVehicles = () => {
-    setSelectedVehicles(vehicles.map(vehicle => vehicle.name));
-  };
-
-  const deselectAllVehicles = () => {
-    setSelectedVehicles([]);
-  };
+    // Seçim yapıldığında parametreleri sıfırdan yükle
+    setParameters({ ...defaultParams[algorithm] });
+  }, [algorithm]);
 
   return (
-    <Card style={{ borderRadius: '16px', padding: '16px', backgroundColor: '#f9f9f9', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', border: '1px solid #ddd', width: '100%' }}>
+    <Card
+      style={{
+        padding: "16px",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "8px",
+        boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+      }}
+    >
       <CardContent>
-        <Typography variant="h5" gutterBottom style={{ color: '#222', fontWeight: 600, textAlign: 'center', marginBottom: '8px' }}>
-          Algoritma Seçim
+        <Typography variant="h5" gutterBottom style={{ textAlign: "center", fontWeight: "bold" }}>
+          Optimization Settings
         </Typography>
-        
-        <Button 
-          variant="contained" 
-          fullWidth 
-          onClick={() => setIsExpanded(!isExpanded)}
+
+        {/* Algoritma Seçimi */}
+        <Typography variant="subtitle1" style={{ fontWeight: "bold", marginTop: "10px" }}>
+          Selected Routing Algorithm
+        </Typography>
+        <RadioGroup row value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
+          <FormControlLabel value="OR-Tools" control={<Radio />} label="OR-Tools" />
+          <FormControlLabel value="Simulated Annealing" control={<Radio />} label="Simulated Annealing" />
+          <FormControlLabel value="Tabu Search" control={<Radio />} label="Tabu Search" />
+        </RadioGroup>
+
+        {/* Amaç Fonksiyonu */}
+        <Typography variant="subtitle1" style={{ fontWeight: "bold", marginTop: "15px" }}>
+          SA-TS Algorithms Objective Function
+        </Typography>
+        <RadioGroup row value={objectiveFunction} onChange={(e) => setObjectiveFunction(e.target.value)}>
+          <FormControlLabel value="Time" control={<Radio />} label="Time" />
+          <FormControlLabel value="Distance" control={<Radio />} label="Distance" />
+          <FormControlLabel value="Energy" control={<Radio />} label="Energy" />
+          <FormControlLabel value="Tardiness" control={<Radio />} label="Tardiness" />
+        </RadioGroup>
+
+        {/* Şarj Stratejisi */}
+        <Typography variant="subtitle1" style={{ fontWeight: "bold", marginTop: "15px" }}>
+          SA-TS Algorithms Charge Strategy
+        </Typography>
+        <RadioGroup row value={chargeStrategy} onChange={(e) => setChargeStrategy(e.target.value)}>
+          <FormControlLabel value="Full" control={<Radio />} label="Full" />
+          <FormControlLabel value="Partial" control={<Radio />} label="Partial" />
+          <FormControlLabel value="%20-%80" control={<Radio />} label="%20-%80" />
+        </RadioGroup>
+
+        <Divider style={{ margin: "16px 0" }} />
+
+        {/* Algoritmaya Göre Dinamik Parametre Alanları */}
+        {algorithm === "Simulated Annealing" && (
+          <>
+            <Typography variant="h6" style={{ fontWeight: "bold" }}>
+              Simulated Annealing Parameters
+            </Typography>
+            <TextField
+              label="Iteration Number"
+              type="number"
+              fullWidth
+              value={parameters.iterationNumber || ""}
+              onChange={(e) => setParameters({ ...parameters, iterationNumber: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+            <TextField
+              label="Initial Temperature"
+              type="number"
+              fullWidth
+              value={parameters.initialTemperature || ""}
+              onChange={(e) => setParameters({ ...parameters, initialTemperature: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+            <TextField
+              label="Alpha"
+              type="number"
+              fullWidth
+              value={parameters.alpha || ""}
+              onChange={(e) => setParameters({ ...parameters, alpha: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+            <Typography variant="caption" color="textSecondary">
+              Alpha value must be between 0 and 1
+            </Typography>
+          </>
+        )}
+
+        {algorithm === "Tabu Search" && (
+          <>
+            <Typography variant="h6" style={{ fontWeight: "bold" }}>
+              Tabu Search Parameters
+            </Typography>
+            <TextField
+              label="Iteration Number"
+              type="number"
+              fullWidth
+              value={parameters.iterationNumber || ""}
+              onChange={(e) => setParameters({ ...parameters, iterationNumber: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+            <TextField
+              label="Tabu List Length"
+              type="number"
+              fullWidth
+              value={parameters.tabuListLength || ""}
+              onChange={(e) => setParameters({ ...parameters, tabuListLength: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+            <TextField
+              label="Candidate List Size"
+              type="number"
+              fullWidth
+              value={parameters.candidateListSize || ""}
+              onChange={(e) => setParameters({ ...parameters, candidateListSize: e.target.value })}
+              variant="outlined"
+              style={{ marginTop: "8px" }}
+            />
+          </>
+        )}
+
+        {/* Kaydet Butonu */}
+        <Button
+          variant="contained"
+          fullWidth
           style={{
-            marginBottom: '16px', 
-            backgroundColor: '#004085', 
-            color: '#fff', 
-            borderRadius: '6px', 
-            fontWeight: 500, 
-            textTransform: 'none', 
-            padding: '10px'
+            marginTop: "16px",
+            backgroundColor: "#004085",
+            color: "#fff",
+            borderRadius: "6px",
+            fontWeight: 500,
+            textTransform: "none",
+            padding: "10px",
           }}
         >
-          {isExpanded ? 'Parametreleri Gizle' : 'Parametreleri Göster'}
-        </Button>
-
-        <Collapse in={isExpanded}>
-          <Divider style={{ marginBottom: '16px' }} />
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center' }}>
-            <FormControl style={{ flex: 1, minWidth: '200px' }} variant="outlined">
-              <InputLabel id="algorithm-label">Algorithm</InputLabel>
-              <Select labelId="algorithm-label" value={algorithm} onChange={(e) => setAlgorithm(e.target.value)} label="Algorithm">
-                <MenuItem value="Simulated Annealing">Simulated Annealing</MenuItem>
-                <MenuItem value="Tabu Search">Tabu Search</MenuItem>
-                <MenuItem value="OR-Tools">OR-Tools</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField label="Iteration Number" type="number" value={iterationNumber} onChange={(e) => setIterationNumber(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
-            <TextField label="Initial Temperature" type="number" value={initialTemperature} onChange={(e) => setInitialTemperature(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
-            <TextField label="Alpha" type="number" value={alpha} onChange={(e) => setAlpha(e.target.value)} variant="outlined" style={{ flex: 1, minWidth: '200px' }} />
-          </div>
-        </Collapse>
-
-        <Button 
-          variant="contained" 
-          fullWidth 
-          onClick={() => setIsVehiclesExpanded(!isVehiclesExpanded)}
-          style={{
-            marginTop: '16px', 
-            marginBottom: '16px', 
-            backgroundColor: '#004085', 
-            color: '#fff', 
-            borderRadius: '6px', 
-            fontWeight: 500, 
-            textTransform: 'none', 
-            padding: '10px'
-          }}
-        >
-          {isVehiclesExpanded ? 'Araç Seçimini Gizle' : 'Araç Seçimini Göster'}
-        </Button>
-
-        <Collapse in={isVehiclesExpanded}>
-          <Typography variant="h6" gutterBottom style={{ color: '#333', fontWeight: 500, marginTop: '16px' }}>Select Vehicles</Typography>
-          <Button variant="outlined" onClick={selectAllVehicles} style={{ marginBottom: '8px', marginRight: '8px' }}>Tümünü Seç</Button>
-          <Button variant="outlined" onClick={deselectAllVehicles} style={{ marginBottom: '8px' }}>Tümünü Kaldır</Button>
-          <FormGroup style={{ marginBottom: '16px', paddingLeft: '8px' }} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-            {vehicles.map((vehicle, index) => (
-              <div key={vehicle.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <FormControlLabel
-                  onMouseDown={() => handleMouseDown(index)}
-                  onMouseMove={() => handleMouseMove(index)}
-                  control={<Checkbox checked={selectedVehicles.includes(vehicle.name)} color="primary" />}
-                  label={`${vehicle.name} (SoC: ${vehicle.soc}%)`}
-                  style={{ marginBottom: '1px' }}
-                />
-                <Button size="small" variant="outlined" color="primary" onClick={() => onEditVehicle(vehicle)}>
-                  Düzenle
-                </Button>
-              </div>
-            ))}
-          </FormGroup>
-        </Collapse>
-
-        <Button 
-          variant="contained" 
-          fullWidth 
-          onClick={() => setIsChargingExpanded(!isChargingExpanded)}
-          style={{
-            marginTop: '16px', 
-            marginBottom: '16px', 
-            backgroundColor: '#004085', 
-            color: '#fff', 
-            borderRadius: '6px', 
-            fontWeight: 500, 
-            textTransform: 'none', 
-            padding: '10px'
-          }}
-        >
-          {isChargingExpanded ? 'Şarj Stratejisini Gizle' : 'Şarj Stratejisini Göster'}
-        </Button>
-
-        <Collapse in={isChargingExpanded}>
-          <FormControl fullWidth variant="outlined" style={{ marginBottom: '16px' }}>
-            <InputLabel id="charging-strategy-label">Şarj Stratejisi</InputLabel>
-            <Select
-              labelId="charging-strategy-label"
-              value={chargingStrategy}
-              onChange={(e) => setChargingStrategy(e.target.value)}
-              label="Şarj Stratejisi"
-            >
-              <MenuItem value="Fast Charging">Hızlı Şarj</MenuItem>
-              <MenuItem value="Smart Charging">Akıllı Şarj</MenuItem>
-              <MenuItem value="Scheduled Charging">Zamanlanmış Şarj</MenuItem>
-            </Select>
-          </FormControl>
-        </Collapse>
-
-        <Button 
-          variant="contained" 
-          fullWidth 
-          style={{ 
-            marginTop: '16px', 
-            backgroundColor: '#004085', 
-            color: '#fff', 
-            borderRadius: '6px', 
-            fontWeight: 500, 
-            textTransform: 'none', 
-            padding: '20px'
-          }}
-        >
-          Başlat
+          Save Parameters
         </Button>
       </CardContent>
     </Card>
