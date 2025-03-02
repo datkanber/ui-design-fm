@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -23,9 +23,31 @@ export default function App() {
   const [algorithm, setAlgorithm] = useState('Simulated Annealing');
   const alertBlink = useAlertBlink();
 
+  // Dark mode state'i ve localStorage kullanımı
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
+
   return (
     <Router>
-      <Navbar alertBlink={alertBlink} toggleChat={() => setChatOpen(!chatOpen)} vehicles={vehicles} />
+      <Navbar 
+        alertBlink={alertBlink} 
+        toggleChat={() => setChatOpen(!chatOpen)} 
+        vehicles={vehicles} 
+        darkMode={darkMode} 
+        setDarkMode={setDarkMode} 
+      />
+
       {chatOpen && <ChatBox vehicles={vehicles} />}
       <Routes>
         <Route path="/" element={<Home />} />
@@ -38,7 +60,7 @@ export default function App() {
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/demand-planning" element={<DemandPlanning />} />
       </Routes>
-      <Footer vehicles={vehicles} /> 
+      <Footer vehicles={vehicles} darkMode={darkMode} />
     </Router>
   );
 }
