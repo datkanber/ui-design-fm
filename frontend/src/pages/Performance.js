@@ -14,7 +14,6 @@ import {
   Chip,
   ButtonGroup,
   Button,
-  LinearProgress
 } from '@mui/material';
 import {
   AccessTime as TimeIcon,

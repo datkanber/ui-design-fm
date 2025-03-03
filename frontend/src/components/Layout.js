@@ -75,7 +75,7 @@ export default function Layout({
             </div>
 
             {/* Sağ Taraf - Harita */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", height: "50vh" }}>
                 <RouteOptimizationMap
                     vehicles={vehicles}
                     chargingStations={chargingStations}

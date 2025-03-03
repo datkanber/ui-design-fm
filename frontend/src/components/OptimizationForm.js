@@ -41,7 +41,7 @@ export default function OptimizationForm({ algorithm, setAlgorithm }) {
   useEffect(() => {
     // Seçilen algoritmanın parametrelerini yükle
     setParameters(algorithmParams[algorithm] || {});
-  }, [algorithm]);
+  }, [algorithm, algorithmParams]);
 
   return (
     <Card style={{

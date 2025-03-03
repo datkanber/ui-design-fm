@@ -1,14 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, Button } from '@mui/material';
-import OptimizationForm from '../components/OptimizationForm';
-import RouteOptimizationMap from '../components/RouteOptimizationMap';
-import CustomerPool from '../components/CustomerPool';
-import OrderManagement from '../components/OrderManagement';
+import React, { useState } from 'react';
 import { vehicles as staticVehicles } from '../data/vehicles';
 import { chargingStations as staticChargingStations } from '../data/chargingStations';
 import { orders as staticOrders } from '../data/orders';
 import { routes as staticRoutes } from '../data/routes';
-import { loadTaskData } from '../services/taskService';
 import '../assets/styles/global.css';
 import 'leaflet/dist/leaflet.css';
 

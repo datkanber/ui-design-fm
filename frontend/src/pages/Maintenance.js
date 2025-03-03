@@ -6,14 +6,12 @@ import {
   CardContent,
   Typography,
   Button,
-  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   LinearProgress,
   ButtonGroup,
@@ -27,7 +25,6 @@ import {
   Warning as WarningIcon,
   Notifications as NotificationsIcon,
   Favorite as FavoriteIcon,
-  Info as InfoIcon
 } from '@mui/icons-material';
 
 const MaintenanceCard = ({ title, value, icon, color }) => (
