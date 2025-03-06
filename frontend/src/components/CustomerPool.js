@@ -69,15 +69,15 @@ export default function CustomerPool({ customers: initialCustomers }) {
     status: 'pending'
   });
   
-  // New customer form state
+  // New customer form state - modified to remove weight and add time range
   const [customerForm, setCustomerForm] = useState({
     name: '',
     brand: '',
     address: '',
     demand: '',
-    weight: '',
-    orderDate: '',  // Changed from Date object to string
-    timeWindow: '',
+    orderDate: '',
+    startTime: '',
+    endTime: '',
     status: 'Requested',
     notes: ''
   });
@@ -233,12 +233,22 @@ export default function CustomerPool({ customers: initialCustomers }) {
     if (!customerForm.name.trim()) errors.name = "Name is required";
     if (!customerForm.address.trim()) errors.address = "Address is required";
     if (!customerForm.demand) errors.demand = "Demand is required";
-    if (!customerForm.weight) errors.weight = "Weight is required";
     if (!customerForm.orderDate.trim()) errors.orderDate = "Order date is required";
+    
+    // Validate time range if either start or end time is provided
+    if ((customerForm.startTime && !customerForm.endTime) || (!customerForm.startTime && customerForm.endTime)) {
+      errors.timeWindow = "Both start and end time must be provided";
+    }
     
     if (Object.keys(errors).length > 0) {
       setCustomerFormErrors(errors);
       return;
+    }
+
+    // Create time window string from start and end time if provided
+    let timeWindow = '';
+    if (customerForm.startTime && customerForm.endTime) {
+      timeWindow = `${customerForm.startTime}-${customerForm.endTime}`;
     }
     
     // Add the new customer to the list
@@ -246,7 +256,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
       ...customerForm,
       id: Date.now() + Math.random().toString(36).substring(2, 9), // Generate unique ID
       demand: Number(customerForm.demand),
-      weight: Number(customerForm.weight)
+      timeWindow: timeWindow
     };
     
     setCustomers(prevCustomers => [...prevCustomers, newCustomer]);
@@ -258,9 +268,9 @@ export default function CustomerPool({ customers: initialCustomers }) {
       brand: '',
       address: '',
       demand: '',
-      weight: '',
       orderDate: '',
-      timeWindow: '',
+      startTime: '',
+      endTime: '',
       status: 'Requested',
       notes: ''
     });
@@ -437,6 +447,36 @@ export default function CustomerPool({ customers: initialCustomers }) {
 
       {/* Scrollable Customer List (Simplified View) */}
       <Box sx={{ flex: "1 1 auto", overflowY: "auto", padding: "0 10px", scrollbarWidth: "thin", scrollbarColor: "#999 #ddd" }}>
+        {/* Column headers with dividers */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            mb: 1,
+            px: 3,
+            py: 1,
+            borderBottom: '1px solid #e0e0e0',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '8px 8px 0 0',
+          }}
+        >
+          <Box sx={{ width: '5%' }}></Box> {/* Checkbox space */}
+          <Box sx={{ width: '30%', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Time Window</Box>
+          <Box sx={{ 
+            height: '20px', 
+            borderRight: '1px solid #ccc',
+            mx: 1 
+          }}></Box>
+          <Box sx={{ width: '45%', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Customer</Box>
+          <Box sx={{ 
+            height: '20px', 
+            borderRight: '1px solid #ccc',
+            mx: 1 
+          }}></Box>
+          <Box sx={{ width: '20%', fontWeight: 600, fontSize: '0.85rem', color: '#555', textAlign: 'right' }}>Amount</Box>
+        </Box>
+
         <List sx={{ paddingRight: "5px" }}>
           {filteredCustomers.length > 0 ? (
             filteredCustomers.map((customer, index) => (
@@ -468,7 +508,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     sx={{ padding: "4px" }}
                   />
                   
-                  {/* 3-Column Layout - Clickable to see details */}
+                  {/* 3-Column Layout with dividers - Clickable to see details */}
                   <Box 
                     display="flex" 
                     justifyContent="space-between" 
@@ -476,37 +516,54 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     width="100%"
                     onClick={() => handleCustomerClick(customer)}
                   >
-                    <Grid container spacing={1} alignItems="center">
-                      {/* Column 1: Status Dot + Time Window */}
-                      <Grid item xs={3} sx={{ display: "flex", alignItems: "center" }}>
-                        <BlinkingCircle status={customer.status} sx={{ mr: 1 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {customer.timeWindow || "Any time"}
-                        </Typography>
-                      </Grid>
-                      
-                      {/* Column 2: Customer Name */}
-                      <Grid item xs={5}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {customer.name}
-                          {customer.tasks && customer.tasks.length > 0 && (
-                            <Chip 
-                              label={`${customer.tasks.length} task${customer.tasks.length > 1 ? 's' : ''}`}
-                              size="small"
-                              color="primary"
-                              sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
-                            />
-                          )}
-                        </Typography>
-                      </Grid>
-                      
-                      {/* Column 3: Request Details (units) */}
-                      <Grid item xs={4} sx={{ textAlign: "right" }}>
-                        <Typography variant="body2">
-                          {customer.demand} adet
-                        </Typography>
-                      </Grid>
-                    </Grid>
+                    {/* Column 1: Status Dot + Time Window */}
+                    <Box sx={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      width: '30%',
+                      paddingRight: 1 
+                    }}>
+                      <BlinkingCircle status={customer.status} sx={{ mr: 1 }} />
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {customer.timeWindow || "Any time"}
+                      </Typography>
+                    </Box>
+                    
+                    {/* Divider 1 */}
+                    <Box sx={{ 
+                      height: '30px', 
+                      borderRight: '1px solid #e0e0e0',
+                      mx: 1 
+                    }}></Box>
+                    
+                    {/* Column 2: Customer Name */}
+                    <Box sx={{ width: '45%' }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {customer.name}
+                        {customer.tasks && customer.tasks.length > 0 && (
+                          <Chip 
+                            label={`${customer.tasks.length} task${customer.tasks.length > 1 ? 's' : ''}`}
+                            size="small"
+                            color="primary"
+                            sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                          />
+                        )}
+                      </Typography>
+                    </Box>
+                    
+                    {/* Divider 2 */}
+                    <Box sx={{ 
+                      height: '30px', 
+                      borderRight: '1px solid #e0e0e0',
+                      mx: 1 
+                    }}></Box>
+                    
+                    {/* Column 3: Request Details (units) */}
+                    <Box sx={{ width: '20%', textAlign: "right" }}>
+                      <Typography variant="body2">
+                        {customer.demand} adet
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </ListItem>
@@ -568,17 +625,12 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1">
-                    <strong>⚖️ Weight:</strong> {currentCustomer.weight} adet
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">
                     <strong>📆 Order Date:</strong> {currentCustomer.orderDate}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1">
-                    <strong>⏱️ Time Window:</strong> {currentCustomer.timeWindow}
+                    <strong>⏱️ Time Window:</strong> {currentCustomer.timeWindow || "Any time"}
                   </Typography>
                 </Grid>
                 {currentCustomer.notes && (
@@ -821,20 +873,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Weight (adet)"
-                variant="outlined"
-                type="number"
-                value={customerForm.weight}
-                onChange={(e) => handleCustomerFormChange('weight', e.target.value)}
-                error={!!customerFormErrors.weight}
-                helperText={customerFormErrors.weight}
-                required
-              />
-            </Grid>
-            
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
                 label="Order Date"
                 type="date"
                 variant="outlined"
@@ -849,19 +887,41 @@ export default function CustomerPool({ customers: initialCustomers }) {
               />
             </Grid>
             
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Time Window</InputLabel>
-                <Select
-                  value={customerForm.timeWindow}
-                  onChange={(e) => handleCustomerFormChange('timeWindow', e.target.value)}
-                >
-                  <MenuItem value="">Any time</MenuItem>
-                  <MenuItem value="morning">Morning</MenuItem>
-                  <MenuItem value="afternoon">Afternoon</MenuItem>
-                  <MenuItem value="evening">Evening</MenuItem>
-                </Select>
-              </FormControl>
+            {/* Time Range Selection - Replaces the time window dropdown */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Time Window</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  label="Start Time"
+                  type="time"
+                  value={customerForm.startTime}
+                  onChange={(e) => handleCustomerFormChange('startTime', e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                  sx={{ mr: 1, flexGrow: 1 }}
+                />
+                <Typography sx={{ mx: 1 }}>to</Typography>
+                <TextField
+                  label="End Time"
+                  type="time"
+                  value={customerForm.endTime}
+                  onChange={(e) => handleCustomerFormChange('endTime', e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                  sx={{ ml: 1, flexGrow: 1 }}
+                />
+              </Box>
+              {customerFormErrors.timeWindow && (
+                <FormHelperText error>{customerFormErrors.timeWindow}</FormHelperText>
+              )}
             </Grid>
             
             <Grid item xs={12}>
