@@ -52,7 +52,7 @@ export default function Layout({
                             <IconButton onClick={() => setOpenComparison(true)} color="primary">
                                 <CompareIcon />
                             </IconButton>
-                            <Typography variant="caption" style={{ fontSize: "10px", color: "#555", marginTop: "2px" }}>Algorithm Comparison</Typography>
+                            <Typography variant="caption" style={{ fontSize: "12px", color: "#555", marginTop: "2px" }}>Algorithm Comparison</Typography>
                         </div>
 
                         {/* Algoritma Optimizasyon Parametreleri */}
@@ -60,7 +60,7 @@ export default function Layout({
                             <IconButton onClick={() => setOpenOptimization(true)} color="secondary">
                                 <SettingsIcon />
                             </IconButton>
-                            <Typography variant="caption" style={{ fontSize: "10px", color: "#555", marginTop: "2px" }}>Optimization Parameters</Typography>
+                            <Typography variant="caption" style={{ fontSize: "12px", color: "#555", marginTop: "2px" }}>Optimization Parameters</Typography>
                         </div>
 
                         {/* Start Optimize Butonu */}
@@ -68,7 +68,7 @@ export default function Layout({
                             <IconButton color="success">
                                 <PlayArrowIcon />
                             </IconButton>
-                            <Typography variant="caption" style={{ fontSize: "10px", color: "#555", marginTop: "2px" }}>Start Optimize</Typography>
+                            <Typography variant="caption" style={{ fontSize: "12px", color: "#555", marginTop: "2px" }}>Start Optimize</Typography>
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@ export default function Layout({
             </Dialog>
 
             {/* Algoritma Seçimi Dialog */}
-            <Dialog open={openOptimization} onClose={() => setOpenOptimization(false)} maxWidth="sm" fullWidth>
+            <Dialog open={openOptimization} onClose={() => setOpenOptimization(false)} maxWidth="l" fullWidth>
                 <DialogTitle>
                     <Typography variant="h6">Algoritma Seçimi</Typography>
                     <IconButton onClick={() => setOpenOptimization(false)} size="small">
