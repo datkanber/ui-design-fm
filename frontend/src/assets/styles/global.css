@@ -146,7 +146,7 @@ body {
     align-items: center;
     justify-content: space-between;
     background-color: #fd9d3005;
-    padding: 10px 20px;
+    padding: 1px 0;
     color: #333333;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -279,7 +279,7 @@ body {
     background-color: #F5F5F7;
     font-weight: bold;
     color: #FFFFFF;
-    padding: 9px 0;
+    padding: 1px 0;
     text-align: center;
     border-top: 1px solid #c6cbce;
     box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);

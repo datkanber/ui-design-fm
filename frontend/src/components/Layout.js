@@ -38,7 +38,7 @@ export default function Layout({
     };
 
     return (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr", gap: "16px", padding: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr", gap: "16px", padding: "1rem" }}>
             {/* Sol Taraf - Müşteri Havuzu ve İkonlar */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
@@ -75,7 +75,7 @@ export default function Layout({
             </div>
 
             {/* Sağ Taraf - Harita */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", height: "50vh" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0px", height: "85vh" }}>
                 <RouteOptimizationMap
                     vehicles={vehicles}
                     chargingStations={chargingStations}

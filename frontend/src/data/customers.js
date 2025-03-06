@@ -4,7 +4,7 @@ export const customers = [
       name: 'HOSPITAL',
       address: 'Main Street, City Center',
       position: [39.751377, 30.481888],
-      demand: 200, // kg
+      demand: 2, // kg
       brand: 'A',
       orderDate: '22.04.2024',
       timeWindow: '15:19:37 - 15:27:13',
@@ -16,7 +16,7 @@ export const customers = [
       name: 'POLYCLINIC',
       address: 'Green District, Northside',
       position: [39.752487, 30.488123],
-      demand: 150, // kg
+      demand: 15, // kg
       brand: 'A',
       orderDate: '22.04.2024',
       timeWindow: '10:29:00 - 15:36:09',
@@ -28,7 +28,7 @@ export const customers = [
       name: 'CARDIOLOGY',
       address: 'Medical Park, Southside',
       position: [39.747232, 30.473770],
-      demand: 100, // kg
+      demand: 10, // kg
       brand: 'A',
       orderDate: '22.04.2024',
       timeWindow: '12:07:02 - 13:32:53',
@@ -40,7 +40,7 @@ export const customers = [
       name: 'TRAFO',
       address: 'Industrial Zone',
       position: [39.749342, 30.474854],
-      demand: 180, // kg
+      demand: 18, // kg
       brand: 'A',
       orderDate: '22.04.2024',
       timeWindow: '14:41:04 - 15:28:14',
@@ -52,7 +52,7 @@ export const customers = [
       name: 'TRAFO',
       address: 'Industrial Zone',
       position: [39.750500, 30.478900],
-      demand: 90, // kg
+      demand: 9, // kg
       brand: 'A',
       orderDate: '22.04.2024',
       timeWindow: '10:52:17 - 14:01:16',
@@ -64,7 +64,7 @@ export const customers = [
       name: 'EMERGENCY',
       address: 'City Hospital, West Wing',
       position: [39.752394, 30.488127],
-      demand: 90, // kg
+      demand: 9, // kg
       brand: 'B',
       orderDate: '22.04.2024',
       timeWindow: '11:08:39 - 16:12:34',
@@ -76,7 +76,7 @@ export const customers = [
       name: 'OTACI_CAFE',
       address: 'Downtown Square',
       position: [39.750370, 30.483896],
-      demand: 90, // kg
+      demand: 9, // kg
       brand: 'B',
       orderDate: '22.04.2024',
       timeWindow: '09:30:00 - 12:00:00',
