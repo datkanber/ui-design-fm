@@ -13,7 +13,7 @@ export default function FleetMonitoringMap({ vehicles }) {
   });
 
   return (
-    <MapContainer center={[39.751533, 30.482512]} zoom={16} style={{ height: '600px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+    <MapContainer center={[39.751533, 30.482512]} zoom={16} style={{ height: '600px', width: '100%', borderRadius: '12px', overflow: 'hidden', zIndex: 1}}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <LayerGroup>
         {vehicles.map((vehicle) => (

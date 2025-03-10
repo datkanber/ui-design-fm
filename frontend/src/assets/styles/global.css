@@ -283,6 +283,7 @@ body {
     text-align: center;
     border-top: 1px solid #c6cbce;
     box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
 }
 
 /* Scrolling Text */
