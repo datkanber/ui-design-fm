@@ -4,7 +4,7 @@ import React from 'react';
 import '../assets/styles/global.css';
 
 export default function Footer({ vehicles = [], chargingStations = [] }) {
-    // Acil durumda olan araçları filtreler Hello
+    // Acil durumda olan araçları filtreler
     const urgentVehicles = vehicles.filter(vehicle => 
         Number(vehicle.soc) < 20 || vehicle.velocity === 0 || vehicle.deliveryDeadlineApproaching
     );
@@ -37,7 +37,7 @@ export default function Footer({ vehicles = [], chargingStations = [] }) {
                 <div className="marquee-content">
                     {urgentVehicles.length > 0 ? (
                         urgentVehicles.map((vehicle, index) => (
-                            <span key={index} className={`urgent-text ${Number(vehicle.soc) < 20 ? 'low-battery' : ''}`}>
+                            <span key={index} className={`urgent-text ${Number(vehicle.soc) < 20 ? 'low-battery' : vehicle.velocity === 0 ? 'stopped' : ''}`}>
                                 <span className="urgent-icon">{getStatusIcon(vehicle)}</span>
                                 ARAÇ ID: {vehicle.name} | STATUS: {getStatusMessage(vehicle)} | 
                                 CHARGE: %{vehicle.soc} | PAYLOAD: {vehicle.payload} kg
