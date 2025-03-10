@@ -1,0 +1,74 @@
+if st.session_state.get("show_map", False):
+
+        def load_data(result):
+            return json.loads(result)  # JSON string olduğu varsayılıyor
+
+        data = load_data(st.session_state["result"])
+
+        # Başlangıç noktası
+        start_lat = data['routes'][0]['start_point']['location']['latitude']
+        start_lng = data['routes'][0]['start_point']['location']['longitude']
+        map_object = folium.Map(location=[start_lat, start_lng], zoom_start=15)
+
+        def plot_route(route, route_color):
+            """ Belirtilen rotayı haritaya çizer. """
+            start = route['start_point']['location']
+            end = route['end_point']['location']
+
+            # Başlangıç ve bitiş noktalarını ekleme
+            folium.Marker(
+                [start['latitude'], start['longitude']], tooltip="Start Point", 
+                icon=folium.Icon(color='green')
+            ).add_to(map_object)
+
+            folium.Marker(
+                [end['latitude'], end['longitude']], tooltip="End Point", 
+                icon=folium.Icon(color='red')
+            ).add_to(map_object)
+
+            # Tüm noktaları içeren liste
+            all_points = []
+
+            # Başlangıç noktasından waypoints ekleme
+            all_points += [
+                (wp['location']['latitude'], wp['location']['longitude'])
+                for wp in route['start_point']['waypoints']
+            ]
+
+            # Teslimat noktaları ve waypoints ekleme
+            for delivery_point in route['delivery_points']:
+                loc = delivery_point['location']
+                folium.Marker(
+                    [loc['latitude'], loc['longitude']], 
+                    tooltip=f"Delivery Point {delivery_point['id']}",
+                    icon=folium.Icon(color='blue')
+                ).add_to(map_object)
+
+                all_points += [
+                    (wp['location']['latitude'], wp['location']['longitude'])
+                    for wp in delivery_point['waypoints']
+                ]
+
+            # # Bitirme noktası waypoints ekleme
+            # all_points += [
+            #     (wp['location']['latitude'], wp['location']['longitude'])
+            #     for wp in route['end_point']['waypoints']
+            # ]
+
+            # Rota çizimi
+            if all_points:
+                AntPath(
+                    all_points, delay=500, weight=6, color=route_color
+                ).add_to(map_object)
+
+        # Renk paleti
+        colors = ["red", "blue", "green", "purple", "orange", 
+                "darkred", "lightblue", "pink", "black", "cadetblue"]
+
+        # Her rotayı çiz
+        for ind, route in enumerate(data['routes']):
+            route_color = colors[ind % len(colors)] 
+            plot_route(route, route_color)
+
+        # Haritayı Streamlit'te göster
+        st_folium(map_object, width=1200, height=1000, use_container_width=True)

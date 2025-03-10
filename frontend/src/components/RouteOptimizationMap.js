@@ -1,109 +1,81 @@
-// RouteOptimizationMap.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import axios from 'axios';
 
 import vehicleIconImg from '../assets/icons/vehicle.png';
 import stationIconImg from '../assets/icons/station.png';
-import orderIconImg from '../assets/icons/order.png';
+import orderPendingIconImg from '../assets/icons/order_pending.png';
+import orderCompletedIconImg from '../assets/icons/order_completed.png';
 
-export default function RouteOptimizationMap({ vehicles, chargingStations, routeColors, orders, plannedRoutes, completedRoutes, traffic, height }) {
+export default function RouteOptimizationMap({ height }) {
+  const [routeData, setRouteData] = useState(null);
+  const [waypointData, setWaypointData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [routeResponse, waypointResponse] = await Promise.all([
+          axios.get('http://localhost:5000/api/routes'),
+          axios.get('http://localhost:5000/api/vehicles') // Waypoints burada çekiliyor!
+        ]);
+
+        if (routeResponse.data.length > 0 && routeResponse.data[0].Routes) {
+          setRouteData(routeResponse.data[0]); 
+        } else {
+          setError("Rota verisi eksik.");
+        }
+
+        if (waypointResponse.data.length > 0) {
+          setWaypointData(waypointResponse.data);
+        }
+      } catch (error) {
+        console.error('API Fetch Error:', error);
+        setError('Veri alınamadı.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const vehicleIcon = new L.Icon({ iconUrl: vehicleIconImg, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
   const stationIcon = new L.Icon({ iconUrl: stationIconImg, iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -24] });
-  const orderIcon = new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28] });
+  const orderPendingIcon = new L.Icon({ iconUrl: orderPendingIconImg, iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28] });
+  const orderCompletedIcon = new L.Icon({ iconUrl: orderCompletedIconImg, iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28] });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!routeData || !routeData.Routes) return <p>Veri bulunamadı.</p>;
 
   return (
     <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: '12px', overflow: 'hidden' }}>
       <LayersControl position="topright">
-        {/* OpenStreetMap - Standart */}
-        <LayersControl.BaseLayer checked name="OpenStreetMap Standart">
+        <LayersControl.BaseLayer checked name="OpenStreetMap">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
         </LayersControl.BaseLayer>
 
-        {/* OpenStreetMap - Humanitarian */}
-        <LayersControl.BaseLayer name="OpenStreetMap Humanitarian">
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* Google Maps Stil */}
-        <LayersControl.BaseLayer name="Google Streets">
-          <TileLayer
-            url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-            maxZoom={20}
-            subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
-            attribution='&copy; Google Maps'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* Google Satellite */}
-        <LayersControl.BaseLayer name="Google Satellite">
-          <TileLayer
-            url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-            maxZoom={20}
-            subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
-            attribution='&copy; Google Maps'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* Google Terrain */}
-        <LayersControl.BaseLayer name="Google Terrain">
-          <TileLayer
-            url="https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}"
-            maxZoom={20}
-            subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
-            attribution='&copy; Google Maps'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* Esri WorldStreetMap */}
-        <LayersControl.BaseLayer name="Esri WorldStreetMap">
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
-            attribution='&copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* Esri Satellite */}
-        <LayersControl.BaseLayer name="Esri Satellite">
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* CartoDB - Aydınlık */}
-        <LayersControl.BaseLayer name="CartoDB Aydınlık">
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          />
-        </LayersControl.BaseLayer>
-
-        {/* CartoDB - Karanlık */}
-        <LayersControl.BaseLayer name="CartoDB Karanlık">
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          />
-        </LayersControl.BaseLayer>
-
+        {/* 🔹 Araçları Haritada Göster */}
         <LayersControl.Overlay name="Araçlar">
           <LayerGroup>
-            {vehicles.map((vehicle) => (
-              <Marker key={vehicle.id} position={vehicle.position} icon={vehicleIcon}>
+            {routeData.Routes.filter(route => route.Nodes?.length > 0).map(route => (
+              <Marker key={route.VehicleId} position={[
+                parseFloat(route.Nodes[0].Location.Latitude), 
+                parseFloat(route.Nodes[0].Location.Longitude)
+              ]} icon={vehicleIcon}>
                 <Popup>
                   <div>
-                    <p>Araç ID: {vehicle.name}</p>
-                    <p>Velocity: {vehicle.velocity} km/h</p>
-                    <p>Charge: %{vehicle.soc}</p>
-                    <p>Payload: {vehicle.payload} kg</p>
+                    <p>Araç ID: {route.VehicleId}</p>
+                    <p>Sürücü: {route.DriverId}</p>
+                    <p>Mesafe: {route.PerformanceMeasure.RouteDistance} m</p>
+                    <p>Süre: {route.PerformanceMeasure.RouteDuration} sn</p>
                   </div>
                 </Popup>
               </Marker>
@@ -111,86 +83,74 @@ export default function RouteOptimizationMap({ vehicles, chargingStations, route
           </LayerGroup>
         </LayersControl.Overlay>
 
+        {/* 🔹 Rotaları Haritada Göster */}
+        <LayersControl.Overlay name="Rotalar">
+          <LayerGroup>
+            {routeData.Routes.filter(route => route.Nodes?.length > 1).map((route, index) => {
+              let sortedPositions = route.Nodes.map(node => [
+                parseFloat(node.Location.Latitude), 
+                parseFloat(node.Location.Longitude)
+              ]).filter(pos => !isNaN(pos[0]) && !isNaN(pos[1])); 
+
+              // **Waypoints ekleniyor (EndPoint kullanılmadan!)**
+              const routeWaypoints = waypointData?.find(wp => wp.name === route.Name);
+              if (routeWaypoints?.startPoint?.waypoints) {
+                const waypoints = routeWaypoints.startPoint.waypoints.map(wp => [
+                  parseFloat(wp.location.latitude?.$numberDouble) || 0,
+                  parseFloat(wp.location.longitude?.$numberDouble) || 0
+                ]);
+                sortedPositions = [...sortedPositions, ...waypoints]; // Waypoints ekleniyor
+              }
+
+              return (
+                <Polyline
+                  key={index}
+                  positions={sortedPositions}
+                  color={index % 2 === 0 ? 'blue' : 'green'}
+                  weight={4}
+                  smoothFactor={2}
+                  opacity={0.9}
+                  lineCap="round"
+                  lineJoin="round"
+                />
+              );
+            })}
+          </LayerGroup>
+        </LayersControl.Overlay>
+
+        {/* 🔹 Şarj İstasyonlarını Haritada Göster */}
         <LayersControl.Overlay name="Şarj İstasyonları">
           <LayerGroup>
-            {chargingStations.map((station) => (
-              <Marker key={station.id} position={station.position} icon={stationIcon}>
-                <Popup>Charging Station {station.id}</Popup>
-              </Marker>
-            ))}
+            {routeData.Routes.flatMap(route => route.Nodes || [])
+              .filter(node => node.$?.NodeType === "Depot")
+              .map((station, index) => (
+                <Marker key={index} position={[
+                  parseFloat(station.Location.Latitude), 
+                  parseFloat(station.Location.Longitude)
+                ]} icon={stationIcon}>
+                  <Popup>Şarj İstasyonu {station.$?.NodeId}</Popup>
+                </Marker>
+              ))}
           </LayerGroup>
         </LayersControl.Overlay>
 
-        <LayersControl.Overlay name="Bekleyen Aktif Talepler (Planlanmamış)">
+        {/* 🔹 Siparişleri Haritada Göster */}
+        <LayersControl.Overlay name="Siparişler">
           <LayerGroup>
-            {orders.filter(order => order.status === 'Pending').map((order) => (
-              <Marker key={order.id} position={order.position} icon={orderIcon}>
-                <Popup>Order ID: {order.id} - Bekliyor</Popup>
-              </Marker>
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Dağıtım Bekleyen Talepler (Atama Yapılmış)">
-          <LayerGroup>
-            {orders.filter(order => order.status === 'Planned').map((order) => (
-              <Marker key={order.id} position={order.position} icon={orderIcon}>
-                <Popup>Order ID: {order.id} - Dağıtım Bekliyor</Popup>
-              </Marker>
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Planlanmış Araç Rotaları (Kalan Rota)">
-          <LayerGroup>
-            {plannedRoutes.map((route, index) => (
-              <Polyline
-                key={index}
-                positions={route.positions}
-                color={routeColors[index] || "blue"}
-                weight={4}
-                smoothFactor={2}
-                opacity={0.9}
-                lineCap="round"
-                lineJoin="round"
-              />
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Gezilmiş Rotalar (Tamamlanan)">
-          <LayerGroup>
-            {completedRoutes.map((route, index) => (
-              <Polyline
-                key={index}
-                positions={route.positions}
-                color="green"
-                weight={4}
-                smoothFactor={2}
-                opacity={0.9}
-                lineCap="round"
-                lineJoin="round"
-                dashArray="5,5"
-              />
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Trafik Yoğunluğu (Etki Alanı)">
-          <LayerGroup>
-            {traffic.map((route, index) => (
-              <Polyline
-                key={index}
-                positions={route.positions}
-                color="red"
-                weight={3}
-                smoothFactor={2}
-                opacity={0.7}
-                lineCap="round"
-                lineJoin="round"
-                dashArray="10,10"
-              />
-            ))}
+            {routeData.Routes.flatMap(route => route.Nodes || [])
+              .filter(node => node.$?.NodeType === "Customer")
+              .map((order, index) => (
+                <Marker key={index} position={[
+                  parseFloat(order.Location.Latitude), 
+                  parseFloat(order.Location.Longitude)
+                ]} 
+                  icon={order.ServiceInformation.ArrivalTime > 0 ? orderCompletedIcon : orderPendingIcon}>
+                  <Popup>
+                    <p>Sipariş ID: {order.$?.NodeId}</p>
+                    <p>Durum: {order.ServiceInformation.ArrivalTime > 0 ? "Tamamlandı" : "Beklemede"}</p>
+                  </Popup>
+                </Marker>
+              ))}
           </LayerGroup>
         </LayersControl.Overlay>
       </LayersControl>

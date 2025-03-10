@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
-import { vehicles as staticVehicles } from '../data/vehicles';
-import { chargingStations as staticChargingStations } from '../data/chargingStations';
-import { orders as staticOrders } from '../data/orders';
-import { routes as staticRoutes } from '../data/routes';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import '../assets/styles/global.css';
 import 'leaflet/dist/leaflet.css';
-
-import Layout from "../components/Layout"; // 🔥 Sadece gerekli bileşeni import ediyoruz.
-import { customers as staticCustomers } from "../data/customers";
+import Layout from "../components/Layout";
 
 export default function RouteOptimization() {
   const [algorithm, setAlgorithm] = useState("Simulated Annealing");
   const [comparisonResults, setComparisonResults] = useState([]);
   const [openComparison, setOpenComparison] = useState(false);
   const [openOptimization, setOpenOptimization] = useState(false);
+  const [data, setData] = useState(null);
+
+  // Hata yönetimi fonksiyonu
+  const handleError = (error) => {
+    console.error("API Hatası:", error);
+  };
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/routes')
+      .then(response => {
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setData(response.data[0]); // İlk RoutePlan verisini al
+        } else {
+          console.warn("Boş veri döndü!");
+        }
+      })
+      .catch(handleError); // Hata yönetimi burada kullanılıyor
+  }, []);
 
   const routeColors = {
     "Simulated Annealing": "blue",
@@ -21,9 +34,29 @@ export default function RouteOptimization() {
     "OR-Tools": "red",
   };
 
-  const plannedRoutes = staticRoutes[algorithm] ? staticRoutes[algorithm].map(r => ({ positions: r.path || [] })) : [];
-  const completedRoutes = staticRoutes["Completed"] ? staticRoutes["Completed"].map(r => ({ positions: r.path || [] })) : [];
-  const traffic = staticRoutes["Traffic"] ? staticRoutes["Traffic"].map(r => ({ positions: r.path || [] })) : [];
+  if (!data || !data.Routes) {
+    return <p>Loading...</p>; // Veri yüklenmezse çökmeyi önler
+  }
+
+  const plannedRoutes = data.Routes.map(route => ({
+    positions: route.Nodes?.map(node => [
+      parseFloat(node.Location?.Latitude) || 0, 
+      parseFloat(node.Location?.Longitude) || 0
+    ])
+  })) || [];
+
+  const completedRoutes = plannedRoutes; // Gerçek tamamlanan rotaları belirlemek için API'de ayrım yapılabilir
+
+  // Trafik verisini çekme (Örnek bir eşik değeri kullanıldı)
+  const traffic = data.Routes.flatMap(route =>
+    route.Nodes?.filter(node => node.PerformanceMeasure?.AccEnergy > 200)
+      .map(node => ({
+        positions: [[
+          parseFloat(node.Location?.Latitude) || 0, 
+          parseFloat(node.Location?.Longitude) || 0
+        ]]
+      }))
+  ) || [];
 
   const runComparison = () => {
     const results = [
@@ -41,10 +74,16 @@ export default function RouteOptimization() {
 
   return (
     <Layout
-      customers={staticCustomers}
-      vehicles={staticVehicles}
-      chargingStations={staticChargingStations}
-      orders={staticOrders}
+      customers={data.Routes.flatMap(route => route.Nodes?.filter(node => node.$?.NodeType === "Customer")) || []}
+      vehicles={data.Routes.map(route => ({
+        id: route.VehicleId, 
+        position: [
+          parseFloat(route.Nodes?.[0]?.Location?.Latitude) || 0, 
+          parseFloat(route.Nodes?.[0]?.Location?.Longitude) || 0
+        ]
+      })) || []}
+      chargingStations={data.Routes.flatMap(route => route.Nodes?.filter(node => node.$?.NodeType === "Depot")) || []}
+      orders={data.Routes.flatMap(route => route.Nodes?.filter(node => node.$?.NodeType === "Customer")) || []}
       routeColors={routeColors}
       plannedRoutes={plannedRoutes}
       completedRoutes={completedRoutes}
