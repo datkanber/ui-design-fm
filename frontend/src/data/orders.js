@@ -5,7 +5,7 @@ export const orders = [
     { id: '60A/2', position: [39.749342, 30.474854], status: 'Planned', vehicleId: 3 },
 
     // Yeni eklenen siparişler
-    { id: 1, position: [39.751377, 30.481888], status: 'Requested', vehicleId: 1 },
+    { id: 1, position: [39.74973, 30.48176], status: 'Requested', vehicleId: 1 },
     { id: 2, position: [39.752487, 30.488123], status: 'On the way', vehicleId: 2 },
     { id: 3, position: [39.747232, 30.473770], status: 'Cancelled', vehicleId: 3 },
     { id: 4, position: [39.749342, 30.474854], status: 'Requested', vehicleId: 4 },
