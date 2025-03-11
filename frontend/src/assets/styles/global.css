@@ -439,3 +439,234 @@ body {
         font-size: 12px;
     }
 }
+
+/* Navbar Styles - Modern Design */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.navbar.dark {
+  background-color: #1a1a2e;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 70px;
+}
+
+/* Logo and Brand */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar-logo {
+  height: 40px;
+  width: auto;
+  margin-right: 1rem;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+}
+
+/* Navigation Links */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  text-decoration: none;
+  color: #555;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+.dark .nav-link {
+  color: #b3b3b3;
+}
+
+.nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #1976d2;
+}
+
+.dark .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #90caf9;
+}
+
+.nav-link.active {
+  background-color: rgba(25, 118, 210, 0.1);
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.dark .nav-link.active {
+  background-color: rgba(144, 202, 249, 0.2);
+  color: #90caf9;
+}
+
+.nav-icon {
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Controls */
+.navbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.theme-toggle, .chat-button {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dark .theme-toggle, .dark .chat-button {
+  color: #b3b3b3;
+}
+
+.theme-toggle:hover, .chat-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.dark .theme-toggle:hover, .dark .chat-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle .sun-icon {
+  color: #f9d71c;
+}
+
+.theme-toggle .moon-icon {
+  color: #5c6bc0;
+}
+
+.chat-button.blink {
+  animation: blinkAnimation 1s infinite alternate;
+}
+
+@keyframes blinkAnimation {
+  from { background-color: transparent; }
+  to { background-color: rgba(244, 67, 54, 0.2); }
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .navbar-links {
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0.5rem 1rem;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1010;
+  }
+
+  .navbar-links {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s, opacity 0.3s, visibility 0s 0.3s;
+    height: auto;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+
+  .dark .navbar-links {
+    background-color: #1a1a2e;
+  }
+
+  .navbar-links.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+  }
+
+  .brand-name {
+    font-size: 1.1rem;
+  }
+
+  .navbar-logo {
+    height: 32px;
+    margin-right: 0.5rem;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import BpmnEditor from "../components/BpmnEditor";
+import BpmnEditor from "../components/Bpmn/BpmnEditor";
 import FileUploader from "../components/FileUploader";
 
 const BpmnProcess = () => {

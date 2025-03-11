@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Card, CardContent, Typography, List, ListItem, Box, Chip, TextField, 
-  IconButton, Modal, Grid, FormControl, InputLabel, Select, MenuItem, 
+import {
+  Card, CardContent, Typography, List, ListItem, Box, Chip, TextField,
+  IconButton, Modal, Grid, FormControl, InputLabel, Select, MenuItem,
   Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, Button,
-  FormHelperText, Tooltip
+  FormHelperText, Tooltip, Radio, RadioGroup, FormControlLabel, FormLabel, CircularProgress,
+  ListItemIcon, ListItemText
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { keyframes, styled } from "@mui/system";
+import axios from "axios";
+import { loadTaskData } from "../../services/taskService";
 
 const statusColors = {
-  Requested: "#FFC107", // Yellow
-  "On the way": "#2196F3", // Blue
-  Delivered: "#4CAF50", // Green
-  Cancelled: "#F44336", // Red
+  Requested: "#FFC107",
+  "On the way": "#2196F3",
+  Delivered: "#4CAF50",
+  Cancelled: "#F44336",
 };
 
-// Blinking Animation (For pending and cancelled orders)
 const blink = keyframes`
   0% { opacity: 1; }
   50% { opacity: 0.3; }
@@ -32,12 +36,12 @@ const BlinkingCircle = styled(CircleIcon)(({ status }) => ({
 }));
 
 export default function CustomerPool({ customers: initialCustomers }) {
-  // Local state for managing customers internally
+  // Genel müşteri ve UI state'leri
   const [customers, setCustomers] = useState([]);
   const [originalCustomers, setOriginalCustomers] = useState([]);
   const [isNewDataAdded, setIsNewDataAdded] = useState(false);
-  
-  // Initialize customers state from props
+  const [downloadedFiles, setDownloadedFiles] = useState([]);
+
   useEffect(() => {
     if (initialCustomers && initialCustomers.length > 0) {
       setCustomers(initialCustomers);
@@ -51,25 +55,26 @@ export default function CustomerPool({ customers: initialCustomers }) {
     weight: "",
     timeWindow: ""
   });
+
   const [openTaskModal, setOpenTaskModal] = useState(false);
   const [openCustomerModal, setOpenCustomerModal] = useState(false);
-  
-  // New states for customer selection and detail modal
+
+  // Müşteri detay modalı state'leri
   const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
 
-  // New task form state
+  // Task form state
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
     assignedTo: [],
-    dueDate: '',  // Changed from Date object to string
+    dueDate: '',
     priority: 'medium',
     status: 'pending'
   });
-  
-  // New customer form state - modified to remove weight and add time range
+
+  // Customer form state
   const [customerForm, setCustomerForm] = useState({
     name: '',
     brand: '',
@@ -81,51 +86,34 @@ export default function CustomerPool({ customers: initialCustomers }) {
     status: 'Requested',
     notes: ''
   });
-  
-  // Form validation states
+
+  // Form doğrulama state'leri
   const [taskFormErrors, setTaskFormErrors] = useState({});
   const [customerFormErrors, setCustomerFormErrors] = useState({});
 
-  // Filtering function
+  // Filtreleme fonksiyonu
   const applyFilters = (customers) => {
     if (!customers) return [];
-    
     return customers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          customer.id?.toString().includes(searchTerm);
-      
-      const matchesDemand = !filterCriteria.demand || 
-                           customer.demand >= parseInt(filterCriteria.demand);
-      
-      const matchesWeight = !filterCriteria.weight || 
-                           customer.weight >= parseInt(filterCriteria.weight);
-      
-      const matchesTimeWindow = !filterCriteria.timeWindow || 
-                               (customer.timeWindow && customer.timeWindow.includes(filterCriteria.timeWindow));
-
+                              customer.id?.toString().includes(searchTerm);
+      const matchesDemand = !filterCriteria.demand || customer.demand >= parseInt(filterCriteria.demand);
+      const matchesWeight = !filterCriteria.weight || customer.weight >= parseInt(filterCriteria.weight);
+      const matchesTimeWindow = !filterCriteria.timeWindow || (customer.timeWindow && customer.timeWindow.includes(filterCriteria.timeWindow));
       return matchesSearch && matchesDemand && matchesWeight && matchesTimeWindow;
     });
   };
 
   const handleFilterChange = (field, value) => {
-    setFilterCriteria(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFilterCriteria(prev => ({ ...prev, [field]: value }));
   };
 
-  // Handle customer selection
   const handleCustomerSelect = (customerId) => {
-    setSelectedCustomers(prev => {
-      if (prev.includes(customerId)) {
-        return prev.filter(id => id !== customerId);
-      } else {
-        return [...prev, customerId];
-      }
-    });
+    setSelectedCustomers(prev =>
+      prev.includes(customerId) ? prev.filter(id => id !== customerId) : [...prev, customerId]
+    );
   };
 
-  // Open customer details modal
   const handleCustomerClick = (customer) => {
     setCurrentCustomer(customer);
     setDetailModalOpen(true);
@@ -136,65 +124,39 @@ export default function CustomerPool({ customers: initialCustomers }) {
     setCurrentCustomer(null);
   };
 
-  // Handle task form changes
   const handleTaskFormChange = (field, value) => {
-    setTaskForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    
-    // Clear error for this field if exists
+    setTaskForm(prev => ({ ...prev, [field]: value }));
     if (taskFormErrors[field]) {
-      setTaskFormErrors(prev => ({
-        ...prev,
-        [field]: null
-      }));
+      setTaskFormErrors(prev => ({ ...prev, [field]: null }));
     }
   };
 
-  // Handle customer form changes
   const handleCustomerFormChange = (field, value) => {
-    setCustomerForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    
-    // Clear error for this field if exists
+    setCustomerForm(prev => ({ ...prev, [field]: value }));
     if (customerFormErrors[field]) {
-      setCustomerFormErrors(prev => ({
-        ...prev,
-        [field]: null
-      }));
+      setCustomerFormErrors(prev => ({ ...prev, [field]: null }));
     }
   };
 
-  // Refresh functionality
   const handleRefresh = () => {
-    // Reset to original data or you could simulate fetching new data
     setCustomers(originalCustomers);
     setIsNewDataAdded(false);
     setSelectedCustomers([]);
   };
 
-  // Validate and submit task form
   const handleTaskSubmit = () => {
     const errors = {};
-    
     if (!taskForm.title.trim()) errors.title = "Title is required";
     if (!taskForm.description.trim()) errors.description = "Description is required";
     if (taskForm.assignedTo.length === 0) errors.assignedTo = "Assign to at least one customer";
     if (!taskForm.dueDate.trim()) errors.dueDate = "Due date is required";
-    
     if (Object.keys(errors).length > 0) {
       setTaskFormErrors(errors);
       return;
     }
-    
-    // Update customers with the task
-    setCustomers(prevCustomers => {
-      return prevCustomers.map(customer => {
+    setCustomers(prevCustomers =>
+      prevCustomers.map(customer => {
         if (taskForm.assignedTo.includes(customer.id)) {
-          // Add task to this customer
           return {
             ...customer,
             tasks: [...(customer.tasks || []), {
@@ -205,16 +167,13 @@ export default function CustomerPool({ customers: initialCustomers }) {
               priority: taskForm.priority,
               status: taskForm.status
             }],
-            status: "On the way" // Update status to show change
+            status: "On the way"
           };
         }
         return customer;
-      });
-    });
-    
+      })
+    );
     setIsNewDataAdded(true);
-    
-    // Reset form and close modal
     setTaskForm({
       title: '',
       description: '',
@@ -226,43 +185,31 @@ export default function CustomerPool({ customers: initialCustomers }) {
     setOpenTaskModal(false);
   };
 
-  // Validate and submit customer form
   const handleCustomerSubmit = () => {
     const errors = {};
-    
     if (!customerForm.name.trim()) errors.name = "Name is required";
     if (!customerForm.address.trim()) errors.address = "Address is required";
     if (!customerForm.demand) errors.demand = "Demand is required";
     if (!customerForm.orderDate.trim()) errors.orderDate = "Order date is required";
-    
-    // Validate time range if either start or end time is provided
     if ((customerForm.startTime && !customerForm.endTime) || (!customerForm.startTime && customerForm.endTime)) {
       errors.timeWindow = "Both start and end time must be provided";
     }
-    
     if (Object.keys(errors).length > 0) {
       setCustomerFormErrors(errors);
       return;
     }
-
-    // Create time window string from start and end time if provided
     let timeWindow = '';
     if (customerForm.startTime && customerForm.endTime) {
       timeWindow = `${customerForm.startTime}-${customerForm.endTime}`;
     }
-    
-    // Add the new customer to the list
     const newCustomer = {
       ...customerForm,
-      id: Date.now() + Math.random().toString(36).substring(2, 9), // Generate unique ID
+      id: Date.now() + Math.random().toString(36).substring(2, 9),
       demand: Number(customerForm.demand),
       timeWindow: timeWindow
     };
-    
-    setCustomers(prevCustomers => [...prevCustomers, newCustomer]);
+    setCustomers(prev => [...prev, newCustomer]);
     setIsNewDataAdded(true);
-    
-    // Reset form and close modal
     setCustomerForm({
       name: '',
       brand: '',
@@ -291,6 +238,192 @@ export default function CustomerPool({ customers: initialCustomers }) {
 
   const filteredCustomers = applyFilters(customers);
 
+  // ESOGU Task Selection modal state
+  const [openEsoguModal, setOpenEsoguModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [taskError, setTaskError] = useState('');
+
+  const handleOpenEsoguModal = () => setOpenEsoguModal(true);
+  const handleCloseEsoguModal = () => setOpenEsoguModal(false);
+
+  const handleTaskSelection = (event) => {
+    setSelectedTask(event.target.value);
+    setTaskError('');
+  };
+
+  const saveResponseToPublicOutput = async (data, contentType, filename) => {
+    try {
+      const blob = new Blob([data], { type: contentType });
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      const saveResponse = await axios.post('http://localhost:3001/save-file', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      console.log('File saved to public/output:', saveResponse.data);
+      return saveResponse.data.path;
+    } catch (error) {
+      console.error('Error saving file to public/output:', error);
+      return null;
+    }
+  };
+
+  const saveZipToPublicOutput = async (data, filename) => {
+    try {
+      const blob = new Blob([data], { type: 'application/zip' });
+      const formData = new FormData();
+      formData.append('zipFile', blob, filename);
+      const saveResponse = await axios.post('http://localhost:3001/save-zip', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      console.log('Zip saved and extracted to public/output:', saveResponse.data);
+      return saveResponse.data;
+    } catch (error) {
+      console.error('Error saving zip to public/output:', error);
+      return null;
+    }
+  };
+
+  const handleTaskConfirm = async () => {
+    if (!selectedTask) {
+      setTaskError('Please select a task');
+      return;
+    }
+  
+    // Save to localStorage
+    localStorage.setItem('selectedEsoguTask', selectedTask);
+    
+    // Dispatch a custom event to notify other components
+    const taskSelectedEvent = new CustomEvent('esoguTaskSelected', { 
+      detail: { task: selectedTask } 
+    });
+    window.dispatchEvent(taskSelectedEvent);
+    
+    alert(`Task ${selectedTask} selected successfully! Click "Start Optimize" in the Optimization panel to process.`);
+    handleCloseEsoguModal();
+  };
+  //   setIsLoading(true);
+  //   try {
+  //     // Load task data using the imported function
+  //     // const taskDataResponse = await loadTaskData(selectedTask);
+  //     const formData = new FormData();
+  //     const filesToFetch = [
+  //       { path: `/esogu_dataset/Info4Tasks/newesoguv32-${selectedTask.toLowerCase()}-ds1.xml`, name: `newesoguv32-${selectedTask.toLowerCase()}-ds1.xml` },
+  //       { path: '/esogu_dataset/Info4Environment/Info4Environment.xml', name: 'Info4Environment.xml' },
+  //       { path: '/esogu_dataset/Info4ChargingStation/Info4ChargingStation.xml', name: 'Info4ChargingStation.xml' },
+  //       { path: '/esogu_dataset/Info4Vehicle/FC_Info4Vehicle.xml', name: 'FC_Info4Vehicle.xml' },
+  //       { path: '/esogu_dataset/Map4Environment/Map4Environment.xml', name: 'Map4Environment.xml' },
+  //       { path: '/esogu_dataset/Input4Algorithm/Input.xml', name: 'Input.xml' }
+  //     ];
+      
+  //     for (const file of filesToFetch) {
+  //       const response = await fetch(file.path);
+  //       const blob = await response.blob();
+  //       formData.append('input_files', blob, file.name);
+  //     }
+      
+  //     formData.append('taskType', selectedTask);
+      
+  //     const response = await axios.post('http://localhost:8000/start_alns', formData, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //       responseType: 'blob'
+  //     });
+      
+
+      
+  //     console.log('Algorithm response:', response);
+  //     const savedFiles = [];
+    
+  //     if (response.headers['content-type'] === 'application/zip') {
+  //       let filename = `output_${selectedTask}_${new Date().getTime()}.zip`;
+  //       const contentDisposition = response.headers['content-disposition'];
+  //       if (contentDisposition) {
+  //         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+  //         if (filenameMatch) {
+  //           filename = filenameMatch[1];
+  //         }
+  //       }
+  //       const saveResult = await saveZipToPublicOutput(response.data, filename);
+  //       if (saveResult) {
+  //         savedFiles.push({ name: filename, path: saveResult.zipPath, type: 'application/zip' });
+  //       }
+  //     } else if (response.headers['content-type'].includes('application/json')) {
+  //       const jsonResponse = JSON.parse(new TextDecoder().decode(response.data));
+  //       if (jsonResponse.xmlFiles) {
+  //         for (const [filename, content] of Object.entries(jsonResponse.xmlFiles)) {
+  //           const blob = base64ToBlob(content, 'application/xml');
+  //           const filePath = await saveResponseToPublicOutput(blob, 'application/xml', filename);
+  //           if (filePath) {
+  //             savedFiles.push({ name: filename, path: filePath, type: 'application/xml' });
+  //           }
+  //         }
+  //       }
+  //       if (jsonResponse.jsonFile) {
+  //         const jsonContent = JSON.stringify(jsonResponse.jsonFile);
+  //         const filename = `output_${selectedTask}_${new Date().getTime()}.json`;
+  //         const filePath = await saveResponseToPublicOutput(jsonContent, 'application/json', filename);
+  //         if (filePath) {
+  //           savedFiles.push({ name: filename, path: filePath, type: 'application/json' });
+  //         }
+  //       }
+  //       if (jsonResponse.customers) {
+  //         setCustomers(jsonResponse.customers);
+  //         setOriginalCustomers(jsonResponse.customers);
+  //         setIsNewDataAdded(true);
+  //       }
+  //     } else {
+  //       const contentType = response.headers['content-type'] || 'application/octet-stream';
+  //       const fileExtension = getFileExtensionFromMimeType(contentType);
+  //       let filename = `output_${selectedTask}_${new Date().getTime()}.${fileExtension}`;
+  //       const contentDisposition = response.headers['content-disposition'];
+  //       if (contentDisposition) {
+  //         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+  //         if (filenameMatch) {
+  //           filename = filenameMatch[1];
+  //         }
+  //       }
+  //       const filePath = await saveResponseToPublicOutput(response.data, contentType, filename);
+  //       if (filePath) {
+  //         savedFiles.push({ name: filename, path: filePath, type: contentType });
+  //       }
+  //     }
+      
+  //     setDownloadedFiles(savedFiles);
+  //     alert('Algorithm executed successfully! Files have been saved to public/output directory.');
+      
+  //   } catch (error) {
+  //     console.error('Error processing task data:', error);
+  //     setTaskError('Failed to process task data. Please try again.');
+  //   } finally {
+  //     setIsLoading(false);
+  //     handleCloseEsoguModal();
+  //   }
+  // };
+
+  // const base64ToBlob = (base64, mimeType) => {
+  //   const byteCharacters = atob(base64);
+  //   const byteArrays = [];
+  //   for (let i = 0; i < byteCharacters.length; i += 512) {
+  //     const slice = byteCharacters.slice(i, i + 512);
+  //     const byteNumbers = new Array(slice.length);
+  //     for (let j = 0; j < slice.length; j++) {
+  //       byteNumbers[j] = slice.charCodeAt(j);
+  //     }
+  //     const byteArray = new Uint8Array(byteNumbers);
+  //     byteArrays.push(byteArray);
+  //   }
+  //   return new Blob(byteArrays, { type: mimeType });
+  // };
+
+  // const getFileExtensionFromMimeType = (mimeType) => {
+  //   const extensions = {
+  //     'application/json': 'json',
+  //     'application/xml': 'xml',
+  //     'application/octet-stream': 'bin',
+  //     'text/plain': 'txt'
+  //   };
+  //   return extensions[mimeType] || 'bin';
+
   return (
     <Card
       sx={{
@@ -299,7 +432,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
         backgroundColor: "#FFFFFF",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
         border: "1px solid #E0E0E0",
-        height: "681px",
+        height: "90vh",
         width: "100%",
         maxWidth: "750px",
         margin: "auto",
@@ -372,7 +505,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
         {/* Title and Icons */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Typography
-            variant="h5"
+            variant="h6"
             sx={{
               color: "#222",
               fontWeight: 700,
@@ -391,6 +524,15 @@ export default function CustomerPool({ customers: initialCustomers }) {
             )}
           </Typography>
           <Box>
+            <Tooltip title="Select ESOGU Task Data">
+              <IconButton 
+                color="primary" 
+                onClick={handleOpenEsoguModal}
+                sx={{ mr: 1 }}
+              >
+                <CheckCircleIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Refresh Data">
               <IconButton 
                 color="primary" 
@@ -418,8 +560,23 @@ export default function CustomerPool({ customers: initialCustomers }) {
               </IconButton>
             </Tooltip>
           </Box>
+          {downloadedFiles.length > 0 && (
+            <Box sx={{ mt: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>Downloaded Output Files:</Typography>
+              <List dense>
+                {downloadedFiles.map((file, index) => (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <DescriptionIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={file.name} secondary={file.type} />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          )}
         </Box>
-
+        
         {/* Status Labels */}
         <Box
           display="flex"
@@ -445,9 +602,8 @@ export default function CustomerPool({ customers: initialCustomers }) {
         </Box>
       </CardContent>
 
-      {/* Scrollable Customer List (Simplified View) */}
-      <Box sx={{ flex: "1 1 auto", overflowY: "auto", padding: "0 10px", scrollbarWidth: "thin", scrollbarColor: "#999 #ddd" }}>
-        {/* Column headers with dividers */}
+      {/* Scrollable Customer List */}
+      <Box sx={{flex: "1 1 auto", overflowY: "auto", padding: "0 10px", scrollbarWidth: "thin", scrollbarColor: "#999 #ddd" }}>
         <Box
           sx={{
             display: 'flex',
@@ -461,32 +617,24 @@ export default function CustomerPool({ customers: initialCustomers }) {
             borderRadius: '8px 8px 0 0',
           }}
         >
-          <Box sx={{ width: '5%' }}></Box> {/* Checkbox space */}
-          <Box sx={{ width: '30%', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Time Window</Box>
-          <Box sx={{ 
-            height: '20px', 
-            borderRight: '1px solid #ccc',
-            mx: 1 
-          }}></Box>
-          <Box sx={{ width: '45%', fontWeight: 600, fontSize: '0.85rem', color: '#555' }}>Customer</Box>
-          <Box sx={{ 
-            height: '20px', 
-            borderRight: '1px solid #ccc',
-            mx: 1 
-          }}></Box>
-          <Box sx={{ width: '20%', fontWeight: 600, fontSize: '0.85rem', color: '#555', textAlign: 'right' }}>Amount</Box>
+          <Box sx={{ width: '5%' }}></Box>
+          <Box sx={{ width: '30%', fontWeight: 600, fontSize: '0.75rem', color: '#555' }}>Time Window</Box>
+          <Box sx={{ height: '20px', borderRight: '1px solid #ccc', mx: 1 }}></Box>
+          <Box sx={{ width: '45%', fontWeight: 600, fontSize: '0.75rem', color: '#555' }}>Customer</Box>
+          <Box sx={{ height: '20px', borderRight: '1px solid #ccc', mx: 1 }}></Box>
+          <Box sx={{ width: '20%', fontWeight: 600, fontSize: '0.75rem', color: '#555', textAlign: 'right' }}>Amount</Box>
         </Box>
 
         <List sx={{ paddingRight: "5px" }}>
           {filteredCustomers.length > 0 ? (
             filteredCustomers.map((customer, index) => (
-              <ListItem key={customer.id || index} divider sx={{ padding: "8px 0" }}>
+              <ListItem key={customer.id || index} divider sx={{ padding: "6px 0" }}>
                 <Box
                   display="flex"
                   alignItems="center"
                   width="100%"
                   sx={{
-                    padding: "8px 12px",
+                    padding: "6px 10px",
                     backgroundColor: "#FFFFFF",
                     borderRadius: "10px",
                     borderLeft: `5px solid ${statusColors[customer.status]}`,
@@ -498,17 +646,15 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     },
                   }}
                 >
-                  {/* Checkbox for selection */}
                   <Checkbox 
                     checked={selectedCustomers.includes(customer.id)}
                     onChange={(e) => {
                       e.stopPropagation();
                       handleCustomerSelect(customer.id);
                     }}
-                    sx={{ padding: "4px" }}
+                    sx={{ padding: "2px" }}
+                    size="small"
                   />
-                  
-                  {/* 3-Column Layout with dividers - Clickable to see details */}
                   <Box 
                     display="flex" 
                     justifyContent="space-between" 
@@ -516,51 +662,32 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     width="100%"
                     onClick={() => handleCustomerClick(customer)}
                   >
-                    {/* Column 1: Status Dot + Time Window */}
-                    <Box sx={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      width: '30%',
-                      paddingRight: 1 
-                    }}>
-                      <BlinkingCircle status={customer.status} sx={{ mr: 1 }} />
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", width: '30%', paddingRight: 1 }}>
+                      <BlinkingCircle status={customer.status} sx={{ mr: 1, fontSize: "1rem" }} />
+                      <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
                         {customer.timeWindow || "Any time"}
                       </Typography>
                     </Box>
-                    
-                    {/* Divider 1 */}
-                    <Box sx={{ 
-                      height: '30px', 
-                      borderRight: '1px solid #e0e0e0',
-                      mx: 1 
-                    }}></Box>
-                    
-                    {/* Column 2: Customer Name */}
+                    <Box sx={{ height: '24px', borderRight: '1px solid #e0e0e0', mx: 1 }}></Box>
                     <Box sx={{ width: '45%' }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
                         {customer.name}
                         {customer.tasks && customer.tasks.length > 0 && (
                           <Chip 
                             label={`${customer.tasks.length} task${customer.tasks.length > 1 ? 's' : ''}`}
                             size="small"
                             color="primary"
-                            sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                            sx={{ ml: 1, height: 16, fontSize: '0.6rem' }}
                           />
                         )}
                       </Typography>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
+                        {customer.address?.substring(0, 30)}{customer.address?.length > 30 ? '...' : ''}
+                      </Typography>
                     </Box>
-                    
-                    {/* Divider 2 */}
-                    <Box sx={{ 
-                      height: '30px', 
-                      borderRight: '1px solid #e0e0e0',
-                      mx: 1 
-                    }}></Box>
-                    
-                    {/* Column 3: Request Details (units) */}
+                    <Box sx={{ height: '24px', borderRight: '1px solid #e0e0e0', mx: 1 }}></Box>
                     <Box sx={{ width: '20%', textAlign: "right" }}>
-                      <Typography variant="body2">
+                      <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
                         {customer.demand} adet
                       </Typography>
                     </Box>
@@ -570,7 +697,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
             ))
           ) : (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="body1" color="textSecondary">
+              <Typography variant="body2" color="textSecondary">
                 No customers found. Add a new customer or adjust your filters.
               </Typography>
             </Box>
@@ -587,86 +714,51 @@ export default function CustomerPool({ customers: initialCustomers }) {
       >
         {currentCustomer && (
           <>
-            <DialogTitle sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              borderBottom: `3px solid ${statusColors[currentCustomer.status]}`
-            }}>
-              <Typography variant="h6">Customer Details</Typography>
-              <Chip
-                label={currentCustomer.status}
-                sx={{
-                  backgroundColor: statusColors[currentCustomer.status],
-                  color: "#fff",
-                  fontWeight: 600,
-                }}
-              />
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: `3px solid ${statusColors[currentCustomer.status]}`, py: 1.5 }}>
+              <Typography variant="subtitle1">Customer Details</Typography>
+              <Chip label={currentCustomer.status} size="small" sx={{ backgroundColor: statusColors[currentCustomer.status], color: "#fff", fontWeight: 600, fontSize: '0.7rem' }} />
             </DialogTitle>
-            <DialogContent sx={{ mt: 2 }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+            <DialogContent sx={{ mt: 1.5 }}>
+              <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 700 }}>
                 {currentCustomer.name}
               </Typography>
-              
-              <Grid container spacing={2}>
+              <Grid container spacing={1.5}>
                 <Grid item xs={6}>
-                  <Typography variant="body1">
-                    <strong>📦 Brand:</strong> {currentCustomer.brand}
-                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>📦 Brand:</strong> {currentCustomer.brand}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body1">
-                    <strong>📍 Address:</strong> {currentCustomer.address}
-                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>📍 Address:</strong> {currentCustomer.address}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body1">
-                    <strong>📦 Demand:</strong> {currentCustomer.demand} adet
-                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>📦 Demand:</strong> {currentCustomer.demand} adet</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body1">
-                    <strong>📆 Order Date:</strong> {currentCustomer.orderDate}
-                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>📆 Order Date:</strong> {currentCustomer.orderDate}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body1">
-                    <strong>⏱️ Time Window:</strong> {currentCustomer.timeWindow || "Any time"}
-                  </Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>⏱️ Time Window:</strong> {currentCustomer.timeWindow || "Any time"}</Typography>
                 </Grid>
                 {currentCustomer.notes && (
                   <Grid item xs={12}>
-                    <Typography variant="body1">
-                      <strong>📝 Notes:</strong> {currentCustomer.notes}
-                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem' }}><strong>📝 Notes:</strong> {currentCustomer.notes}</Typography>
                   </Grid>
                 )}
-                {/* Show tasks if any */}
                 {currentCustomer.tasks && currentCustomer.tasks.length > 0 && (
-                  <Grid item xs={12} sx={{ mt: 2 }}>
-                    <Typography variant="h6" sx={{ mb: 1 }}>
-                      Assigned Tasks
-                    </Typography>
+                  <Grid item xs={12} sx={{ mt: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5, fontSize: '0.85rem' }}>Assigned Tasks</Typography>
                     {currentCustomer.tasks.map((task, index) => (
-                      <Box key={task.id || index} sx={{ 
-                        mb: 1, 
-                        p: 1, 
-                        border: '1px solid #e0e0e0',
-                        borderRadius: 1,
-                        backgroundColor: '#f9f9f9'
-                      }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      <Box key={task.id || index} sx={{ mb: 0.8, p: 0.8, border: '1px solid #e0e0e0', borderRadius: 1, backgroundColor: '#f9f9f9' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.75rem' }}>
                           {task.title}
                           <Chip
                             label={task.priority}
                             size="small"
                             color={task.priority === 'high' ? 'error' : (task.priority === 'medium' ? 'warning' : 'default')}
-                            sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                            sx={{ ml: 1, height: 16, fontSize: '0.6rem' }}
                           />
                         </Typography>
-                        <Typography variant="body2">{task.description}</Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          Due: {task.dueDate}
-                        </Typography>
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>{task.description}</Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.65rem' }}>Due: {task.dueDate}</Typography>
                       </Box>
                     ))}
                   </Grid>
@@ -674,14 +766,12 @@ export default function CustomerPool({ customers: initialCustomers }) {
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={closeDetailModal}>Close</Button>
+              <Button onClick={closeDetailModal} size="small">Close</Button>
               <Button 
                 variant="contained" 
-                color="primary"
-                onClick={() => {
-                  handleCustomerSelect(currentCustomer.id);
-                  closeDetailModal();
-                }}
+                color="primary" 
+                size="small"
+                onClick={() => { handleCustomerSelect(currentCustomer.id); closeDetailModal(); }}
               >
                 {selectedCustomers.includes(currentCustomer.id) ? "Deselect" : "Select"}
               </Button>
@@ -691,15 +781,9 @@ export default function CustomerPool({ customers: initialCustomers }) {
       </Dialog>
 
       {/* Add Task Modal */}
-      <Modal
-        open={openTaskModal}
-        onClose={() => setOpenTaskModal(false)}
-      >
+      <Modal open={openTaskModal} onClose={() => setOpenTaskModal(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Add New Task
-          </Typography>
-          
+          <Typography variant="h6" sx={{ mb: 2 }}>Add New Task</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -713,7 +797,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -728,7 +811,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12}>
               <FormControl fullWidth error={!!taskFormErrors.assignedTo}>
                 <InputLabel>Assign To</InputLabel>
@@ -740,9 +822,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {selected.map((customerId) => {
                         const customer = customers.find(c => c.id === customerId);
-                        return customer ? (
-                          <Chip key={customerId} label={customer.name} />
-                        ) : null;
+                        return customer ? <Chip key={customerId} label={customer.name} /> : null;
                       })}
                     </Box>
                   )}
@@ -754,21 +834,16 @@ export default function CustomerPool({ customers: initialCustomers }) {
                     </MenuItem>
                   ))}
                 </Select>
-                {taskFormErrors.assignedTo && (
-                  <FormHelperText>{taskFormErrors.assignedTo}</FormHelperText>
-                )}
+                {taskFormErrors.assignedTo && <FormHelperText>{taskFormErrors.assignedTo}</FormHelperText>}
               </FormControl>
             </Grid>
-            
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Due Date"
                 type="date"
                 variant="outlined"
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                InputLabelProps={{ shrink: true }}
                 value={taskForm.dueDate}
                 onChange={(e) => handleTaskFormChange('dueDate', e.target.value)}
                 error={!!taskFormErrors.dueDate}
@@ -776,7 +851,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
@@ -791,34 +865,17 @@ export default function CustomerPool({ customers: initialCustomers }) {
               </FormControl>
             </Grid>
           </Grid>
-          
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            <Button 
-              onClick={() => setOpenTaskModal(false)} 
-              sx={{ mr: 1 }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleTaskSubmit}
-            >
-              Create Task
-            </Button>
+            <Button onClick={() => setOpenTaskModal(false)} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" onClick={handleTaskSubmit}>Create Task</Button>
           </Box>
         </Box>
       </Modal>
 
       {/* Add Customer Modal */}
-      <Modal
-        open={openCustomerModal}
-        onClose={() => setOpenCustomerModal(false)}
-      >
-        <Box sx={{...modalStyle, width: 500}}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Add New Customer
-          </Typography>
-          
+      <Modal open={openCustomerModal} onClose={() => setOpenCustomerModal(false)}>
+        <Box sx={{ ...modalStyle, width: 500 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>Add New Customer</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -832,7 +889,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -842,7 +898,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 onChange={(e) => handleCustomerFormChange('brand', e.target.value)}
               />
             </Grid>
-            
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -855,7 +910,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -869,16 +923,13 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Order Date"
                 type="date"
                 variant="outlined"
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                InputLabelProps={{ shrink: true }}
                 value={customerForm.orderDate}
                 onChange={(e) => handleCustomerFormChange('orderDate', e.target.value)}
                 error={!!customerFormErrors.orderDate}
@@ -886,8 +937,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 required
               />
             </Grid>
-            
-            {/* Time Range Selection - Replaces the time window dropdown */}
             <Grid item xs={12}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Time Window</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -896,12 +945,8 @@ export default function CustomerPool({ customers: initialCustomers }) {
                   type="time"
                   value={customerForm.startTime}
                   onChange={(e) => handleCustomerFormChange('startTime', e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    step: 300, // 5 min
-                  }}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ step: 300 }}
                   sx={{ mr: 1, flexGrow: 1 }}
                 />
                 <Typography sx={{ mx: 1 }}>to</Typography>
@@ -910,12 +955,8 @@ export default function CustomerPool({ customers: initialCustomers }) {
                   type="time"
                   value={customerForm.endTime}
                   onChange={(e) => handleCustomerFormChange('endTime', e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    step: 300, // 5 min
-                  }}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ step: 300 }}
                   sx={{ ml: 1, flexGrow: 1 }}
                 />
               </Box>
@@ -923,7 +964,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 <FormHelperText error>{customerFormErrors.timeWindow}</FormHelperText>
               )}
             </Grid>
-            
             <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
@@ -938,7 +978,6 @@ export default function CustomerPool({ customers: initialCustomers }) {
                 </Select>
               </FormControl>
             </Grid>
-            
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -951,19 +990,59 @@ export default function CustomerPool({ customers: initialCustomers }) {
               />
             </Grid>
           </Grid>
-          
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            <Button 
-              onClick={() => setOpenCustomerModal(false)} 
-              sx={{ mr: 1 }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleCustomerSubmit}
-            >
-              Add Customer
+            <Button onClick={() => setOpenCustomerModal(false)} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" onClick={handleCustomerSubmit}>Add Customer</Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* ESOGU Task Selection Modal */}
+      <Modal open={openEsoguModal} onClose={handleCloseEsoguModal}>
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+            Select ESOGU Task Data
+          </Typography>
+          <FormControl component="fieldset" sx={{ width: '100%' }}>
+            <FormLabel component="legend">Available Tasks</FormLabel>
+            <RadioGroup value={selectedTask} onChange={handleTaskSelection} sx={{ mt: 1 }}>
+              <Typography variant="subtitle2" sx={{ mt: 1, fontWeight: 'bold' }}>Clustered Tasks (C)</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {['C05', 'C10', 'C20', 'C40', 'C60'].map(task => (
+                  <FormControlLabel key={task} value={task} control={<Radio />} label={task} />
+                ))}
+              </Box>
+              <Typography variant="subtitle2" sx={{ mt: 1, fontWeight: 'bold' }}>Random Tasks (R)</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {['R05', 'R10', 'R20', 'R40', 'R60'].map(task => (
+                  <FormControlLabel key={task} value={task} control={<Radio />} label={task} />
+                ))}
+              </Box>
+              <Typography variant="subtitle2" sx={{ mt: 1, fontWeight: 'bold' }}>Random-Clustered Tasks (RC)</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {['RC05', 'RC10', 'RC20', 'RC40', 'RC60'].map(task => (
+                  <FormControlLabel key={task} value={task} control={<Radio />} label={task} />
+                ))}
+              </Box>
+            </RadioGroup>
+          </FormControl>
+          {taskError && (
+            <Typography color="error" sx={{ mt: 1 }}>{taskError}</Typography>
+          )}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button onClick={handleCloseEsoguModal} sx={{ mr: 1 }}>Cancel</Button>
+            <Button variant="contained" onClick={handleTaskConfirm} disabled={isLoading || !selectedTask}>
+              {isLoading ? <CircularProgress size={24} /> : 'Confirm'}
             </Button>
           </Box>
         </Box>

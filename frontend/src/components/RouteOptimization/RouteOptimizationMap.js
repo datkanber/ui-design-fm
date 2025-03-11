@@ -4,9 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Poly
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import vehicleIconImg from '../assets/icons/vehicle.png';
-import stationIconImg from '../assets/icons/station.png';
-import orderIconImg from '../assets/icons/order.png';
+import vehicleIconImg from '../../assets/icons/vehicle.png';
+import stationIconImg from '../../assets/icons/station.png';
+import orderIconImg from '../../assets/icons/order.png';
 
 export default function RouteOptimizationMap({ vehicles, chargingStations, routeColors, orders, plannedRoutes, completedRoutes, traffic, height }) {
   const vehicleIcon = new L.Icon({ iconUrl: vehicleIconImg, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });

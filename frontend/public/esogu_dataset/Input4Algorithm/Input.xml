@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- ALNS Algoritması için Parametreler -->
+
+    <Algorithm name="ALNS">
+        <Parameters>
+            <Parameter name="maxIterations" type="int">500</Parameter>
+            <Parameter name="cooling_rate" type="float">0.99950</Parameter>
+            <Parameter name="initial_temperature" type="int">10000</Parameter>
+            <Parameter name="N" type="int">4</Parameter>
+            <Parameter name="K" type="int">15</Parameter>
+            <Parameter name="Z" type="int">1</Parameter>
+        </Parameters>
+    </Algorithm>
+    <!-- SA Algoritması için Parametreler -->
+    <Algorithm name="SA">
+        <Parameters>
+            <Parameter name="initial_temperature" type="float">1000</Parameter>
+            <Parameter name="cooling_rate" type="float">0.003</Parameter>
+            <Parameter name="max_iteration" type="int">1000</Parameter>
+            <Parameter name="folder_path" type="string">/path/to/file</Parameter>
+            <Parameter name="output_excel_path" type="string">/path/to/output/excel</Parameter>
+            <Parameter name="tank_capacity" type="int">7200</Parameter>
+            <Parameter name="load_capacity" type="int">200</Parameter>
+            <Parameter name="fuel_consumption_rate" type="float">1.0</Parameter>
+            <Parameter name="charging_rate" type="float">0.18</Parameter>
+            <Parameter name="velocity" type="float">12.5</Parameter>
+        </Parameters>
+    </Algorithm>
+</Input>
