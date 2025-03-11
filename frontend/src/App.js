@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import RouteOptimization from './pages/RouteOptimization';
-import BpmnProcess from "./pages/BpmnProcess";
 import FleetMonitoring from './pages/FleetMonitoring';
 import Maintenance from './pages/Maintenance';
 import EVCharging from './pages/EVCharging';
@@ -49,6 +48,7 @@ export default function App() {
       />
 
       {chatOpen && <ChatBox vehicles={vehicles} />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/route-optimization" element={<RouteOptimization algorithm={algorithm} setAlgorithm={setAlgorithm} />} />
@@ -60,6 +60,8 @@ export default function App() {
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/demand-planning" element={<DemandPlanning />} />
       </Routes>
+
+      {/* Footer'a Dark Mode Prop'u Eklendi */}
       <Footer vehicles={vehicles} darkMode={darkMode} />
     </Router>
   );

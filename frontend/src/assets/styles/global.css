@@ -64,6 +64,17 @@ body {
 .leaflet-control-layers label {
   color: white !important;
 }
+.leaflet-control-layers {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 8px;
+  padding: 6px;
+  opacity: 0.9;
+}
+
+.leaflet-control-layers label {
+  color: white !important;
+}
 
 /* ===================================
    SCROLLING BANNER - IMPROVED DESIGN
