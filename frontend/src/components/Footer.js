@@ -1,7 +1,7 @@
 import React from 'react';
 import '../assets/styles/global.css';
 
-export default function Footer({ vehicles = [], chargingStations = [] }) {
+export default function Footer({ vehicles = [], chargingStations = [], darkMode }) {
     // Acil durumda olan araçları filtreler Hello
     const urgentVehicles = vehicles.filter(vehicle => 
         Number(vehicle.soc) < 20 || vehicle.velocity === 0 || vehicle.deliveryDeadlineApproaching

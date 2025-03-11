@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import BpmnEditor from "../components/Bpmn/BpmnEditor";
-import FileUploader from "../components/FileUploader";
+import FileUploader from "../components/Bpmn/FileUploader";
 
 const BpmnProcess = () => {
   const [xmlData, setXmlData] = useState(null);

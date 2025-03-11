@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "../assets/styles/global.css";
-import arrowRight from "../assets/icons/arrow_right.png";  
-import arrowLeft from "../assets/icons/arrow_left.png";    
-import arrowUp from "../assets/icons/arrow_up.png";        
-import arrowDown from "../assets/icons/arrow_down.png";    
-import stationIconImg from "../assets/icons/station.png";  
-import orderIconImg from "../assets/icons/order.png";      
-import RouteDetailPanel from "./RouteDetailPanel"; 
+import "../../assets/styles/global.css";
+import arrowRight from "../../assets/icons/arrow_right.png";  
+import arrowLeft from "../../assets/icons/arrow_left.png";    
+import arrowUp from "../../assets/icons/arrow_up.png";        
+import arrowDown from "../../assets/icons/arrow_down.png";    
+import stationIcon from "../../assets/icons/station.png";  
+import orderIconImg from "../../assets/icons/order.png";      
+import RouteDetailPanel from "../RouteDetailPanel"; 
 
 export default function RouteOptimizationMap({ vehicles, chargingStations, routeColors, orders, plannedRoutes, completedRoutes, height }) {
   const [selectedRoute, setSelectedRoute] = useState(null);

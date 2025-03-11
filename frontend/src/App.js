@@ -12,6 +12,7 @@ import Inventory from './pages/Inventory';
 import DemandPlanning from './pages/DemandPlanning';
 import ChatBox from './components/ChatBox';
 import Footer from './components/Footer';
+import BpmnProcess from './pages/BpmnProcess';
 import { vehicles } from './data/vehicles';
 import useAlertBlink from './hooks/useAlertBlink';
 import './assets/styles/global.css';
