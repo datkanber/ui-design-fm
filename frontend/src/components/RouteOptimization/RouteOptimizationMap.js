@@ -58,6 +58,7 @@ export default function RouteOptimizationMap({ vehicles, chargingStations, route
   };
 
   return (
+    <div>
     <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: '12px', overflow: 'hidden' }}>
       <LayersControl position="topright">
         <LayersControl.BaseLayer checked name="OpenStreetMap">
