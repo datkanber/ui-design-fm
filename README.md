@@ -17,11 +17,11 @@ Bu uygulama OPEVA ve SUIT projesi kapsamında bir filo yöneticisinin gözünden
 ## Kurulum
 Projeyi klonlayın
 ```bash
-  git clone
+  git clone https://github.com/datkanber/ui-design-fm.git
 ```
 Proje dizinine gidin
 ```bash
-  cd my-project
+  cd ui-design-fm
 ```
 Gerekli paketleri yükleyin
 ```bash
@@ -29,10 +29,17 @@ Gerekli paketleri yükleyin
 ```
 Uygulamayı başlatın
 ```bash
+  cd frontend
   npm start
 ```
+Yeni bir terminal penceresi açın ve sunucuyu başlatın
+```bash
+  cd backend
+  node server.js
+```
+
 ## Ekran Görüntüleri
 
-![alt text](temp_images/image.png)
+![alt text](temp_images/v1.8.png)
 
 
