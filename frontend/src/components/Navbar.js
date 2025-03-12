@@ -65,7 +65,7 @@ export default function Navbar({ alertBlink, toggleChat, darkMode, setDarkMode }
         <div className="navbar-brand">
           <Link to="/" className="logo-link">
             <img src={roadmapLogo} alt="Fleet Management Logo" className="navbar-logo" />
-            <span className="brand-name">Fleet Manager</span>
+            <span className="brand-name">Fleet Management</span>
           </Link>
         </div>
 

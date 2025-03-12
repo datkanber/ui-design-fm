@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { 
     IconButton, Dialog, DialogTitle, DialogContent, Typography, Card, CardContent, Button,
-    CircularProgress, Snackbar, Alert, Box, List, ListItem, ListItemIcon, ListItemText
+    CircularProgress, Snackbar, Alert, Box, List, ListItem, ListItemIcon, ListItemText,
+    Tabs, Tab, Paper
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CompareIcon from "@mui/icons-material/Compare";
 import SettingsIcon from "@mui/icons-material/Settings";
+import DeleteIcon from "@mui/icons-material/Delete"; 
+import MapIcon from "@mui/icons-material/Map";
 import CustomerPool from "./RouteOptimization/CustomerPool";
 import RouteOptimizationMap from "./RouteOptimization/RouteOptimizationMap";
+import RouteMapVisualizer from "./RouteOptimization/RouteMapVisualizer";
 import { ComparisonResults, ComparisonChart } from "./RouteOptimization/MultiAlgorithmComparison";
 import OptimizationForm from "./RouteOptimization/OptimizationForm";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DescriptionIcon from "@mui/icons-material/Description";
 import RouteDetailPanel from "./RouteDetailPanel"; 
 import axios from "axios";
+import { parseRouteXML } from '../utils/xmlParser';
+import RouteAnalysisDashboard from './RouteOptimization/RouteAnalysisDashboard';
 
 export default function Layout({
     customers,
@@ -44,7 +50,16 @@ export default function Layout({
     const [optimizationError, setOptimizationError] = useState('');
     const [downloadedFiles, setDownloadedFiles] = useState([]);
     const [showOptimizationResults, setShowOptimizationResults] = useState(false);
-
+    const [isClearing, setIsClearing] = useState(false);
+    const [clearSuccess, setClearSuccess] = useState(false);
+    const [route4VehicleUrl, setRoute4VehicleUrl] = useState(null);
+    const [viewMode, setViewMode] = useState("normal"); // normal veya route4vehicle
+    const [responseFiles, setResponseFiles] = useState([]);
+    const [route4PlanUrl, setRoute4PlanUrl] = useState(null);
+    const [routePlanData, setRoutePlanData] = useState(null);
+    const [loadingPlanData, setLoadingPlanData] = useState(false);
+    const [planDataError, setPlanDataError] = useState(null);
+    // ESOGU task from localStorage and event listener
     useEffect(() => {
         // Get selected task from localStorage on component mount
         const storedTask = localStorage.getItem('selectedEsoguTask');
@@ -67,6 +82,7 @@ export default function Layout({
         };
     }, []);
 
+    // Route click handler
     const handleRouteClick = (route) => {
         setSelectedRoute(route);
         setOpenRouteDetail(true);
@@ -141,6 +157,15 @@ export default function Layout({
         setIsOptimizing(true);
         setOptimizationError('');
         try {
+            // Step 0: Clear output directory first
+            try {
+                await axios.post('http://localhost:3001/clear-output');
+                console.log('Output directory cleared successfully');
+            } catch (clearError) {
+                console.error('Error clearing output directory:', clearError);
+                // Continue with optimization even if clearing fails
+            }
+            
             // Step 1: Create FormData for file uploads
             const formData = new FormData();
             
@@ -225,82 +250,102 @@ export default function Layout({
                         path: saveResult.zipPath,
                         type: 'application/zip'
                     });
-                }
-            }
-            // If response contains multiple files in JSON format
-            else if (response.headers['content-type'].includes('application/json')) {
-                const jsonResponse = JSON.parse(new TextDecoder().decode(response.data));
-                
-                // Process XML files
-                if (jsonResponse.xmlFiles) {
-                    for (const [filename, content] of Object.entries(jsonResponse.xmlFiles)) {
-                        const blob = base64ToBlob(content, 'application/xml');
-                        const filePath = await saveResponseToPublicOutput(
-                            blob, 
-                            'application/xml', 
-                            filename
+                    
+                    // ZIP dosyası extract edildikten sonra içinde Route4Vehicle.json dosyasını arayalım
+                    try {
+                        console.log('Checking for Route4Vehicle.json in extracted files');
+                        // Kısa bir süre bekleyelim, zip dosyasının çıkarılması için
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Çıkarılan dosyaları listeleyen endpoint çağrısı
+                        const extractedFilesResponse = await axios.get('http://localhost:3001/list-extracted-files');
+                        const extractedFiles = extractedFilesResponse.data.files;
+                        setResponseFiles(extractedFiles);
+                        console.log('Extracted files:', extractedFiles);
+                        console.log('Response files:', responseFiles);
+                        // RML/Route4Vehicle.json dosyasını bul
+                        const results_excel = extractedFiles.find(filePath =>
+                            filePath.includes('.xlsx')   
                         );
                         
-                        if (filePath) {
+                        const route4VehiclePath = extractedFiles.find(filePath => 
+                            filePath.includes('Route4Vehicle.json')
+                        );
+                        const route4PlanPath = extractedFiles.find(filePath =>
+                            filePath.includes('Route4Plan.xml')
+                        );
+                        const route4SimPath = extractedFiles.find(filePath =>
+                            filePath.includes('Route4Sim.xml')
+                        );
+                        if (results_excel) {
+                            console.log('Found results.xlsx in extracted files:', results_excel);
+                            // Bu dosyayı da savedFiles listesine ekleyelim
+                            const baseUrl = window.location.origin;
+                            const url = `${baseUrl}${results_excel}`;
+                            console.log('Results Excel URL:', url);
+                            console.log('Base URL:', baseUrl);
                             savedFiles.push({
-                                name: filename,
-                                path: filePath,
+                                name: 'results.xlsx',
+                                path: results_excel,
+                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            });
+                        }    
+                        
+                        
+                        if (route4VehiclePath) {
+                            console.log('Found Route4Vehicle.json in extracted files:', route4VehiclePath);
+                            // Bu dosyayı da savedFiles listesine ekleyelim
+                            const baseUrl = window.location.origin;
+                            const url = `${baseUrl}${route4VehiclePath}`;
+                            console.log('Route4Vehicle URL:', url);
+                            console.log('Base URL:', baseUrl);
+
+                            setRoute4VehicleUrl(url);
+                            
+                            savedFiles.push({
+                                name: 'Route4Vehicle.json',
+                                path: route4VehiclePath,
+                                type: 'application/json'
+                            });
+                            
+                        } 
+                        if (route4PlanPath) {
+                            console.log('Found Route4Plan.xml in extracted files:', route4PlanPath);
+                            // Bu dosyayı da savedFiles listesine ekleyelim
+                            const baseUrl = window.location.origin;
+                            const url = `${baseUrl}${route4PlanPath}`;
+                            console.log('Route4Plan URL:', url);
+
+                            setRoute4PlanUrl(url);  // Route4Plan.xml URL'sini set et
+                            
+                            savedFiles.push({
+                                name: 'Route4Plan.xml',
+                                path: route4PlanPath,
                                 type: 'application/xml'
                             });
                         }
-                    }
-                }
-                
-                // Process JSON file
-                if (jsonResponse.jsonFile) {
-                    const jsonContent = JSON.stringify(jsonResponse.jsonFile);
-                    const filename = `output_${selectedTask}_${new Date().getTime()}.json`;
-                    const filePath = await saveResponseToPublicOutput(
-                        jsonContent,
-                        'application/json',
-                        filename
-                    );
-                    
-                    if (filePath) {
-                        savedFiles.push({
-                            name: filename,
-                            path: filePath,
-                            type: 'application/json'
-                        });
+                        if (route4SimPath) {
+                            console.log('Found Route4Sim.xml in extracted files:', route4SimPath);
+                            // Bu dosyayı da savedFiles listesine ekleyelim
+                            const baseUrl = window.location.origin;
+                            const url = `${baseUrl}${route4SimPath}`;
+                            console.log('Route4Sim URL:', url);
+                            console.log('Base URL:', baseUrl);
+
+                            savedFiles.push({
+                                name: 'Route4Sim.xml',
+                                path: route4SimPath,
+                                type: 'application/xml'
+                            });
+                        }
+                        console.log('Saved files:', savedFiles);
+                        
+                    } catch (error) {
+                        console.error('Error checking for Route4Vehicle.json in extracted files:', error);
                     }
                 }
             }
-            // For binary files directly in the response
-            else {
-                const contentType = response.headers['content-type'] || 'application/octet-stream';
-                const fileExtension = getFileExtensionFromMimeType(contentType);
-                
-                // Get filename from Content-Disposition header if available
-                let filename = `output_${selectedTask}_${new Date().getTime()}.${fileExtension}`;
-                const contentDisposition = response.headers['content-disposition'];
-                if (contentDisposition) {
-                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-                    if (filenameMatch) {
-                        filename = filenameMatch[1];
-                    }
-                }
-                
-                // Save file to public/output
-                const filePath = await saveResponseToPublicOutput(
-                    response.data,
-                    contentType,
-                    filename
-                );
-                
-                if (filePath) {
-                    savedFiles.push({
-                        name: filename,
-                        path: filePath,
-                        type: contentType
-                    });
-                }
-            }
-            
+
             // Update UI with saved files
             setDownloadedFiles(savedFiles);
             setOptimizationSuccess(true);
@@ -314,6 +359,7 @@ export default function Layout({
         }
     };
 
+    // Reset task handler
     const resetTask = () => {
         localStorage.removeItem('selectedEsoguTask');
         setSelectedTask('');
@@ -322,16 +368,83 @@ export default function Layout({
         setShowOptimizationResults(false);
     };
 
-    return (
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 3fr", gap: "16px", padding: "1rem" }}>
-            {/* Sol Taraf - Müşteri Havuzu ve İkonlar */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    // Delete files handler
+    const handleDeleteFiles = async () => {
+        setIsClearing(true);
+        try {
+            await axios.post('http://localhost:3001/clear-output');
+            console.log('Output directory cleared successfully');
+            setDownloadedFiles([]);
+            setShowOptimizationResults(false);
+            setClearSuccess(true);
+            // Route4Vehicle URL'yi ve Route4Plan URL'yi temizle
+            setRoute4VehicleUrl(null);
+            setRoute4PlanUrl(null);  // Bu satırı ekleyin
+            setRoutePlanData(null);  // Analiz verilerini de temizle
+        } catch (error) {
+            console.error('Error clearing output directory:', error);
+            setOptimizationError('Failed to clear output directory');
+        } finally {
+            setIsClearing(false);
+        }
+    };
 
-                {/* Müşteri Havuzu */}
-                <CustomerPool customers={customers} />
+    // Route4Plan.xml Dosyasını Yükleme ve İşleme
+    useEffect(() => {
+        const fetchRouteData = async () => {
+            if (!route4PlanUrl) return;
+            
+            setLoadingPlanData(true);
+            setPlanDataError(null);
+            
+            try {
+                const data = await parseRouteXML(route4PlanUrl);
+                console.log("Ayrışan data :", data)
+                setRoutePlanData(data);
+            } catch (error) {
+                console.error("Failed to parse route plan XML:", error);
+                setPlanDataError("XML dosyası ayrıştırılamadı");
+            } finally {
+                setLoadingPlanData(false);
+            }
+        };
+        
+        fetchRouteData();
+    }, [route4PlanUrl]);
+
+    // Main render
+    return (
+        <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "2fr 3fr", 
+            gap: "16px", 
+            padding: "1rem",
+            height: "calc(100vh - 32px)", // Navbar alanı için biraz boşluk bırak
+            overflow: "hidden" // Taşmaları engelle
+        }}>
+            {/* Sol Taraf - Müşteri Havuzu ve İkonlar */}
+            <div style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                height: "100%", // Sol kolonun tamamını kapla
+                overflow: "hidden" // Taşmaları engelle
+            }}>
+                {/* Müşteri Havuzu - Esnek yükseklik */}
+                <div style={{ 
+                    flex: "1 1 auto", 
+                    overflow: "auto", 
+                    marginBottom: "16px" 
+                }}>
+                    <CustomerPool customers={customers} />
+                </div>
                 
-                {/* Alt Kısım - İkonlar ve Task Info */}
-                <Card style={{ padding: "12px", borderRadius: "8px", boxShadow: "0px 2px 4px rgba(0,0,0,0.1)" }}>
+                {/* Alt Kısım - İkonlar ve Task Info - Sabit yükseklik */}
+                <Card style={{ 
+                    padding: "12px", 
+                    borderRadius: "8px", 
+                    boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+                    flex: "0 0 auto" // Sabit yükseklik, sıkıştırılmaz
+                }}>
                     {/* Selected Task Info */}
                     {selectedTask && (
                         <Box sx={{ mb: 2, p: 1, bgcolor: '#f0f8ff', borderRadius: 1 }}>
@@ -379,11 +492,51 @@ export default function Layout({
                                 {isOptimizing ? "Processing..." : "Start Optimize"}
                             </Typography>
                         </div>
+                        
+                        {/* Delete output files */}
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "15px" }}>
+                            <IconButton 
+                                color="error" 
+                                onClick={handleDeleteFiles}
+                                disabled={isClearing || downloadedFiles.length === 0}
+                                style={{ position: 'relative' }}
+                            >
+                                {isClearing ? 
+                                    <CircularProgress size={24} color="inherit" /> : 
+                                    <DeleteIcon />
+                                }
+                            </IconButton>
+                            <Typography variant="caption" style={{ fontSize: "14px", color: "#555", marginTop: "2px" }}>
+                                {isClearing ? "Clearing..." : "Clear Output"}
+                            </Typography>
+                        </div>
+                        
+                        {/* Rota görüntüleme butonu - Route4Vehicle.json varsa aktif */}
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "15px" }}>
+                            <IconButton 
+                                color="info" 
+                                onClick={() => setViewMode(viewMode === "normal" ? "route4vehicle" : "normal")}
+                                disabled={!route4VehicleUrl}
+                                style={{ position: 'relative' }}
+                            >
+                                <MapIcon />
+                            </IconButton>
+                            <Typography variant="caption" style={{ fontSize: "14px", color: "#555", marginTop: "2px" }}>
+                                {viewMode === "normal" ? "Show Route Map" : "Show Normal Map"}
+                            </Typography>
+                        </div>
                     </div>
 
-                    {/* Show optimization results */}
+                    {/* Show optimization results and debug info */}
                     {showOptimizationResults && downloadedFiles.length > 0 && (
-                        <Box sx={{ mt: 3, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                        <Box sx={{ 
+                            mt: 3, 
+                            p: 2, 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: 1,
+                            maxHeight: '200px', // Max yükseklik belirle
+                            overflowY: 'auto' // İçerik fazla olursa scroll ekle
+                        }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                                 <Typography variant="subtitle2">Optimization Results:</Typography>
                                 <Button 
@@ -395,6 +548,8 @@ export default function Layout({
                                     Reset
                                 </Button>
                             </Box>
+                            
+                            {/* File list */}
                             <List dense sx={{ maxHeight: 150, overflowY: 'auto' }}>
                                 {downloadedFiles.map((file, index) => (
                                     <ListItem key={index}>
@@ -410,23 +565,80 @@ export default function Layout({
                                     </ListItem>
                                 ))}
                             </List>
+                            
+                            {/* Debug bilgisi */}
+                            <Box sx={{ mt: 2, p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                                <Typography variant="caption" sx={{ display: 'block' }}>
+                                    <strong>Debug:</strong> Route4Vehicle URL: {route4VehicleUrl ? route4VehicleUrl : 'Not found'}
+                                </Typography>
+                                <Typography variant="caption" sx={{ display: 'block' }}>
+                                    <strong>Button state:</strong> {!route4VehicleUrl ? 'Disabled' : 'Enabled'}
+                                </Typography>
+                            </Box>
                         </Box>
                     )}
                 </Card>
             </div>
 
             {/* Sağ Taraf - Harita */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0px", height: "100vh" }}>
-                <RouteOptimizationMap
-                    vehicles={vehicles}
-                    chargingStations={chargingStations}
-                    orders={orders}
-                    routeColors={routeColors}
-                    plannedRoutes={plannedRoutes}
-                    completedRoutes={completedRoutes}
-                    traffic={traffic}
-                    onRouteClick={handleRouteClick}
-                />
+            <div style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                height: "100%", // Tüm yüksekliği kapla
+                overflow: "hidden" // Taşmaları engelle
+            }}>
+                {/* Harita - Küçültülmüş yükseklik */}
+                <div style={{ 
+                    flex: "1 1 auto", 
+                    minHeight: 0 
+                }}>
+                    {viewMode === "normal" ? (
+                        <RouteOptimizationMap
+                            vehicles={vehicles}
+                            chargingStations={chargingStations}
+                            orders={orders}
+                            routeColors={routeColors}
+                            plannedRoutes={plannedRoutes}
+                            completedRoutes={completedRoutes}
+                            traffic={traffic}
+                            onRouteClick={handleRouteClick}
+                            viewMode={viewMode}
+                            route4VehicleUrl={route4VehicleUrl}
+                        />
+                    ) : (
+                        route4VehicleUrl ? (
+                            <RouteMapVisualizer fileUrl={route4VehicleUrl} />
+                        ) : (
+                            <Paper elevation={3} sx={{ 
+                                height: "100%", // Tüm yüksekliği kullan
+                                display: "flex", 
+                                alignItems: "center", 
+                                justifyContent: "center",
+                                borderRadius: "12px"
+                            }}>
+                                <Typography variant="h6" color="textSecondary">
+                                    Route4Vehicle.json file not found in results.
+                                </Typography>
+                            </Paper>
+                        )
+                    )}
+                </div>
+                
+                {/* Yeni: Analiz Dashboard - Sabit yükseklik */}
+                {(route4PlanUrl || routePlanData) && (
+                    <div style={{ 
+                        flex: "0 0 auto", 
+                        marginTop: "16px",
+                        maxHeight: "300px",
+                        overflowY: "auto"
+                    }}>
+                        <RouteAnalysisDashboard 
+                            routeData={routePlanData} 
+                            loading={loadingPlanData} 
+                            error={planDataError} 
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Algoritma Karşılaştırma Dialog */}
@@ -486,6 +698,18 @@ export default function Layout({
             >
                 <Alert severity="error" onClose={() => setOptimizationError('')}>
                     {optimizationError}
+                </Alert>
+            </Snackbar>
+            
+            {/* Yeni: Temizleme işlemi için bildirim */}
+            <Snackbar
+                open={clearSuccess}
+                autoHideDuration={3000}
+                onClose={() => setClearSuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert severity="info" onClose={() => setClearSuccess(false)}>
+                    Output directory cleared successfully
                 </Alert>
             </Snackbar>
         </div>
