@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import FleetMonitoringMap from "../components/FleetMonitoringMap";
-import FleetMonitoringPerformanceMap from "../components/FleetMonitoringPerformanceMap";
+import FleetMonitoringMap from "../components/FleetMonitoring/FleetMonitoringMap";
+import FleetMonitoringPerformanceMap from "../components/FleetMonitoring/FleetMonitoringPerformanceMap";
 import { vehicles } from "../data/vehicles";
 import { chargingStations } from "../data/chargingStations";
 import { orders } from "../data/orders";
 import { routes } from "../data/routes";
 import { drivers } from "../data/drivers";
-import Alert from "../components/FM_AlertPanel"; // Import Alert component
+import Alert from "../components/FleetMonitoring/FM_AlertPanel"; // Import Alert component
 import "../assets/styles/global.css";
 import "leaflet/dist/leaflet.css";
 

@@ -2,26 +2,28 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "../assets/styles/global.css";
-import arrowRight from "../assets/icons/arrow_right.png";
-import arrowLeft from "../assets/icons/arrow_left.png";
-import arrowUp from "../assets/icons/arrow_up.png";
-import arrowDown from "../assets/icons/arrow_down.png";
-import stationIconImg from "../assets/icons/station.png";
-import orderIconImg from "../assets/icons/order.png";
-import ordercanceled from "../assets/icons/order2.png";
-import orderdelivered from "../assets/icons/order3.png";
-import orderontheway from "../assets/icons/order4.png";
-import orderrequested from "../assets/icons/order7.png";
-import truck from "../assets/icons/vehicle.png";
-import check from "../assets/icons/check.png";
-import cancel from "../assets/icons/cancel.png";
-import waiting from "../assets/icons/waiting.png";
-import stationRed from "../assets/icons/station_red.png";
-import stopsData from "../data/stops.js";
-import "../assets/styles/RouteInfoPanel.css";
+import "../../assets/styles/global.css";
+import arrowRight from "../../assets/icons/arrow_right.png";
+import arrowLeft from "../../assets/icons/arrow_left.png";
+import arrowUp from "../../assets/icons/arrow_up.png";
+import arrowDown from "../../assets/icons/arrow_down.png";
+import stationIconImg from "../../assets/icons/station.png";
+import orderIconImg from "../../assets/icons/order.png";
+import ordercanceled from "../../assets/icons/order2.png";
+import orderdelivered from "../../assets/icons/order3.png";
+import orderontheway from "../../assets/icons/order4.png";
+import orderrequested from "../../assets/icons/order7.png";
+import truck from "../../assets/icons/vehicle.png";
+import check from "../../assets/icons/check.png";
+import cancel from "../../assets/icons/cancel.png";
+import waiting from "../../assets/icons/waiting.png";
+import stationRed from "../../assets/icons/station_red.png";
+import stopsData from "../../data/stops.js";
+import "../../assets/styles/RouteInfoPanel.css";
+import RouteDetailPanel from "./FM_RouteDetailPanel.js"; 
 
-export default function FleetMonitoringMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
+
+export default function FleetMonitoringPerformanceMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isRouteVisible, setIsRouteVisible] = useState(false); // Yeni state
@@ -96,13 +98,14 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
   };
 
   return (
-    <>
+    <div>
     <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: "12px", overflow: "hidden" }}>
       <LayersControl position="topright">
         <LayersControl.BaseLayer checked name="OpenStreetMap">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         </LayersControl.BaseLayer>
 
+        
         <LayersControl.Overlay name="Araçlar">
           <LayerGroup>
             {vehicles.map((vehicle, index) => {
@@ -112,10 +115,11 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
                 <Marker key={vehicle.id} position={vehicle.position} icon={getArrowIcon(angle)}>
                   <Popup>
                     <p><strong>Araç:</strong> {vehicle.name}</p>
-                    <p><strong>Hız:</strong> {vehicle.velocity} km/h</p>
-                    <p><strong>Şarj:</strong> %{vehicle.soc}</p>
-                    <p><strong>Yük:</strong> {vehicle.payload} kg</p>
-                    <p><strong>Sürücü:</strong> {vehicle.driver}</p>
+                    <p><strong>Kalan Enerji:</strong> {vehicle.soc} km/h</p>
+                    <p><strong>--Son 10m'de Harcanan enerji Dağılımı---</strong></p>
+                    <p><strong>Eğim</strong> %{vehicle.slope}</p>
+                    <p><strong>Trafik:</strong> %{vehicle.traffic} </p>
+                    <p><strong>Sürücü Karakteristiği:</strong> %{vehicle.driverCharacter}</p>
                   </Popup>
                 </Marker>
               );
@@ -144,8 +148,8 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
                 >
                   <Popup>
                     <p><strong>İstasyon:</strong> {station.id}</p>
-                    <p><strong>Durum:</strong> {station.status}</p>
-                    <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
+                    <p><strong>Kullanım sıklığı:</strong> %20</p>
+                    <p><strong>Şarj hızı </strong> 200 w/s </p>
                   </Popup>
                 </Marker>
               );
@@ -210,80 +214,40 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
                   positions={route.positions}
                   color={routeColors[index] || "blue"}
                   weight={4}
+                  smoothFactor={2}
+                  opacity={0.9}
+                  lineCap="round"
+                  lineJoin="round"
                   eventHandlers={{ click: () => handleRouteClick(route, vehicles[index]) }}
                 />
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
 
-        <LayersControl.Overlay name="Tamamlanmış Rotalar">
-          <LayerGroup>
-            {completedRoutes.map((route, index) => (
-              <Polyline
+          <LayersControl.Overlay name="Gezilmiş Rotalar">
+            <LayerGroup>
+              {completedRoutes.map((route, index) => (
+                <Polyline
                 key={index}
                 positions={route.positions}
-                color={routeColors[index] || "green"}
+                color={routeColors[index] || "blue"}
                 weight={4}
-                opacity={0.7}
-              />
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-      </LayersControl>
-    </MapContainer>
-    {isRouteVisible && (
-      <div
-        className="overlay-container"
-        style={{
-          position: "absolute",
-          bottom: "65px", 
-          left: "63%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
-          maxWidth: "70%",
-          overflowX: "scroll",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row", // Horizontal layout
-            gap: "20px", // Space between cards
-          }}
-        >
-          {stopsData[0].stops.map((stop, index) => (
-            <div
-              key={index}
-              className="stop-card"
-              style={{
-                flex: "0 0 auto",
-                padding: "10px",
-                backgroundColor: "#f4f4f4",
-                borderRadius: "8px",
-                minWidth: "200px",
-                border: `2px solid ${getBorderColor(stop.status)}`
-              }}
-            >
-              {/* Add icon at the top based on stop's status */}
-              <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40px' }}>
-                {getStatusIcon(stop.status)} 
-              </div>
-              <h4>{stop.title}</h4>
-              <p>{stop.address}</p>
-              <p>{stop.timeWindow}</p>
-              <p>{stop.amount} items</p>
-              <p>{stop.clientName}</p>
-            </div>
-          ))}
-        </div>
-        <button onClick={handleStopContainerClose} style={{ marginRight: "20px", padding: "10px" }}>
-          Kapat
-        </button>
-      </div>
-    )}
-  </>
-);}
+                smoothFactor={2}
+                opacity={0.9}
+                lineCap="round"
+                lineJoin="round"
+                eventHandlers={{
+                    click: () => handleRouteClick(route, vehicles[index]),
+                }}
+            />            
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+        </LayersControl>
+      </MapContainer>
+
+      <RouteDetailPanel selectedRoute={selectedRoute} open={Boolean(selectedRoute)} onClose={() => setSelectedRoute(null)} />
+    </div>
+  );
+}
