@@ -58,8 +58,10 @@ export default function RouteMapVisualizer({ fileUrl, height = 770 }) {
   const [allPoints, setAllPoints] = useState([]);
   
   useEffect(() => {
+    // Check if fileUrl is stored in localStorage when not provided directly
+    const storedFileUrl = !fileUrl && localStorage.getItem('route4VehicleUrl');
+    const urlToUse = fileUrl || storedFileUrl;
 
-    // Tüm noktaları çıkart
     // Tüm noktaları toplayan bir yardımcı fonksiyon
     const extractAllPoints = (data) => {
       let points = [];
@@ -119,7 +121,7 @@ export default function RouteMapVisualizer({ fileUrl, height = 770 }) {
     };
 
     const fetchRouteData = async () => {
-      if (!fileUrl) {
+      if (!urlToUse) {
         setError("Dosya URL'si belirtilmedi");
         setLoading(false);
         return;
@@ -129,17 +131,22 @@ export default function RouteMapVisualizer({ fileUrl, height = 770 }) {
         setLoading(true);
         
         // URL kontrolü ve hata ayıklama
-        console.log("Dosyayı yüklüyorum:", fileUrl);
+        console.log("Dosyayı yüklüyorum:", urlToUse);
+        
         // Önce HEAD isteği ile dosyanın var olup olmadığını kontrol edelim
         try {
-          await axios.head(fileUrl);
+          await axios.head(urlToUse);
         } catch (headErr) {
           console.error("Dosya bulunamadı (HEAD isteği):", headErr);
-          // HEAD isteği başarısız olursa direkt GET isteği yapmaya devam ediyoruz
+          // HEAD isteği başarısız olursa localStorage'daki değeri temizleriz
+          if (urlToUse === storedFileUrl) {
+            localStorage.removeItem('route4VehicleUrl');
+          }
+          throw new Error("Dosya bulunamadı");
         }
         
         // Dosya yolu URL parametresi olarak veriliyor
-        const response = await axios.get(fileUrl);
+        const response = await axios.get(urlToUse);
         console.log("Dosya başarıyla yüklendi:", response.status);
         
         // Yanıt içeriğini kontrol et
@@ -164,8 +171,13 @@ export default function RouteMapVisualizer({ fileUrl, height = 770 }) {
         setLoading(false);
       } catch (err) {
         console.error("Rota verileri yüklenemedi:", err);
-        setError(`Rota verileri yüklenemedi: ${err.message}. URL: ${fileUrl}`);
+        setError(`Rota verileri yüklenemedi: ${err.message}. URL: ${urlToUse}`);
         setLoading(false);
+        
+        // Dosya yüklenemediğinde localStorage'daki kaydı temizle
+        if (!fileUrl && localStorage.getItem('route4VehicleUrl')) {
+          localStorage.removeItem('route4VehicleUrl');
+        }
         
         // Yedek verileri kontrol et - eğer varsayılan bir dosya konumu varsa
         try {

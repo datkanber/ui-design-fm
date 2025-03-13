@@ -59,12 +59,35 @@ export default function Layout({
     const [routePlanData, setRoutePlanData] = useState(null);
     const [loadingPlanData, setLoadingPlanData] = useState(false);
     const [planDataError, setPlanDataError] = useState(null);
-    // ESOGU task from localStorage and event listener
+    // ESOGU task and route data persistence
     useEffect(() => {
         // Get selected task from localStorage on component mount
         const storedTask = localStorage.getItem('selectedEsoguTask');
         if (storedTask) {
             setSelectedTask(storedTask);
+        }
+        
+        // Get route4VehicleUrl from localStorage
+        const storedRoute4VehicleUrl = localStorage.getItem('route4VehicleUrl');
+        if (storedRoute4VehicleUrl) {
+            setRoute4VehicleUrl(storedRoute4VehicleUrl);
+        }
+        
+        // Get route4PlanUrl from localStorage
+        const storedRoute4PlanUrl = localStorage.getItem('route4PlanUrl');
+        if (storedRoute4PlanUrl) {
+            setRoute4PlanUrl(storedRoute4PlanUrl);
+        }
+        
+        // Get downloadedFiles from localStorage
+        try {
+            const storedDownloadedFiles = localStorage.getItem('downloadedFiles');
+            if (storedDownloadedFiles) {
+                setDownloadedFiles(JSON.parse(storedDownloadedFiles));
+                setShowOptimizationResults(true);
+            }
+        } catch (error) {
+            console.error('Error parsing downloadedFiles from localStorage:', error);
         }
         
         // Add event listener for task selection events
@@ -80,6 +103,67 @@ export default function Layout({
         return () => {
             window.removeEventListener('esoguTaskSelected', handleTaskSelected);
         };
+    }, []);
+
+    // Save route4VehicleUrl to localStorage when it changes
+    useEffect(() => {
+        if (route4VehicleUrl) {
+            localStorage.setItem('route4VehicleUrl', route4VehicleUrl);
+        } else {
+            localStorage.removeItem('route4VehicleUrl');
+        }
+    }, [route4VehicleUrl]);
+
+    // Save route4PlanUrl to localStorage when it changes
+    useEffect(() => {
+        if (route4PlanUrl) {
+            localStorage.setItem('route4PlanUrl', route4PlanUrl);
+        } else {
+            localStorage.removeItem('route4PlanUrl');
+        }
+    }, [route4PlanUrl]);
+
+    // Save downloadedFiles to localStorage when they change
+    useEffect(() => {
+        if (downloadedFiles.length > 0) {
+            localStorage.setItem('downloadedFiles', JSON.stringify(downloadedFiles));
+        } else {
+            localStorage.removeItem('downloadedFiles');
+        }
+    }, [downloadedFiles]);
+
+    // Verify file existence on component mount
+    useEffect(() => {
+        const checkFileExistence = async () => {
+            if (route4VehicleUrl) {
+                try {
+                    // Check if file exists with HEAD request
+                    await axios.head(route4VehicleUrl);
+                    console.log('Route4Vehicle file exists');
+                } catch (error) {
+                    console.warn('Route4Vehicle file does not exist:', error);
+                    // If file doesn't exist, clear the URL from state and localStorage
+                    setRoute4VehicleUrl(null);
+                    localStorage.removeItem('route4VehicleUrl');
+                }
+            }
+            
+            if (route4PlanUrl) {
+                try {
+                    await axios.head(route4PlanUrl);
+                    console.log('Route4Plan file exists');
+                } catch (error) {
+                    console.warn('Route4Plan file does not exist:', error);
+                    setRoute4PlanUrl(null);
+                    localStorage.removeItem('route4PlanUrl');
+                }
+            }
+        };
+        
+        // Don't run on first render, only when the component updates
+        if (route4VehicleUrl || route4PlanUrl) {
+            checkFileExistence();
+        }
     }, []);
 
     // Route click handler
@@ -362,10 +446,16 @@ export default function Layout({
     // Reset task handler
     const resetTask = () => {
         localStorage.removeItem('selectedEsoguTask');
+        localStorage.removeItem('route4VehicleUrl');
+        localStorage.removeItem('route4PlanUrl');
+        localStorage.removeItem('downloadedFiles');
         setSelectedTask('');
         setDownloadedFiles([]);
         setOptimizationSuccess(false);
         setShowOptimizationResults(false);
+        setRoute4VehicleUrl(null);
+        setRoute4PlanUrl(null);
+        setRoutePlanData(null);
     };
 
     // Delete files handler
@@ -374,13 +464,19 @@ export default function Layout({
         try {
             await axios.post('http://localhost:3001/clear-output');
             console.log('Output directory cleared successfully');
+            
+            // Clear localStorage
+            localStorage.removeItem('route4VehicleUrl');
+            localStorage.removeItem('route4PlanUrl');
+            localStorage.removeItem('downloadedFiles');
+            
+            // Clear component state
             setDownloadedFiles([]);
             setShowOptimizationResults(false);
-            setClearSuccess(true);
-            // Route4Vehicle URL'yi ve Route4Plan URL'yi temizle
             setRoute4VehicleUrl(null);
-            setRoute4PlanUrl(null);  // Bu satırı ekleyin
-            setRoutePlanData(null);  // Analiz verilerini de temizle
+            setRoute4PlanUrl(null);
+            setRoutePlanData(null);
+            setClearSuccess(true);
         } catch (error) {
             console.error('Error clearing output directory:', error);
             setOptimizationError('Failed to clear output directory');
@@ -475,7 +571,7 @@ export default function Layout({
                             </Typography>
                         </div>
 
-                        {/* Start Optimize Butonu */}
+                        {/* Start Optimization Butonu */}
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "15px" }}>
                             <IconButton 
                                 color="success" 
@@ -489,7 +585,7 @@ export default function Layout({
                                 }
                             </IconButton>
                             <Typography variant="caption" style={{ fontSize: "14px", color: "#555", marginTop: "2px" }}>
-                                {isOptimizing ? "Processing..." : "Start Optimize"}
+                                {isOptimizing ? "Processing..." : "Start Optimization"}
                             </Typography>
                         </div>
                         
@@ -592,36 +688,18 @@ export default function Layout({
                     flex: "1 1 auto", 
                     minHeight: 0 
                 }}>
-                    {viewMode === "normal" ? (
-                        <RouteOptimizationMap
-                            vehicles={vehicles}
-                            chargingStations={chargingStations}
-                            orders={orders}
-                            routeColors={routeColors}
-                            plannedRoutes={plannedRoutes}
-                            completedRoutes={completedRoutes}
-                            traffic={traffic}
-                            onRouteClick={handleRouteClick}
-                            viewMode={viewMode}
-                            route4VehicleUrl={route4VehicleUrl}
-                        />
-                    ) : (
-                        route4VehicleUrl ? (
-                            <RouteMapVisualizer fileUrl={route4VehicleUrl} />
-                        ) : (
-                            <Paper elevation={3} sx={{ 
-                                height: "100%", // Tüm yüksekliği kullan
-                                display: "flex", 
-                                alignItems: "center", 
-                                justifyContent: "center",
-                                borderRadius: "12px"
-                            }}>
-                                <Typography variant="h6" color="textSecondary">
-                                    Route4Vehicle.json file not found in results.
-                                </Typography>
-                            </Paper>
-                        )
-                    )}
+                    <RouteOptimizationMap
+                        vehicles={vehicles}
+                        chargingStations={chargingStations}
+                        orders={orders}
+                        routeColors={routeColors}
+                        plannedRoutes={plannedRoutes}
+                        completedRoutes={completedRoutes}
+                        traffic={traffic}
+                        onRouteClick={handleRouteClick}
+                        viewMode={viewMode}
+                        route4VehicleUrl={route4VehicleUrl}
+                    />
                 </div>
                 
                 {/* Yeni: Analiz Dashboard - Sabit yükseklik */}

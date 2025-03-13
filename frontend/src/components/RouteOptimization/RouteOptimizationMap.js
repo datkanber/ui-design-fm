@@ -55,6 +55,7 @@ export default function RouteOptimizationMap({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [allPoints, setAllPoints] = useState([]);
+  const [routeVisibility, setRouteVisibility] = useState({});
   
   // İkon tanımlamaları
   const vehicleIcon = new L.Icon({ 
@@ -92,38 +93,61 @@ export default function RouteOptimizationMap({
     popupAnchor: [0, -25]
   });
 
-  // Rota veri yükleme fonksiyonu
+  // URL'den veya localStorage'dan Route4Vehicle.json verisini yükle
   useEffect(() => {
-    if (viewMode === "route4vehicle" && route4VehicleUrl) {
-      const fetchRouteData = async () => {
-        try {
-          setLoading(true);
-          console.log("Dosya yükleniyor:", route4VehicleUrl);
-          
-          const response = await axios.get(route4VehicleUrl);
-          console.log("Dosya başarıyla yüklendi:", response.status);
-          
-          if (!response.data) {
-            throw new Error("Yanıt verisi boş");
-          }
-          
-          setRouteData(response.data);
-          
-          // Tüm noktaları toplama
-          const points = extractAllPoints(response.data);
-          setAllPoints(points);
-          
-          setLoading(false);
-        } catch (err) {
-          console.error("Rota verileri yüklenemedi:", err);
-          setError(`Rota verileri yüklenemedi: ${err.message}`);
-          setLoading(false);
-        }
-      };
+    const fetchRouteData = async () => {
+      const urlToUse = route4VehicleUrl || localStorage.getItem('route4VehicleUrl');
       
-      fetchRouteData();
-    }
-  }, [viewMode, route4VehicleUrl]);
+      if (!urlToUse) return;
+      
+      try {
+        setLoading(true);
+        console.log("Dosya yükleniyor:", urlToUse);
+        
+        // Önce HEAD isteği ile dosyanın var olup olmadığını kontrol edelim
+        try {
+          await axios.head(urlToUse);
+        } catch (headErr) {
+          console.error("Dosya bulunamadı (HEAD isteği):", headErr);
+          if (urlToUse === localStorage.getItem('route4VehicleUrl')) {
+            localStorage.removeItem('route4VehicleUrl');
+          }
+          throw new Error("Dosya bulunamadı");
+        }
+        
+        const response = await axios.get(urlToUse);
+        console.log("Dosya başarıyla yüklendi:", response.status);
+        
+        if (!response.data) {
+          throw new Error("Yanıt verisi boş");
+        }
+        
+        const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+        setRouteData(data);
+        
+        // Rota görünürlük durumunu başlangıçta true olarak ayarla
+        if (data && data.routes) {
+          const initialVisibility = {};
+          data.routes.forEach((_, index) => {
+            initialVisibility[`route-${index}`] = true;
+          });
+          setRouteVisibility(initialVisibility);
+        }
+        
+        // Tüm noktaları toplama
+        const points = extractAllPoints(data);
+        setAllPoints(points);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Rota verileri yüklenemedi:", err);
+        setError(`Rota verileri yüklenemedi: ${err.message}`);
+        setLoading(false);
+      }
+    };
+    
+    fetchRouteData();
+  }, [route4VehicleUrl]);
 
   // Tüm noktaları toplayan yardımcı fonksiyon
   const extractAllPoints = (data) => {
@@ -181,6 +205,56 @@ export default function RouteOptimizationMap({
     });
     
     return points;
+  };
+
+  // Belirli bir rota için tüm noktaları hazırlayan yardımcı fonksiyon
+  const prepareRoutePoints = (route) => {
+    const routePoints = [];
+
+    // Başlangıç noktası kontrolü
+    const startLatLng = route.start_point?.location 
+      ? [route.start_point.location.latitude, route.start_point.location.longitude]
+      : null;
+
+    if (startLatLng && startLatLng.every(coord => coord !== undefined)) {
+      routePoints.push(startLatLng);
+    }
+
+    // Başlangıç waypoints
+    if (route.start_point?.waypoints?.length) {
+      route.start_point.waypoints.forEach(wp => {
+        if (wp?.location?.latitude && wp?.location?.longitude) {
+          routePoints.push([wp.location.latitude, wp.location.longitude]);
+        }
+      });
+    }
+
+    // Teslimat noktaları
+    if (route.delivery_points?.length) {
+      route.delivery_points.forEach(dp => {
+        if (dp?.location?.latitude && dp?.location?.longitude) {
+          routePoints.push([dp.location.latitude, dp.location.longitude]);
+        }
+        if (dp?.waypoints?.length) {
+          dp.waypoints.forEach(wp => {
+            if (wp?.location?.latitude && wp?.location?.longitude) {
+              routePoints.push([wp.location.latitude, wp.location.longitude]);
+            }
+          });
+        }
+      });
+    }
+
+    // Bitiş noktası kontrolü
+    const endLatLng = route.end_point?.location
+      ? [route.end_point.location.latitude, route.end_point.location.longitude]
+      : null;
+
+    if (endLatLng && endLatLng.every(coord => coord !== undefined)) {
+      routePoints.push(endLatLng);
+    }
+
+    return { routePoints, startLatLng, endLatLng };
   };
 
   // Aracın yönünü hesaplayan fonksiyon
@@ -243,120 +317,23 @@ export default function RouteOptimizationMap({
     "#336699", // Cadet blue
   ];
 
-  // Route4Vehicle verilerini render eden bileşen
-  const Route4VehicleLayer = () => {
-    if (!routeData || !routeData.routes) return null;
-    
-    return (
-      <>
-        {routeData.routes.map((route, routeIndex) => {
-          const routeColor = ROUTE_COLORS[routeIndex % ROUTE_COLORS.length];
-          const routePoints = [];
+  // Rota görünürlüğünü değiştiren fonksiyon
+  const toggleRouteVisibility = (routeIndex) => {
+    setRouteVisibility(prev => ({
+      ...prev,
+      [`route-${routeIndex}`]: !prev[`route-${routeIndex}`]
+    }));
+  };
 
-          // Başlangıç noktası kontrolü
-          const startLatLng = route.start_point?.location 
-            ? [route.start_point.location.latitude, route.start_point.location.longitude]
-            : null;
-
-          if (startLatLng && startLatLng.every(coord => coord !== undefined)) {
-            routePoints.push(startLatLng);
-          }
-
-          // Başlangıç waypoints
-          if (route.start_point?.waypoints?.length) {
-            route.start_point.waypoints.forEach(wp => {
-              if (wp?.location?.latitude && wp?.location?.longitude) {
-                routePoints.push([wp.location.latitude, wp.location.longitude]);
-              }
-            });
-          }
-
-          // Teslimat noktaları
-          if (route.delivery_points?.length) {
-            route.delivery_points.forEach(dp => {
-              if (dp?.location?.latitude && dp?.location?.longitude) {
-                routePoints.push([dp.location.latitude, dp.location.longitude]);
-              }
-              if (dp?.waypoints?.length) {
-                dp.waypoints.forEach(wp => {
-                  if (wp?.location?.latitude && wp?.location?.longitude) {
-                    routePoints.push([wp.location.latitude, wp.location.longitude]);
-                  }
-                });
-              }
-            });
-          }
-
-          // Bitiş noktası kontrolü
-          const endLatLng = route.end_point?.location
-            ? [route.end_point.location.latitude, route.end_point.location.longitude]
-            : null;
-
-          if (endLatLng && endLatLng.every(coord => coord !== undefined)) {
-            routePoints.push(endLatLng);
-          }
-
-          return (
-            <React.Fragment key={`optimized-route-${routeIndex}`}>
-              {/* Rota çizgisi */}
-              <Polyline 
-                positions={routePoints} 
-                pathOptions={{ 
-                  color: routeColor,
-                  weight: 5,
-                  opacity: 0.7,
-                  dashArray: '10, 10',
-                  dashOffset: '0'
-                }} 
-                eventHandlers={{
-                  click: () => handleRouteClick(route, { name: `Route ${routeIndex + 1}` })
-                }}
-              />
-
-              {/* Başlangıç noktası */}
-              {startLatLng && startLatLng.every(coord => coord !== undefined) && (
-                <Marker position={startLatLng} icon={depotIcon}>
-                  <Popup>
-                    <strong>Başlangıç Noktası</strong><br />
-                    {route.start_point?.id && <div>ID: {route.start_point.id}</div>}
-                  </Popup>
-                </Marker>
-              )}
-
-              {/* Teslimat noktaları */}
-              {route.delivery_points?.map((dp, dpIndex) => (
-                dp?.location?.latitude && dp?.location?.longitude ? (
-                  <Marker 
-                    key={`delivery-${routeIndex}-${dpIndex}`} 
-                    position={[dp.location.latitude, dp.location.longitude]} 
-                    icon={deliveryIcon}
-                  >
-                    <Popup>
-                      <strong>Teslimat Noktası {dp.id}</strong><br />
-                      {dp.address && <div>Adres: {dp.address}</div>}
-                      {dp.demand && <div>Talep: {dp.demand}</div>}
-                    </Popup>
-                  </Marker>
-                ) : null
-              ))}
-
-              {/* Bitiş noktası */}
-              {endLatLng && endLatLng.every(coord => coord !== undefined) && (
-                <Marker position={endLatLng} icon={depotIcon}>
-                  <Popup>
-                    <strong>Bitiş Noktası</strong><br />
-                    {route.end_point?.id && <div>ID: {route.end_point.id}</div>}
-                  </Popup>
-                </Marker>
-              )}
-            </React.Fragment>
-          );
-        })}
-
-        {/* Harita sınırlarını ayarla */}
-        {allPoints.length > 0 && <MapBoundsUpdater points={allPoints} />}
-      </>
-    );
+  // Optimizasyon rotalarını göster/gizle fonksiyonu
+  const toggleAllRoutesVisibility = (visible) => {
+    if (routeData && routeData.routes) {
+      const newVisibility = {};
+      routeData.routes.forEach((_, index) => {
+        newVisibility[`route-${index}`] = visible;
+      });
+      setRouteVisibility(newVisibility);
+    }
   };
 
   return (
@@ -445,13 +422,90 @@ export default function RouteOptimizationMap({
             />
           </LayersControl.BaseLayer>
 
-          {/* Optimizasyon Rotası Layer - Route4Vehicle.json'dan gelen rota */}
-          <LayersControl.Overlay checked={viewMode === "route4vehicle"} name="Optimizasyon Rotası">
-            <LayerGroup>
-              {viewMode === "route4vehicle" && route4VehicleUrl && <Route4VehicleLayer />}
-            </LayerGroup>
-          </LayersControl.Overlay>
+          {/* Ana Optimizasyon Rotası Layer - Tüm Rotaları Göster/Gizle */}
+          {routeData && routeData.routes && routeData.routes.length > 0 && (
+            <LayersControl.Overlay 
+              checked={Object.values(routeVisibility).some(v => v)} 
+              name="Optimizasyon Rotaları"
+              onChange={(e) => toggleAllRoutesVisibility(e.target.checked)}
+            >
+              <LayerGroup>
+                {/* Bu katman sadece bir özet olarak davranır; rotalar aşağıda ayrı katmanlar olarak eklenir */}
+              </LayerGroup>
+            </LayersControl.Overlay>
+          )}
 
+          {/* Her rota için ayrı bir layer oluştur */}
+          {routeData && routeData.routes && routeData.routes.map((route, routeIndex) => {
+            const routeId = `route-${routeIndex}`;
+            const { routePoints, startLatLng, endLatLng } = prepareRoutePoints(route);
+            const routeColor = ROUTE_COLORS[routeIndex % ROUTE_COLORS.length];
+            
+            return (
+              <LayersControl.Overlay 
+                key={routeId} 
+                checked={routeVisibility[routeId]} 
+                name={`Rota ${routeIndex + 1}`}
+                onChange={() => toggleRouteVisibility(routeIndex)}
+              >
+                <LayerGroup>
+                  {/* Rota çizgisi */}
+                  <Polyline 
+                    positions={routePoints} 
+                    pathOptions={{ 
+                      color: routeColor,
+                      weight: 5,
+                      opacity: 0.7,
+                      dashArray: '10, 10',
+                      dashOffset: '0'
+                    }} 
+                    eventHandlers={{
+                      click: () => handleRouteClick(route, { name: `Rota ${routeIndex + 1}` })
+                    }}
+                  />
+
+                  {/* Başlangıç noktası */}
+                  {startLatLng && startLatLng.every(coord => coord !== undefined) && (
+                    <Marker position={startLatLng} icon={depotIcon}>
+                      <Popup>
+                        <strong>Başlangıç Noktası</strong><br />
+                        {route.start_point?.id && <div>ID: {route.start_point.id}</div>}
+                      </Popup>
+                    </Marker>
+                  )}
+
+                  {/* Teslimat noktaları */}
+                  {route.delivery_points?.map((dp, dpIndex) => (
+                    dp?.location?.latitude && dp?.location?.longitude ? (
+                      <Marker 
+                        key={`delivery-${routeIndex}-${dpIndex}`} 
+                        position={[dp.location.latitude, dp.location.longitude]} 
+                        icon={deliveryIcon}
+                      >
+                        <Popup>
+                          <strong>Teslimat Noktası {dp.id}</strong><br />
+                          {dp.address && <div>Adres: {dp.address}</div>}
+                          {dp.demand && <div>Talep: {dp.demand}</div>}
+                        </Popup>
+                      </Marker>
+                    ) : null
+                  ))}
+
+                  {/* Bitiş noktası */}
+                  {endLatLng && endLatLng.every(coord => coord !== undefined) && (
+                    <Marker position={endLatLng} icon={depotIcon}>
+                      <Popup>
+                        <strong>Bitiş Noktası</strong><br />
+                        {route.end_point?.id && <div>ID: {route.end_point.id}</div>}
+                      </Popup>
+                    </Marker>
+                  )}
+                </LayerGroup>
+              </LayersControl.Overlay>
+            );
+          })}
+
+          {/* Diğer katmanlar */}
           <LayersControl.Overlay checked name="Araçlar">
             <LayerGroup>
               {vehicles.map((vehicle) => (
@@ -469,7 +523,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked name="Şarj İstasyonları">
+          <LayersControl.Overlay  name="Şarj İstasyonları">
             <LayerGroup>
               {chargingStations.map((station) => (
                 <Marker key={station.id} position={station.position} icon={stationIcon}>
@@ -479,7 +533,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked={viewMode === "normal"} name="Bekleyen Aktif Talepler (Planlanmamış)">
+          <LayersControl.Overlay   name="Bekleyen Aktif Talepler (Planlanmamış)">
             <LayerGroup>
               {orders.filter(order => order.status === 'Pending').map((order) => (
                 <Marker key={order.id} position={order.position} icon={orderIcon}>
@@ -489,7 +543,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked={viewMode === "normal"} name="Dağıtım Bekleyen Talepler (Atama Yapılmış)">
+          <LayersControl.Overlay  name="Dağıtım Bekleyen Talepler (Atama Yapılmış)">
             <LayerGroup>
               {orders.filter(order => order.status === 'Planned').map((order) => (
                 <Marker key={order.id} position={order.position} icon={orderIcon}>
@@ -499,7 +553,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked={viewMode === "normal"} name="Planlanmış Araç Rotaları (Kalan Rota)">
+          <LayersControl.Overlay name="Planlanmış Araç Rotaları (Kalan Rota)">
             <LayerGroup>
               {plannedRoutes.map((route, index) => (
                 <Polyline
@@ -516,7 +570,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked={viewMode === "normal"} name="Gezilmiş Rotalar (Tamamlanan)">
+          <LayersControl.Overlay name="Gezilmiş Rotalar (Tamamlanan)">
             <LayerGroup>
               {completedRoutes.map((route, index) => (
                 <Polyline
@@ -534,7 +588,7 @@ export default function RouteOptimizationMap({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked={viewMode === "normal"} name="Trafik Yoğunluğu (Etki Alanı)">
+          <LayersControl.Overlay  name="Trafik Yoğunluğu (Etki Alanı)">
             <LayerGroup>
               {traffic.map((route, index) => (
                 <Polyline
@@ -553,6 +607,9 @@ export default function RouteOptimizationMap({
           </LayersControl.Overlay>
         </LayersControl>
 
+        {/* Harita sınırlarını güncelleyen bileşen (eğer optimizasyon rotaları varsa) */}
+        {allPoints.length > 0 && <MapBoundsUpdater points={allPoints} />}
+
         {/* Loading/error indicators */}
         {loading && (
           <div className="map-overlay">
@@ -560,7 +617,7 @@ export default function RouteOptimizationMap({
           </div>
         )}
         
-        {error && viewMode === "route4vehicle" && (
+        {error && (
           <div className="map-overlay">
             <div className="error-message">{error}</div>
           </div>

@@ -1,28 +1,280 @@
 <?xml version="1.0" ?>
 <Route4Plan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <Solution Name="newesoguv32-rc05-ds1" ProblemType="CEVRP" ObjectiveFunction="MinDistance" ChargingStrategy="FullCharge" NumberOfCustomers="5" BatteryCapacity="3000" MaxSpeed="12.5" VehicleMass="1000" MaximumLoadCapacityVolume="0" MaximumLoadCapacityKg="350" BatteryRechargingRate="0.18" EnergyConsumptionRate="1.0">
+    <Solution Name="newesoguv32-c05-ds1" ProblemType="CEVRP" ObjectiveFunction="MinDistance" ChargingStrategy="FullCharge" NumberOfCustomers="5" BatteryCapacity="3000" MaxSpeed="12.5" VehicleMass="1000" MaximumLoadCapacityVolume="0" MaximumLoadCapacityKg="350" BatteryRechargingRate="0.18" EnergyConsumptionRate="1.0">
         <PerformanceMeasure>
-            <Runtime>0.8375880718231201</Runtime>
+            <Runtime>0.362138032913208</Runtime>
             <StartTime>0</StartTime>
-            <TotalDistance>5189.79</TotalDistance>
-            <TotalDuration>2676.32</TotalDuration>
-            <TotalEnergyConsumption>619.21</TotalEnergyConsumption>
-            <TotalTardiness>416.2567999999999</TotalTardiness>
-            <TotalChargingTime>0</TotalChargingTime>
-            <NumberOfNodes>9</NumberOfNodes>
+            <TotalDistance>3956.4300000000003</TotalDistance>
+            <TotalDuration>3438.9784000000004</TotalDuration>
+            <TotalEnergyConsumption>429.76</TotalEnergyConsumption>
+            <TotalTardiness>3423.1368</TotalTardiness>
+            <TotalChargingTime>181.23119999999994</TotalChargingTime>
+            <NumberOfNodes>10</NumberOfNodes>
             <NumberOfServedCustomers>5</NumberOfServedCustomers>
-            <NumberOfChargeStation>0</NumberOfChargeStation>
+            <NumberOfChargeStation>1</NumberOfChargeStation>
         </PerformanceMeasure>
         <Routes>
             <Route RouteId="Route 1" VehicleId="Vehicle 1" DriverId="Driver 1">
                 <PerformanceMeasure>
                     <StartTime>0</StartTime>
-                    <RouteDistance>2995.95</RouteDistance>
-                    <RouteDuration>2043.4192</RouteDuration>
-                    <RouteEnergyConsumption>324.22</RouteEnergyConsumption>
-                    <RouteTardiness>416.2567999999999</RouteTardiness>
+                    <RouteDistance>3158.6800000000003</RouteDistance>
+                    <RouteDuration>2635.0696000000003</RouteDuration>
+                    <RouteEnergyConsumption>338.68</RouteEnergyConsumption>
+                    <RouteTardiness>3423.1368</RouteTardiness>
+                    <RouteChargingTime>181.23119999999994</RouteChargingTime>
+                    <NumberOfNodes>7</NumberOfNodes>
+                    <NumberOfChargeStation>1</NumberOfChargeStation>
+                </PerformanceMeasure>
+                <Nodes>
+                    <Node NodeId="cs5" NodeType="Depot">
+                        <Location>
+                            <Latitude>39.751377</Latitude>
+                            <Longitude>30.481888</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>0</ReadyTime>
+                            <WaitingTime>0</WaitingTime>
+                            <ServiceTime>0</ServiceTime>
+                            <DueDate>0</DueDate>
+                            <ArrivalTime>0</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>0</Weight>
+                            <Volume>0</Volume>
+                            <Units>0</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>0</AccDistance>
+                            <AccDuration>0</AccDuration>
+                            <AccEnergy>0</AccEnergy>
+                            <AccTardiness>0</AccTardiness>
+                            <RemainingCharge>3000</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>350</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="35" NodeType="Customer">
+                        <Location>
+                            <Latitude>39.75231982730744</Latitude>
+                            <Longitude>30.48578821561364</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>1649</ReadyTime>
+                            <WaitingTime>1601.144</WaitingTime>
+                            <ServiceTime>120</ServiceTime>
+                            <DueDate>1731</DueDate>
+                            <ArrivalTime>47.856</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>19</Weight>
+                            <Volume>0</Volume>
+                            <Units>1</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>598.2</AccDistance>
+                            <AccDuration>1769.0</AccDuration>
+                            <AccEnergy>44.06</AccEnergy>
+                            <AccTardiness>0</AccTardiness>
+                            <RemainingCharge>2401.8</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>19.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>331</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="cs7" NodeType="ChargeStation">
+                        <Location>
+                            <Latitude>39.752912728054795</Latitude>
+                            <Longitude>30.489341531024138</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>0</ReadyTime>
+                            <WaitingTime>0</WaitingTime>
+                            <ServiceTime>181.23119999999994</ServiceTime>
+                            <DueDate>0</DueDate>
+                            <ArrivalTime>0</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>0</Weight>
+                            <Volume>0</Volume>
+                            <Units>0</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>1006.84</AccDistance>
+                            <AccDuration>1982.9224</AccDuration>
+                            <AccEnergy>98.72</AccEnergy>
+                            <AccTardiness>0</AccTardiness>
+                            <RemainingCharge>1993.1600000000003</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>19.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>331</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="115" NodeType="Customer">
+                        <Location>
+                            <Latitude>39.7523728688112</Latitude>
+                            <Longitude>30.49019735592993</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>1459</ReadyTime>
+                            <WaitingTime>1601.144</WaitingTime>
+                            <ServiceTime>180</ServiceTime>
+                            <DueDate>1531</DueDate>
+                            <ArrivalTime>2012.1624</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>76</Weight>
+                            <Volume>0</Volume>
+                            <Units>4</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>1372.3400000000001</AccDistance>
+                            <AccDuration>2192.1624</AccDuration>
+                            <AccEnergy>138.12</AccEnergy>
+                            <AccTardiness>481.16239999999993</AccTardiness>
+                            <RemainingCharge>2634.5</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>95.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>255</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="2" NodeType="Customer">
+                        <Location>
+                            <Latitude>39.751938002852754</Latitude>
+                            <Longitude>30.49231551642376</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>257</ReadyTime>
+                            <WaitingTime>1601.144</WaitingTime>
+                            <ServiceTime>120</ServiceTime>
+                            <DueDate>303</DueDate>
+                            <ArrivalTime>2221.8776000000003</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>95</Weight>
+                            <Volume>0</Volume>
+                            <Units>5</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>1743.7800000000002</AccDistance>
+                            <AccDuration>2341.8776000000003</AccDuration>
+                            <AccEnergy>183.73000000000002</AccEnergy>
+                            <AccTardiness>2400.04</AccTardiness>
+                            <RemainingCharge>2263.06</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>190.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>160</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="32" NodeType="Customer">
+                        <Location>
+                            <Latitude>39.75248734145033</Latitude>
+                            <Longitude>30.488123296873173</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>1322</ReadyTime>
+                            <WaitingTime>1601.144</WaitingTime>
+                            <ServiceTime>180</ServiceTime>
+                            <DueDate>1378</DueDate>
+                            <ArrivalTime>2401.0968000000003</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>76</Weight>
+                            <Volume>0</Volume>
+                            <Units>4</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>2484.0200000000004</AccDistance>
+                            <AccDuration>2581.0968000000003</AccDuration>
+                            <AccEnergy>285.31</AccEnergy>
+                            <AccTardiness>3423.1368</AccTardiness>
+                            <RemainingCharge>1522.82</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>266.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>84</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                    <Node NodeId="cs5" NodeType="Depot">
+                        <Location>
+                            <Latitude>39.751377</Latitude>
+                            <Longitude>30.481888</Longitude>
+                            <Elevation>0</Elevation>
+                        </Location>
+                        <ServiceInformation>
+                            <ReadyTime>0</ReadyTime>
+                            <WaitingTime>0</WaitingTime>
+                            <ServiceTime>0</ServiceTime>
+                            <DueDate>0</DueDate>
+                            <ArrivalTime>2635.0696000000003</ArrivalTime>
+                        </ServiceInformation>
+                        <LoadInformation>
+                            <Weight>0</Weight>
+                            <Volume>0</Volume>
+                            <Units>0</Units>
+                        </LoadInformation>
+                        <PerformanceMeasure>
+                            <AccDistance>3158.6800000000003</AccDistance>
+                            <AccDuration>2635.0696000000003</AccDuration>
+                            <AccEnergy>338.68</AccEnergy>
+                            <AccTardiness>3423.1368</AccTardiness>
+                            <RemainingCharge>848.16</RemainingCharge>
+                            <RemainingCapacity>
+                                <Volume>0</Volume>
+                                <Weight>266.0</Weight>
+                            </RemainingCapacity>
+                            <RemainingPayload>
+                                <Volume>0</Volume>
+                                <Weight>84</Weight>
+                            </RemainingPayload>
+                        </PerformanceMeasure>
+                    </Node>
+                </Nodes>
+            </Route>
+            <Route RouteId="Route 2" VehicleId="Vehicle 2" DriverId="Driver 2">
+                <PerformanceMeasure>
+                    <StartTime>2635.0696000000003</StartTime>
+                    <RouteDistance>797.75</RouteDistance>
+                    <RouteDuration>803.9088</RouteDuration>
+                    <RouteEnergyConsumption>91.08</RouteEnergyConsumption>
+                    <RouteTardiness>0</RouteTardiness>
                     <RouteChargingTime>0</RouteChargingTime>
-                    <NumberOfNodes>6</NumberOfNodes>
+                    <NumberOfNodes>3</NumberOfNodes>
                     <NumberOfChargeStation>0</NumberOfChargeStation>
                 </PerformanceMeasure>
                 <Nodes>
@@ -94,108 +346,6 @@
                             </RemainingPayload>
                         </PerformanceMeasure>
                     </Node>
-                    <Node NodeId="31" NodeType="Customer">
-                        <Location>
-                            <Latitude>39.752940711050194</Latitude>
-                            <Longitude>30.48307218165666</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>1372</ReadyTime>
-                            <WaitingTime>1203.7432</WaitingTime>
-                            <ServiceTime>120</ServiceTime>
-                            <DueDate>1448</DueDate>
-                            <ArrivalTime>788.3456</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>57</Weight>
-                            <Volume>0</Volume>
-                            <Units>3</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>603.21</AccDistance>
-                            <AccDuration>1492.0</AccDuration>
-                            <AccEnergy>53.96</AccEnergy>
-                            <AccTardiness>0</AccTardiness>
-                            <RemainingCharge>2396.79</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>152.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>198</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
-                    <Node NodeId="32" NodeType="Customer">
-                        <Location>
-                            <Latitude>39.75248734145033</Latitude>
-                            <Longitude>30.488123296873173</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>1322</ReadyTime>
-                            <WaitingTime>1203.7432</WaitingTime>
-                            <ServiceTime>180</ServiceTime>
-                            <DueDate>1378</DueDate>
-                            <ArrivalTime>1555.1696</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>76</Weight>
-                            <Volume>0</Volume>
-                            <Units>4</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>1392.83</AccDistance>
-                            <AccDuration>1735.1696</AccDuration>
-                            <AccEnergy>123.59</AccEnergy>
-                            <AccTardiness>177.16959999999995</AccTardiness>
-                            <RemainingCharge>1607.17</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>228.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>122</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
-                    <Node NodeId="115" NodeType="Customer">
-                        <Location>
-                            <Latitude>39.7523728688112</Latitude>
-                            <Longitude>30.49019735592993</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>1459</ReadyTime>
-                            <WaitingTime>1203.7432</WaitingTime>
-                            <ServiceTime>180</ServiceTime>
-                            <DueDate>1531</DueDate>
-                            <ArrivalTime>1770.0872</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>76</Weight>
-                            <Volume>0</Volume>
-                            <Units>4</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>1829.3</AccDistance>
-                            <AccDuration>1950.0872</AccDuration>
-                            <AccEnergy>184.86</AccEnergy>
-                            <AccTardiness>416.2567999999999</AccTardiness>
-                            <RemainingCharge>1170.7</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>304.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>46</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
                     <Node NodeId="cs5" NodeType="Depot">
                         <Location>
                             <Latitude>39.751377</Latitude>
@@ -207,7 +357,7 @@
                             <WaitingTime>0</WaitingTime>
                             <ServiceTime>0</ServiceTime>
                             <DueDate>0</DueDate>
-                            <ArrivalTime>2043.4192</ArrivalTime>
+                            <ArrivalTime>803.9088</ArrivalTime>
                         </ServiceInformation>
                         <LoadInformation>
                             <Weight>0</Weight>
@@ -215,134 +365,18 @@
                             <Units>0</Units>
                         </LoadInformation>
                         <PerformanceMeasure>
-                            <AccDistance>2995.95</AccDistance>
-                            <AccDuration>2043.4192</AccDuration>
-                            <AccEnergy>324.22</AccEnergy>
-                            <AccTardiness>416.2567999999999</AccTardiness>
-                            <RemainingCharge>4.0499999999999545</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>304.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>46</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
-                </Nodes>
-            </Route>
-            <Route RouteId="Route 2" VehicleId="Vehicle 2" DriverId="Driver 2">
-                <PerformanceMeasure>
-                    <StartTime>2043.4192</StartTime>
-                    <RouteDistance>2193.84</RouteDistance>
-                    <RouteDuration>632.9008</RouteDuration>
-                    <RouteEnergyConsumption>294.99</RouteEnergyConsumption>
-                    <RouteTardiness>0</RouteTardiness>
-                    <RouteChargingTime>0</RouteChargingTime>
-                    <NumberOfNodes>3</NumberOfNodes>
-                    <NumberOfChargeStation>0</NumberOfChargeStation>
-                </PerformanceMeasure>
-                <Nodes>
-                    <Node NodeId="cs5" NodeType="Depot">
-                        <Location>
-                            <Latitude>39.751377</Latitude>
-                            <Longitude>30.481888</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>0</ReadyTime>
-                            <WaitingTime>0</WaitingTime>
-                            <ServiceTime>0</ServiceTime>
-                            <DueDate>0</DueDate>
-                            <ArrivalTime>0</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>0</Weight>
-                            <Volume>0</Volume>
-                            <Units>0</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>0</AccDistance>
-                            <AccDuration>0</AccDuration>
-                            <AccEnergy>0</AccEnergy>
+                            <AccDistance>797.75</AccDistance>
+                            <AccDuration>803.9088</AccDuration>
+                            <AccEnergy>91.08</AccEnergy>
                             <AccTardiness>0</AccTardiness>
-                            <RemainingCharge>3000</RemainingCharge>
+                            <RemainingCharge>2202.25</RemainingCharge>
                             <RemainingCapacity>
                                 <Volume>0</Volume>
-                                <Weight>0</Weight>
+                                <Weight>95.0</Weight>
                             </RemainingCapacity>
                             <RemainingPayload>
                                 <Volume>0</Volume>
-                                <Weight>350</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
-                    <Node NodeId="75" NodeType="Customer">
-                        <Location>
-                            <Latitude>39.74723261752125</Latitude>
-                            <Longitude>30.473770350543482</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>424</ReadyTime>
-                            <WaitingTime>337.3936</WaitingTime>
-                            <ServiceTime>120</ServiceTime>
-                            <DueDate>487</DueDate>
-                            <ArrivalTime>86.6064</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>38</Weight>
-                            <Volume>0</Volume>
-                            <Units>2</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>1082.58</AccDistance>
-                            <AccDuration>544.0</AccDuration>
-                            <AccEnergy>154.03</AccEnergy>
-                            <AccTardiness>0</AccTardiness>
-                            <RemainingCharge>1917.42</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>38.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>312</Weight>
-                            </RemainingPayload>
-                        </PerformanceMeasure>
-                    </Node>
-                    <Node NodeId="cs5" NodeType="Depot">
-                        <Location>
-                            <Latitude>39.751377</Latitude>
-                            <Longitude>30.481888</Longitude>
-                            <Elevation>0</Elevation>
-                        </Location>
-                        <ServiceInformation>
-                            <ReadyTime>0</ReadyTime>
-                            <WaitingTime>0</WaitingTime>
-                            <ServiceTime>0</ServiceTime>
-                            <DueDate>0</DueDate>
-                            <ArrivalTime>632.9008</ArrivalTime>
-                        </ServiceInformation>
-                        <LoadInformation>
-                            <Weight>0</Weight>
-                            <Volume>0</Volume>
-                            <Units>0</Units>
-                        </LoadInformation>
-                        <PerformanceMeasure>
-                            <AccDistance>2193.84</AccDistance>
-                            <AccDuration>632.9008</AccDuration>
-                            <AccEnergy>294.99</AccEnergy>
-                            <AccTardiness>0</AccTardiness>
-                            <RemainingCharge>806.1600000000001</RemainingCharge>
-                            <RemainingCapacity>
-                                <Volume>0</Volume>
-                                <Weight>38.0</Weight>
-                            </RemainingCapacity>
-                            <RemainingPayload>
-                                <Volume>0</Volume>
-                                <Weight>312</Weight>
+                                <Weight>255</Weight>
                             </RemainingPayload>
                         </PerformanceMeasure>
                     </Node>
