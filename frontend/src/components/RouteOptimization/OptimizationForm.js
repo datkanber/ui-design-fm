@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   RadioGroup,
@@ -15,10 +15,33 @@ import {
   TableContainer,
   Paper,
   IconButton,
+  Box,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CheckIcon from "@mui/icons-material/Check";
 
-export default function OptimizationForm() {
+// Hide the default close button
+const hideCloseIconStyle = `
+  .MuiDialog-root .MuiDialogTitle-root .MuiIconButton-root,
+  [data-testid="CloseIcon"] {
+    display: none !important;
+  }
+`;
+
+export default function OptimizationForm({ onClose }) {
+  // Add useEffect to inject the style when component mounts
+  useEffect(() => {
+    // Create style element
+    const style = document.createElement('style');
+    style.innerHTML = hideCloseIconStyle;
+    document.head.appendChild(style);
+    
+    // Clean up when component unmounts
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   // Algoritmalara özel varsayılan parametreler
   const defaultParams = {
     "Simulated Annealing": {
@@ -103,8 +126,77 @@ export default function OptimizationForm() {
     setScenarios((prev) => prev.filter((s) => s.id !== id));
   };
 
+  // Enhanced handleFormClose function to ensure it closes the dialog
+  const handleFormClose = () => {
+    try {
+      // Method 1: Try using the provided onClose prop
+      if (typeof onClose === 'function') {
+        onClose();
+        return;
+      }
+
+      // Method 2: Try to find the closest dialog container and close it
+      const closeDialog = () => {
+        // Find the dialog or modal containing this form
+        const dialogElement = document.querySelector('.MuiDialog-root');
+        const modalElement = document.querySelector('.MuiModal-root');
+        
+        if (dialogElement) {
+          // For Dialog components
+          const backdropElement = dialogElement.querySelector('.MuiBackdrop-root');
+          if (backdropElement) {
+            backdropElement.click(); // Click the backdrop to close the dialog
+            return true;
+          }
+          
+          // Try to find and click the close button
+          const closeButton = dialogElement.querySelector('[aria-label="close"]');
+          if (closeButton) {
+            closeButton.click();
+            return true;
+          }
+          
+          // Simulate Escape key to close dialog
+          dialogElement.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Escape',
+            code: 'Escape',
+            which: 27,
+            keyCode: 27,
+            bubbles: true
+          }));
+          return true;
+        }
+        
+        if (modalElement) {
+          // For Modal components
+          const backdropElement = modalElement.querySelector('.MuiBackdrop-root');
+          if (backdropElement) {
+            backdropElement.click();
+            return true;
+          }
+        }
+        
+        return false;
+      };
+
+      // Execute the close function
+      const closed = closeDialog();
+      
+      // Method 3: Last resort - dispatch a custom event that parent components can listen for
+      if (!closed) {
+        window.dispatchEvent(new CustomEvent('requestCloseOptimizationForm', {
+          detail: { timestamp: Date.now() }
+        }));
+        
+        console.log("Dispatched custom event to request form closure");
+      }
+    } catch (error) {
+      console.error("Error attempting to close form:", error);
+    }
+  };
+
   return (
-    <div style={{padding: "16px" }}>
+    <div style={{padding: "16px", position: "relative" }}>
       <Typography variant="h4" gutterBottom style={{ textAlign: "center" }}>
         Optimizasyon Senaryosu Oluşturma
       </Typography>
@@ -309,6 +401,7 @@ export default function OptimizationForm() {
       <Typography variant="h5" gutterBottom>
         Kaydedilen Senaryolar
       </Typography>
+        
       {scenarios.length === 0 ? (
         <Typography variant="body1">Henüz senaryo kaydedilmedi.</Typography>
       ) : (
@@ -347,6 +440,25 @@ export default function OptimizationForm() {
           </Table>
         </TableContainer>
       )}
+      
+      {/* Add a check icon button at the bottom */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end',
+        mt: 3,
+        mb: 2
+      }}>
+        <IconButton
+          onClick={handleFormClose}
+          style={{
+            backgroundColor: "#4CAF50", 
+            color: "white",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+          }}
+        >
+          <CheckIcon fontSize="medium" />
+        </IconButton>
+      </Box>
     </div>
   );
 }
