@@ -96,194 +96,194 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
   };
 
   return (
-    <>
-    <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: "12px", overflow: "hidden" }}>
-      <LayersControl position="topright">
-        <LayersControl.BaseLayer checked name="OpenStreetMap">
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        </LayersControl.BaseLayer>
+    <div>
+      <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: "12px", overflow: "hidden" }}>
+              <LayersControl position="topright">
+                <LayersControl.BaseLayer checked name="OpenStreetMap">
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                </LayersControl.BaseLayer>
 
-        <LayersControl.Overlay name="Araçlar">
-          <LayerGroup>
-            {vehicles.map((vehicle, index) => {
-              const nextPos = plannedRoutes[index]?.positions[1] || vehicle.position;
-              const angle = calculateBearing(vehicle.position, nextPos);
-              return (
-                <Marker key={vehicle.id} position={vehicle.position} icon={getArrowIcon(angle)}>
-                  <Popup>
-                    <p><strong>Araç:</strong> {vehicle.name}</p>
-                    <p><strong>Hız:</strong> {vehicle.velocity} km/h</p>
-                    <p><strong>Şarj:</strong> %{vehicle.soc}</p>
-                    <p><strong>Yük:</strong> {vehicle.payload} kg</p>
-                    <p><strong>Sürücü:</strong> {vehicle.driver}</p>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Şarj İstasyonları">
-          <LayerGroup>
-            {chargingStations.map((station) => {
-              let iconUrl = stationIconImg; // Default icon
-              let iconColor = "green"; // Default color for available stations
-              
-              // Change icon and color based on the station's status
-              if (station.status === "occupied") {
-                iconUrl = stationRed;
-                iconColor = "red"; // Color for occupied stations
-              }
-
-              // Use the color/icon in the marker
-              return (
-                <Marker
-                  key={station.id}
-                  position={station.position}
-                  icon={new L.Icon({ iconUrl, iconSize: [24, 24], iconAnchor: [12, 12] })}
-                >
-                  <Popup>
-                    <p><strong>İstasyon:</strong> {station.id}</p>
-                    <p><strong>Durum:</strong> {station.status}</p>
-                    <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="All Orders">
-          <LayerGroup>
-            {orders.map((order) => {
-              let orderIconImg = order; // Default icon for unrecognized statuses
-
-              // Assign specific icons based on the order's status
-              if (order.status === "Pending") {
-                orderIconImg = "path/to/pending_icon.png"; // Replace with your Pending icon
-              } else if (order.status === "Requested") {
-                orderIconImg = orderrequested; // Replace with your Requested icon
-              } else if (order.status === "On the way") {
-                orderIconImg = orderontheway; // Replace with your On the way icon
-              } else if (order.status === "Cancelled") {
-                orderIconImg = ordercanceled; // Replace with your Cancelled icon
-              } else if (order.status === "Delivered") {
-                orderIconImg = orderdelivered; // Replace with your Delivered icon
-              }else{
-                orderIconImg = orderdelivered;
-              }
-
-              return (
-                <Marker
-                  key={order.id}
-                  position={order.position}
-                  icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}
-                >
-                  <Popup>
-                    <p><strong>Order ID:</strong> {order.id}</p>
-                    <p><strong>Status:</strong> {order.status}</p>
-                    <p><strong>Vehicle ID:</strong> {order.vehicleId}</p>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-
-        <LayersControl.Overlay name="Bekleyen Talepler">
-          <LayerGroup>
-            {orders.filter((order) => order.status === "Pending").map((order) => (
-              <Marker key={order.id} position={order.position} icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}>
-                <Popup>Talep ID: {order.id} - Bekliyor</Popup>
-              </Marker>
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        
-        <LayersControl.Overlay name="Planlanmış Rotalar">
+          <LayersControl.Overlay name="Araçlar">
             <LayerGroup>
-              {plannedRoutes.map((route, index) => (
-                <Polyline
-                  key={index}
-                  positions={route.positions}
-                  color={routeColors[index] || "blue"}
-                  weight={4}
-                  eventHandlers={{ click: () => handleRouteClick(route, vehicles[index]) }}
-                />
+              {vehicles.map((vehicle, index) => {
+                const nextPos = plannedRoutes[index]?.positions[1] || vehicle.position;
+                const angle = calculateBearing(vehicle.position, nextPos);
+                return (
+                  <Marker key={vehicle.id} position={vehicle.position} icon={getArrowIcon(angle)}>
+                    <Popup>
+                      <p><strong>Araç:</strong> {vehicle.name}</p>
+                      <p><strong>Hız:</strong> {vehicle.velocity} km/h</p>
+                      <p><strong>Şarj:</strong> %{vehicle.soc}</p>
+                      <p><strong>Yük:</strong> {vehicle.payload} kg</p>
+                      <p><strong>Sürücü:</strong> {vehicle.driver}</p>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="Şarj İstasyonları">
+            <LayerGroup>
+              {chargingStations.map((station) => {
+                let iconUrl = stationIconImg; // Default icon
+                let iconColor = "green"; // Default color for available stations
+                
+                // Change icon and color based on the station's status
+                if (station.status === "occupied") {
+                  iconUrl = stationRed;
+                  iconColor = "red"; // Color for occupied stations
+                }
+
+                // Use the color/icon in the marker
+                return (
+                  <Marker
+                    key={station.id}
+                    position={station.position}
+                    icon={new L.Icon({ iconUrl, iconSize: [24, 24], iconAnchor: [12, 12] })}
+                  >
+                    <Popup>
+                      <p><strong>İstasyon:</strong> {station.id}</p>
+                      <p><strong>Durum:</strong> {station.status}</p>
+                      <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="All Orders">
+            <LayerGroup>
+              {orders.map((order) => {
+                let orderIconImg = order; // Default icon for unrecognized statuses
+
+                // Assign specific icons based on the order's status
+                if (order.status === "Pending") {
+                  orderIconImg = "path/to/pending_icon.png"; // Replace with your Pending icon
+                } else if (order.status === "Requested") {
+                  orderIconImg = orderrequested; // Replace with your Requested icon
+                } else if (order.status === "On the way") {
+                  orderIconImg = orderontheway; // Replace with your On the way icon
+                } else if (order.status === "Cancelled") {
+                  orderIconImg = ordercanceled; // Replace with your Cancelled icon
+                } else if (order.status === "Delivered") {
+                  orderIconImg = orderdelivered; // Replace with your Delivered icon
+                }else{
+                  orderIconImg = orderdelivered;
+                }
+
+                return (
+                  <Marker
+                    key={order.id}
+                    position={order.position}
+                    icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}
+                  >
+                    <Popup>
+                      <p><strong>Order ID:</strong> {order.id}</p>
+                      <p><strong>Status:</strong> {order.status}</p>
+                      <p><strong>Vehicle ID:</strong> {order.vehicleId}</p>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+
+          <LayersControl.Overlay name="Bekleyen Talepler">
+            <LayerGroup>
+              {orders.filter((order) => order.status === "Pending").map((order) => (
+                <Marker key={order.id} position={order.position} icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}>
+                  <Popup>Talep ID: {order.id} - Bekliyor</Popup>
+                </Marker>
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
 
-        <LayersControl.Overlay name="Tamamlanmış Rotalar">
-          <LayerGroup>
-            {completedRoutes.map((route, index) => (
-              <Polyline
-                key={index}
-                positions={route.positions}
-                color={routeColors[index] || "green"}
-                weight={4}
-                opacity={0.7}
-              />
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-      </LayersControl>
-    </MapContainer>
-    {isRouteVisible && (
-      <div
-        className="overlay-container"
-        style={{
-          position: "absolute",
-          bottom: "65px", 
-          left: "63%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
-          maxWidth: "70%",
-          overflowX: "scroll",
-        }}
-      >
+          
+          <LayersControl.Overlay name="Planlanmış Rotalar">
+              <LayerGroup>
+                {plannedRoutes.map((route, index) => (
+                  <Polyline
+                    key={index}
+                    positions={route.positions}
+                    color={routeColors[index] || "blue"}
+                    weight={4}
+                    eventHandlers={{ click: () => handleRouteClick(route, vehicles[index]) }}
+                  />
+                ))}
+              </LayerGroup>
+            </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="Tamamlanmış Rotalar">
+            <LayerGroup>
+              {completedRoutes.map((route, index) => (
+                <Polyline
+                  key={index}
+                  positions={route.positions}
+                  color={routeColors[index] || "green"}
+                  weight={4}
+                  opacity={0.7}
+                />
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
+      </MapContainer>
+      {isRouteVisible && (
         <div
+          className="overlay-container"
           style={{
-            display: "flex",
-            flexDirection: "row", // Horizontal layout
-            gap: "20px", // Space between cards
+            position: "absolute",
+            bottom: "65px", 
+            left: "63%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+            maxWidth: "70%",
+            overflowX: "scroll",
           }}
         >
-          {stopsData[0].stops.map((stop, index) => (
-            <div
-              key={index}
-              className="stop-card"
-              style={{
-                flex: "0 0 auto",
-                padding: "10px",
-                backgroundColor: "#f4f4f4",
-                borderRadius: "8px",
-                minWidth: "200px",
-                border: `2px solid ${getBorderColor(stop.status)}`
-              }}
-            >
-              {/* Add icon at the top based on stop's status */}
-              <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40px' }}>
-                {getStatusIcon(stop.status)} 
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row", // Horizontal layout
+              gap: "20px", // Space between cards
+            }}
+          >
+            {stopsData[0].stops.map((stop, index) => (
+              <div
+                key={index}
+                className="stop-card"
+                style={{
+                  flex: "0 0 auto",
+                  padding: "10px",
+                  backgroundColor: "#f4f4f4",
+                  borderRadius: "8px",
+                  minWidth: "200px",
+                  border: `2px solid ${getBorderColor(stop.status)}`
+                }}
+              >
+                {/* Add icon at the top based on stop's status */}
+                <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40px' }}>
+                  {getStatusIcon(stop.status)} 
+                </div>
+                <h4>{stop.title}</h4>
+                <p>{stop.address}</p>
+                <p>{stop.timeWindow}</p>
+                <p>{stop.amount} items</p>
+                <p>{stop.clientName}</p>
               </div>
-              <h4>{stop.title}</h4>
-              <p>{stop.address}</p>
-              <p>{stop.timeWindow}</p>
-              <p>{stop.amount} items</p>
-              <p>{stop.clientName}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button onClick={handleStopContainerClose} style={{ marginRight: "20px", padding: "10px" }}>
+            Kapat
+          </button>
         </div>
-        <button onClick={handleStopContainerClose} style={{ marginRight: "20px", padding: "10px" }}>
-          Kapat
-        </button>
-      </div>
-    )}
-  </>
+      )}
+    </div>
 );}

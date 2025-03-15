@@ -13,55 +13,17 @@ import "leaflet/dist/leaflet.css";
 
 
 // Example of different types of alerts
+const handleButtonClick = () => {
+    
+};
 const initialAlertData = [
-  {
-    id: 1,
-    type: "Critical Failure",
-    message: "Araçta beklenmedik bir duraklama tespit edildi.",
-    details: "Araç, beklenmedik bir duraklama yaptı. Lütfen kontrol edin.",
-    source: "Vehicle", // Example of Vehicle Related error
-    timestamp: new Date().toISOString(), // Current timestamp
-  },
-  {
-    id: 2,
-    type: "Error",
-    message: "Yüksek hız seviyesine çıkıldı.",
-    details: "Araç hızı 120 km/s. Araç belirlenen hız limitini aştı. Lütfen sürücüyü uyarın.",
-    source: "Driver", // Example of Driver Related error
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    type: "Critical Failure",
-    message: "Rotadan sapma tespit edildi.",
-    details: "Araç, belirlenen rota dışına çıktı. Lütfen sürücüyü bilgilendirin.",
-    source: "Route", // Example of Route Related alert
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: 4,
-    type: "Alert",
-    message: "Fazla CPU kullanımı tespit edildi.",
-    details: "Sistem, belirlenen CPU kullanım limitini aştı. Sistem performansını izleyin.",
-    source: "System", // Example of System alert
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: 5,
-    type: "Error",
-    message: "Teslimat gecikti.",
-    details: "Teslimat, belirlenen süreden fazla gecikti. Lütfen müşteri ile iletişime geçin.",
-    source: "Delivery", // Example of Delivery issue
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: 6,
-    type: "Alert",
-    message: "İşin tamamlanma yüzdesi eşik değerin altında.",
-    details: "Tamamlanan iş yüzdesi, %5 oranda eşik değerin altına düştü.",
-    source: "Performance", // Example of Performance alert
-    timestamp: new Date().toISOString(),
-  },
+  { id: 1, type: "Error", message: "Araçta beklenmedik bir duraklama tespit edildi.", source: "Vehicle", timestamp: new Date().toISOString() },
+  { id: 2, type: "Warning", message: "Yüksek hız seviyesine çıkıldı.", source: "Driver", timestamp: new Date().toISOString() },
+  { id: 3, type: "Error", message: "Rotadan sapma tespit edildi.", source: "Route", timestamp: new Date().toISOString() },
+  { id: 4, type: "Info", message: "Fazla CPU kullanımı tespit edildi.", source: "System", timestamp: new Date().toISOString() },
+  { id: 5, type: "Warning", message: "Teslimat gecikti.", source: "Delivery", timestamp: new Date().toISOString() },
+  { id: 6, type: "Info", message: "İşin tamamlanma yüzdesi eşik değerin altında.", source: "Performance", timestamp: new Date().toISOString() },
+  { id: 7, type: "Error", message: "Rotadan sapma tespit edildi.", source: "Route", timestamp: new Date().toISOString() },
 ];
 
 export default function FleetMonitoring() {
@@ -69,17 +31,47 @@ export default function FleetMonitoring() {
   const [isPerformanceMode, setIsPerformanceMode] = useState(false); // **Performance toggle için state**
   const [activeTab, setActiveTab] = useState("Driver"); // Başlangıçta Sürücü sekmesi aktif
   const [selectedId, setSelectedId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(true); // Info göster/gizle
+  const [showWarning, setShowWarning] = useState(true); // Warning göster/gizle
+  const [selectedAlert, setSelectedAlert] = useState(null);
 
-  const handleButtonClick = () => {
-    
+  // Handle alert resolution
+  const handleResolve = (id) => {
+    alert(`Uyarı çözüldü: ID ${id}`);
+    setSelectedAlert(null); // Detay görünümünü kapat
   };
 
-  // Function to mark an alert as solved
-  const resolveAlert = (id) => {
-    setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== id));
+  // Handle alert deletion
+  const handleDelete = (id) => {
+    setAlerts(alerts.filter((alert) => alert.id !== id));
+    setSelectedAlert(null); // Detay görünümünü kapat
   };
 
+  // Categorize alerts based on their type
+  const categorizedAlerts = alerts.reduce((acc, alert) => {
+    acc[alert.type] = acc[alert.type] ? [...acc[alert.type], alert] : [alert];
+    return acc;
+  }, {});
+
+  // Render alerts by category (Info, Warning, etc.)
+  const renderAlertsByCategory = (type) => {
+    if (type === "Info" && !showInfo) return null;
+    if (type === "Warning" && !showWarning) return null;
+
+    const alertsOfType = categorizedAlerts[type] || [];
+    return alertsOfType.map((alert) => (
+      <Alert
+        key={alert.id}
+        type={alert.type}
+        message={alert.message}
+        source={alert.source}
+        timestamp={alert.timestamp}
+        onResolve={() => handleResolve(alert.id)}
+        onDelete={() => handleDelete(alert.id)}
+      />
+    ));
+  };
+  
   const routeColors = {
     "Simulated Annealing": "blue",
     "Tabu Search": "green",
@@ -159,34 +151,65 @@ export default function FleetMonitoring() {
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      {/* Right Side - Sidebar */}
       <div style={{ flex: 1, padding: "16px", backgroundColor: "#f0f0f0", height: "100vh" }}>
-        {/* Alerts Section */}
         <div style={{ height: "50%", marginBottom: "16px", backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
-          <h2 style={{ marginBottom: "12px" }}>Uyarılar ve İkazlar</h2>
-          <div style={{ maxHeight: "80%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            {/* Hiding scrollbar in Webkit-based browsers (Chrome, Safari) */}
-            <style>
-              {`
-                .scrollable-div::-webkit-scrollbar {
-                  display: none;
-                }
-              `}
-            </style>
-            {/* Rendering alerts */}
-            {alerts.map((alert) => (
-              <div key={alert.id}>
-                <Alert
-                  type={alert.type}
-                  message={alert.message}
-                  details={alert.details}
-                  source={alert.source} // Passing the source prop to Alert component
-                  timestamp={alert.timestamp} // Passing the timestamp prop
-                />
+          <h2>Uyarılar ve İkazlar</h2>
+
+          <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
+            <label>
+              <input type="checkbox" checked={showInfo} onChange={() => setShowInfo(!showInfo)} />
+              Info
+            </label>
+            <label>
+              <input type="checkbox" checked={showWarning} onChange={() => setShowWarning(!showWarning)} />
+              Warning
+            </label>
+          </div>
+
+          <div style={{ maxHeight: "82%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            {/* Error her zaman gösterilir */}
+            <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px", marginBottom: "12px" }}>
+              <h3>Error</h3>
+              {renderAlertsByCategory("Error")}
+            </div>
+
+            {/* Warning sadece kullanıcı isterse gösterilir */}
+            {showWarning && (
+              <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px", marginBottom: "12px" }}>
+                <h3>Warning</h3>
+                {renderAlertsByCategory("Warning")}
               </div>
-            ))}
+            )}
+
+            {/* Info sadece kullanıcı isterse gösterilir */}
+            {showInfo && (
+              <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
+                <h3>Info</h3>
+                {renderAlertsByCategory("Info")}
+              </div>
+            )}
+
+            {/* Seçilen Uyarının Detayları */}
+            {selectedAlert && (
+              <div style={{ position: "fixed", bottom: "16px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#fff", padding: "20px", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", width: "300px" }}>
+                <h3>{selectedAlert.type} Detayları</h3>
+                <p><strong>Mesaj:</strong> {selectedAlert.message}</p>
+                <p><strong>Kaynak:</strong> {selectedAlert.source}</p>
+                <p><strong>Zaman:</strong> {new Date(selectedAlert.timestamp).toLocaleString()}</p>
+                
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px" }}>
+                  <button onClick={() => handleResolve(selectedAlert.id)} style={{ padding: "8px 16px", backgroundColor: "green", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+                    Çözüldü
+                  </button>
+                  <button onClick={() => handleDelete(selectedAlert.id)} style={{ padding: "8px 16px", backgroundColor: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+                    Sil
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
 
         <div style={{ height: "50%", marginBottom: "16px", backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
           <h2 style={{ marginBottom: "12px" }}>Performans İzleme</h2>

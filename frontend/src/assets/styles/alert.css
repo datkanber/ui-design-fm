@@ -1,0 +1,29 @@
+/* .alert-resolved applies when the alert is resolved */
+.alert-resolved {
+    background-color: #d3f8d3; /* Light green */
+    color: #4caf50; /* Green text */
+  }
+  
+  /* .alert-unresolved applies when the alert is unresolved */
+  .alert-unresolved {
+    background-color: #ffcc00; /* Yellow */
+    color: #fff; /* White text */
+  }
+  
+  @keyframes flash {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Apply the flash effect to the icon when unresolved */
+  .flash {
+    animation: flash 1s infinite;
+  }
+  
