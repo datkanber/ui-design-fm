@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import FleetMonitoringMap from "../components/FleetMonitoringMap";
 import FleetMonitoringPerformanceMap from "../components/FleetMonitoringPerformanceMap";
 import { vehicles } from "../data/vehicles";
@@ -16,18 +16,10 @@ import "leaflet/dist/leaflet.css";
 const handleButtonClick = () => {
     
 };
-const initialAlertData = [
-  { id: 1, type: "Error", message: "Araçta beklenmedik bir duraklama tespit edildi.", source: "Vehicle", timestamp: new Date().toISOString() },
-  { id: 2, type: "Warning", message: "Yüksek hız seviyesine çıkıldı.", source: "Driver", timestamp: new Date().toISOString() },
-  { id: 3, type: "Error", message: "Rotadan sapma tespit edildi.", source: "Route", timestamp: new Date().toISOString() },
-  { id: 4, type: "Info", message: "Fazla CPU kullanımı tespit edildi.", source: "System", timestamp: new Date().toISOString() },
-  { id: 5, type: "Warning", message: "Teslimat gecikti.", source: "Delivery", timestamp: new Date().toISOString() },
-  { id: 6, type: "Info", message: "İşin tamamlanma yüzdesi eşik değerin altında.", source: "Performance", timestamp: new Date().toISOString() },
-  { id: 7, type: "Error", message: "Rotadan sapma tespit edildi.", source: "Route", timestamp: new Date().toISOString() },
-];
+const API_URL = "http://localhost:5001/api/alerts";
 
 export default function FleetMonitoring() {
-  const [alerts, setAlerts] = useState(initialAlertData);
+  const [alerts, setAlerts] = useState([]);
   const [isPerformanceMode, setIsPerformanceMode] = useState(false); // **Performance toggle için state**
   const [activeTab, setActiveTab] = useState("Driver"); // Başlangıçta Sürücü sekmesi aktif
   const [selectedId, setSelectedId] = useState(null);
@@ -35,41 +27,80 @@ export default function FleetMonitoring() {
   const [showWarning, setShowWarning] = useState(true); // Warning göster/gizle
   const [selectedAlert, setSelectedAlert] = useState(null);
 
-  // Handle alert resolution
-  const handleResolve = (id) => {
-    alert(`Uyarı çözüldü: ID ${id}`);
-    setSelectedAlert(null); // Detay görünümünü kapat
+  // **MongoDB'den Uyarıları Çek**
+  useEffect(() => {
+    fetch(API_URL)
+      .then((response) => response.json())
+      .then((data) => setAlerts(data))
+      .catch((error) => console.error("Hata:", error));
+  }, []);
+
+  // **Uyarıyı Çöz**
+  const handleResolve = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resolved: true }),
+      });
+  
+      if (!response.ok) throw new Error("Sunucu hatası");
+  
+      await response.json();
+  
+      // Uyarıyı "Success" yapma, sadece resolved: true olarak işaretle
+      setAlerts((prevAlerts) =>
+        prevAlerts.map((alert) =>
+          alert._id === id ? { ...alert, resolved: true } : alert
+        )
+      );
+    } catch (error) {
+      console.error("Çözümleme hatası:", error);
+    }
+  };
+  
+  
+
+  // **Uyarıyı Sil**
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        throw new Error(`Sunucu hatası: ${response.status}`);
+      }
+
+      setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert._id !== id));
+      setSelectedAlert(null);
+    } catch (error) {
+      console.error("Silme hatası:", error);
+    }
   };
 
-  // Handle alert deletion
-  const handleDelete = (id) => {
-    setAlerts(alerts.filter((alert) => alert.id !== id));
-    setSelectedAlert(null); // Detay görünümünü kapat
-  };
 
-  // Categorize alerts based on their type
+  // **Uyarıları Kategoriye Göre Grupla**
   const categorizedAlerts = alerts.reduce((acc, alert) => {
     acc[alert.type] = acc[alert.type] ? [...acc[alert.type], alert] : [alert];
     return acc;
   }, {});
 
-  // Render alerts by category (Info, Warning, etc.)
   const renderAlertsByCategory = (type) => {
     if (type === "Info" && !showInfo) return null;
     if (type === "Warning" && !showWarning) return null;
-
     const alertsOfType = categorizedAlerts[type] || [];
     return alertsOfType.map((alert) => (
       <Alert
-        key={alert.id}
+        key={alert._id}
+        detail={alert.detail}
         type={alert.type}
         message={alert.message}
         source={alert.source}
         timestamp={alert.timestamp}
-        onResolve={() => handleResolve(alert.id)}
-        onDelete={() => handleDelete(alert.id)}
+        resolved={alert.resolved} // **Yeni props**
+        onResolve={() => handleResolve(alert._id)}
+        onDelete={() => handleDelete(alert._id)}
       />
-    ));
+    ));    
   };
   
   const routeColors = {
@@ -152,10 +183,9 @@ export default function FleetMonitoring() {
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <div style={{ flex: 1, padding: "16px", backgroundColor: "#f0f0f0", height: "100vh" }}>
-        <div style={{ height: "50%", marginBottom: "16px", backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
-          <h2>Uyarılar ve İkazlar</h2>
-
-          <div style={{ display: "flex", gap: "10px", marginBottom: "12px" }}>
+        <div style={{ height: "50%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none", marginBottom: "16px", backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
+          <h2>Uyarılar</h2>
+          <div>
             <label>
               <input type="checkbox" checked={showInfo} onChange={() => setShowInfo(!showInfo)} />
               Info
@@ -166,48 +196,24 @@ export default function FleetMonitoring() {
             </label>
           </div>
 
-          <div style={{ maxHeight: "82%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            {/* Error her zaman gösterilir */}
-            <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px", marginBottom: "12px" }}>
-              <h3>Error</h3>
-              {renderAlertsByCategory("Error")}
-            </div>
-
-            {/* Warning sadece kullanıcı isterse gösterilir */}
-            {showWarning && (
-              <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px", marginBottom: "12px" }}>
-                <h3>Warning</h3>
-                {renderAlertsByCategory("Warning")}
-              </div>
-            )}
-
-            {/* Info sadece kullanıcı isterse gösterilir */}
-            {showInfo && (
-              <div style={{ backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
-                <h3>Info</h3>
-                {renderAlertsByCategory("Info")}
-              </div>
-            )}
-
-            {/* Seçilen Uyarının Detayları */}
-            {selectedAlert && (
-              <div style={{ position: "fixed", bottom: "16px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#fff", padding: "20px", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", width: "300px" }}>
-                <h3>{selectedAlert.type} Detayları</h3>
-                <p><strong>Mesaj:</strong> {selectedAlert.message}</p>
-                <p><strong>Kaynak:</strong> {selectedAlert.source}</p>
-                <p><strong>Zaman:</strong> {new Date(selectedAlert.timestamp).toLocaleString()}</p>
-                
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px" }}>
-                  <button onClick={() => handleResolve(selectedAlert.id)} style={{ padding: "8px 16px", backgroundColor: "green", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
-                    Çözüldü
-                  </button>
-                  <button onClick={() => handleDelete(selectedAlert.id)} style={{ padding: "8px 16px", backgroundColor: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>
-                    Sil
-                  </button>
-                </div>
-              </div>
-            )}
+          <div>
+            <h3>Error</h3>
+            {renderAlertsByCategory("Error")}
           </div>
+
+          {showWarning && (
+            <div>
+              <h3>Warning</h3>
+              {renderAlertsByCategory("Warning")}
+            </div>
+          )}
+
+          {showInfo && (
+            <div>
+              <h3>Info</h3>
+              {renderAlertsByCategory("Info")}
+            </div>
+          )}
         </div>
 
 

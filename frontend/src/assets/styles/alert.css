@@ -1,29 +1,23 @@
-/* .alert-resolved applies when the alert is resolved */
+/* Çözülen uyarılar yeşil, çözümlenmemişler sarı */
 .alert-resolved {
-    background-color: #d3f8d3; /* Light green */
-    color: #4caf50; /* Green text */
-  }
-  
-  /* .alert-unresolved applies when the alert is unresolved */
-  .alert-unresolved {
-    background-color: #ffcc00; /* Yellow */
-    color: #fff; /* White text */
-  }
-  
-  @keyframes flash {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.3;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-  
-  /* Apply the flash effect to the icon when unresolved */
-  .flash {
-    animation: flash 1s infinite;
-  }
-  
+  background-color: #d3f8d3; /* Açık yeşil */
+  color: #4caf50; /* Yeşil yazı */
+}
+
+.alert-unresolved {
+  background-color: #ffcc00; /* Sarı */
+  color: #fff; /* Beyaz yazı */
+}
+
+/* Yanıp sönme animasyonu */
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* İkon için animasyon ekle */
+.blinking-icon {
+  animation: blink 1s infinite;
+  display: inline-block;
+}
