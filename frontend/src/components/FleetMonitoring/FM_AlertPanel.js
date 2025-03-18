@@ -1,42 +1,48 @@
 import React, { useState } from "react";
+import "../../assets/styles/alert.css";
 
-// Alert Component
-const Alert = ({ type, message, details, source, timestamp }) => {
+export default function Alert({ type, message, details, source, timestamp, resolved, onResolve, onDelete }) {
   const [showDetails, setShowDetails] = useState(false);
 
-  // Function to determine styles based on the alert type
+  // Uyarı tipine göre renkleri belirle
   const getAlertStyle = (type, source) => {
     const sourceColors = {
-      "Driver": "#f39c12", // Yellow
-      "Vehicle": "#e74c3c", // Red
-      "Route": "#3498db", // Blue
-      "Performance": "#2ecc71", // Green
-      "Delivery": "#9b59b6", // Purple
-      "System": "#34495e", // Gray
+      "Driver": "#f39c12",
+      "Vehicle": "#e74c3c",
+      "Route": "#3498db",
+      "Performance": "#2ecc71",
+      "Delivery": "#9b59b6",
+      "System": "#34495e",
     };
 
     const sourceColor = sourceColors[source] || "#000000";
 
+    let icon = "ℹ️"; 
+    let iconColor = "#ffffff"; 
+
     switch (type) {
+      case "Warning":
+        icon = "⚠️";
+        iconColor = "#ffffff";
+        return { backgroundColor: "#fcad58", color: "#721c24", icon, iconColor, sourceColor };
+      case "Info":
+        icon = "ℹ️"; 
+        iconColor = "#00eaff";
+        return { backgroundColor: "#faf373", color: "#856404", icon, iconColor, sourceColor };
       case "Error":
-        return { backgroundColor: "#ffe297", color: "#721c24", icon: "⚠️", sourceColor };
-      case "Alert":
-        return { backgroundColor: "#fbffce", color: "#856404", icon: "⚡", sourceColor };
-      case "Critical Failure":
-        return { backgroundColor: "#f5c6cb", color: "#721c24", icon: "❌", sourceColor };
+        icon = "❌"; 
+        iconColor = "#ffe0e4"; 
+        return { backgroundColor: "#f25a5a", color: "#721c24", icon, iconColor, sourceColor };
       default:
-        return { backgroundColor: "#ffffff", color: "#000000", icon: "ℹ️", sourceColor };
+        return { backgroundColor: "#ffffff", color: "#000000", icon, iconColor, sourceColor };
     }
   };
 
-  // Get the styles based on the type
-  const { backgroundColor, color, icon, sourceColor } = getAlertStyle(type, source);
-
-  // Add more detailed context to the details section
-  const detailedMessage = `${details}\nTimestamp: ${timestamp}\nSeverity Level: ${type}\nSource Category: ${source}`;
+  const { backgroundColor, color, icon, iconColor, sourceColor } = getAlertStyle(type, source);
 
   return (
     <div
+      className={`alert-container ${resolved ? "alert-resolved" : "alert-unresolved"}`}
       style={{
         backgroundColor,
         color,
@@ -46,14 +52,26 @@ const Alert = ({ type, message, details, source, timestamp }) => {
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
+        opacity: resolved ? 0.6 : 1,
       }}
       onClick={() => setShowDetails(!showDetails)}
     >
-      <span style={{ marginRight: "10px" }}>{icon}</span>
+    <span
+      className={!resolved ? "blinking-icon" : ""}
+      style={{
+        marginRight: "10px",
+        fontSize: "20px",
+        display: "inline-block",
+        textShadow: "0px 0px 5px rgb(255, 255, 255, 1)", // Beyaz ışıltı efekti
+      }}
+    >
+      {icon}
+    </span>
+
+
       <div style={{ flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span>{message}</span>
-          {/* Source container */}
           <div
             style={{
               backgroundColor: sourceColor,
@@ -67,15 +85,52 @@ const Alert = ({ type, message, details, source, timestamp }) => {
             {source}
           </div>
         </div>
+
         {showDetails && (
           <div style={{ marginTop: "10px", fontSize: "12px", color: "#333", wordWrap: "break-word", whiteSpace: "pre-line" }}>
             <strong>Details:</strong>
-            <pre>{detailedMessage}</pre>
+            <pre>{details}</pre>
+            <pre>Timestamp: {timestamp}</pre>
+
+            <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onResolve();
+                }}
+                style={{
+                  padding: "8px 12px",
+                  backgroundColor: resolved ? "#aaa" : "#2ecc71",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: resolved ? "default" : "pointer",
+                }}
+                disabled={resolved}
+              >
+                {resolved ? "Çözüldü" : "Çöz"}
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+                style={{
+                  padding: "8px 12px",
+                  backgroundColor: "#e74c3c",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Sil
+              </button>
+            </div>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default Alert;
+}
