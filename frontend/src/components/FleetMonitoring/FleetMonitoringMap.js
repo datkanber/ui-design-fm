@@ -1,30 +1,201 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "../../assets/styles/global.css";
-import arrowRight from "../../assets/icons/arrow_right.png";
-import arrowLeft from "../../assets/icons/arrow_left.png";
-import arrowUp from "../../assets/icons/arrow_up.png";
-import arrowDown from "../../assets/icons/arrow_down.png";
-import stationIconImg from "../../assets/icons/station.png";
-import orderIconImg from "../../assets/icons/order.png";
-import ordercanceled from "../../assets/icons/order2.png";
-import orderdelivered from "../../assets/icons/order3.png";
-import orderontheway from "../../assets/icons/order4.png";
-import orderrequested from "../../assets/icons/order7.png";
-import truck from "../../assets/icons/vehicle.png";
-import check from "../../assets/icons/check.png";
-import cancel from "../../assets/icons/cancel.png";
-import waiting from "../../assets/icons/waiting.png";
-import stationRed from "../../assets/icons/station_red.png";
-import stopsData from "../../data/stops.js";
-import "../../assets/styles/RouteInfoPanel.css";
+import { LeafletTrackingMarker } from "react-leaflet-tracking-marker";
+import "../assets/styles/global.css";
+import stationIconImg from "../assets/icons/station.png";
+import orderIconImg from "../assets/icons/order.png";
+import ordercanceled from "../assets/icons/order2.png";
+import orderdelivered from "../assets/icons/order3.png";
+import orderontheway from "../assets/icons/order4.png";
+import orderrequested from "../assets/icons/order7.png";
+import truck from "../assets/icons/arrow_up.png";
+import check from "../assets/icons/check.png";
+import cancel from "../assets/icons/cancel.png";
+import waiting from "../assets/icons/waiting.png";
+import stationRed from "../assets/icons/station_red.png";
+import stopsData from "../data/stops.js";
+import "../assets/styles/RouteInfoPanel.css";
 
 export default function FleetMonitoringMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
-  const [/*selectedRoute*/, setSelectedRoute] = useState(null);
-  const [/*isPanelOpen*/, setIsPanelOpen] = useState(false);
-  const [isRouteVisible, setIsRouteVisible] = useState(false); // Yeni state
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isRouteVisible, setIsRouteVisible] = useState(false);
+  
+  const intervalRef = useRef(null);
+  
+  // Initialize vehicle positions
+  const [vehiclePositions, setVehiclePositions] = useState(
+    vehicles.map((vehicle, index) => {
+      const route = plannedRoutes[index];
+      const initialPosition = route && route.positions && route.positions.length > 0 
+        ? route.positions[0] 
+        : vehicle.position;
+        
+      return {
+        id: vehicle.id,
+        position: initialPosition,
+        prevPosition: initialPosition,
+        angle: 0,
+        routeIndex: 0,
+        routeProgress: 0,
+        speed: vehicle.velocity || 20,
+        active: true
+      };
+    })
+  );
+
+  // Calculate bearing between two points in degrees
+  const calculateBearing = (start, end) => {
+    if (!start || !end || 
+        (start[0] === end[0] && start[1] === end[1])) {
+      return 0;
+    }
+    
+    // Convert from degrees to radians
+    const startLat = start[0] * Math.PI / 180;
+    const startLng = start[1] * Math.PI / 180;
+    const endLat = end[0] * Math.PI / 180;
+    const endLng = end[1] * Math.PI / 180;
+    
+    // Calculate bearing
+    const y = Math.sin(endLng - startLng) * Math.cos(endLat);
+    const x = Math.cos(startLat) * Math.sin(endLat) -
+              Math.sin(startLat) * Math.cos(endLat) * Math.cos(endLng - startLng);
+    
+    const bearingRad = Math.atan2(y, x);
+    const bearingDeg = (bearingRad * 180 / Math.PI + 360) % 360; // Convert to degrees
+    
+    return bearingDeg;
+  };
+
+  // Move vehicles along their routes
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    intervalRef.current = setInterval(() => {
+      setVehiclePositions(prevPositions => {
+        return prevPositions.map((vehicleData, vehicleIndex) => {
+          if (!vehicleData.active) {
+            return vehicleData;
+          }
+          
+          const route = plannedRoutes[vehicleIndex];
+          
+          if (!route || !route.positions || route.positions.length < 2) {
+            return { ...vehicleData, active: false };
+          }
+          
+          const currentRouteIndex = Math.floor(vehicleData.routeIndex);
+          const nextRouteIndex = currentRouteIndex + 1;
+          
+          if (nextRouteIndex >= route.positions.length) {
+            return { ...vehicleData, active: false };
+          }
+          
+          const currentPosition = route.positions[currentRouteIndex];
+          const nextPosition = route.positions[nextRouteIndex];
+          
+          const segmentDistance = calculateDistance(currentPosition, nextPosition);
+          const updateIntervalInHours = 1 / (60 * 60);
+          const distanceTraveledInKm = vehicleData.speed * updateIntervalInHours;
+          const distanceTraveledInMeters = distanceTraveledInKm * 1000;
+          
+          const segmentProgress = vehicleData.routeIndex - currentRouteIndex;
+          const additionalProgress = segmentDistance > 0 ? distanceTraveledInMeters / segmentDistance : 0;
+          let newRouteIndex = currentRouteIndex + segmentProgress + additionalProgress;
+          let newActive = true;
+          
+          if (newRouteIndex >= nextRouteIndex) {
+            if (nextRouteIndex >= route.positions.length - 1) {
+              newRouteIndex = route.positions.length - 1;
+              newActive = false;
+            }
+          }
+          
+          const newPosition = interpolatePosition(
+            route.positions[Math.floor(newRouteIndex)],
+            route.positions[Math.min(Math.floor(newRouteIndex) + 1, route.positions.length - 1)],
+            newRouteIndex - Math.floor(newRouteIndex)
+          );
+          
+          // Calculate bearing between current and next position for correct rotation
+          const bearing = calculateBearing(vehicleData.position, newPosition);
+          
+          return {
+            ...vehicleData,
+            prevPosition: vehicleData.position,
+            position: newPosition,
+            angle: bearing,
+            routeIndex: newRouteIndex,
+            routeProgress: route.positions.length > 1 ? newRouteIndex / (route.positions.length - 1) : 1,
+            active: newActive
+          };
+        });
+      });
+    }, 1000);
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [plannedRoutes]);
+
+  // Interpolate between two positions
+  const interpolatePosition = (pos1, pos2, ratio) => {
+    if (!pos1 || !pos2) return pos1 || [0, 0];
+    return [
+      pos1[0] + (pos2[0] - pos1[0]) * ratio,
+      pos1[1] + (pos2[1] - pos1[1]) * ratio
+    ];
+  };
+
+  // Calculate distance between two points
+  const calculateDistance = (pos1, pos2) => {
+    if (!pos1 || !pos2) return 0;
+    
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = pos1[0] * Math.PI / 180;
+    const φ2 = pos2[0] * Math.PI / 180;
+    const Δφ = (pos2[0] - pos1[0]) * Math.PI / 180;
+    const Δλ = (pos2[1] - pos1[1]) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    
+    return distance;
+  };
+
+  // Change vehicle speed
+  const changeVehicleSpeed = (vehicleId, newSpeed) => {
+    setVehiclePositions(prevPositions => 
+      prevPositions.map(vehicle => 
+        vehicle.id === vehicleId ? {...vehicle, speed: newSpeed} : vehicle
+      )
+    );
+  };
+
+  // Reset vehicle progress
+  const resetVehicleProgress = (vehicleId) => {
+    setVehiclePositions(prevPositions => 
+      prevPositions.map(vehicle => 
+        vehicle.id === vehicleId ? {
+          ...vehicle, 
+          routeIndex: 0, 
+          position: plannedRoutes[prevPositions.findIndex(v => v.id === vehicleId)]?.positions[0] || vehicle.position,
+          prevPosition: plannedRoutes[prevPositions.findIndex(v => v.id === vehicleId)]?.positions[0] || vehicle.position,
+          active: true
+        } : vehicle
+      )
+    );
+  };
 
   const handleRouteClick = (route, vehicle) => {
     setSelectedRoute({
@@ -32,177 +203,177 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
       stops: route.stops || [],
     });
     setIsPanelOpen(true);
-    setIsRouteVisible(true);  // Rota tıklandığında görünür yapıyoruz
+    setIsRouteVisible(true);
   };
   
   const handleStopContainerClose = () => {
-    setIsRouteVisible(false);  // Stop container'ını gizlemek için state'i false yapıyoruz
+    setIsRouteVisible(false);
   };
   
-  const calculateBearing = (start, end) => {
-    if (!start || !end) return 0;
-    const lat1 = (start[0] * Math.PI) / 180;
-    const lon1 = (start[1] * Math.PI) / 180;
-    const lat2 = (end[0] * Math.PI) / 180;
-    const lon2 = (end[1] * Math.PI) / 180;
-    const dLon = lon2 - lon1;
-    const y = Math.sin(dLon) * Math.cos(lat2);
-    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-    const bearing = (Math.atan2(y, x) * 180) / Math.PI;
-    return (bearing + 360) % 360;
-  };
-
-  const getArrowIcon = (angle) => {
-    let arrowImg = arrowRight;
-    if (angle >= 45 && angle < 135) arrowImg = arrowUp;
-    else if (angle >= 135 && angle < 225) arrowImg = arrowLeft;
-    else if (angle >= 225 && angle < 315) arrowImg = arrowDown;
-
-    return new L.divIcon({
-      html: `<img src='${arrowImg}' style='width: 32px; height: 32px;' />`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      className: "arrow-icon",
-    });
-  };
-    const getStatusIcon = (status) => {
+  const getStatusIcon = (status) => {
     if (status === "DELIVERED") {
       return <img src={check} alt="Delivered" style={{ width: '20px', height: '20px' }} />;
     } else if (status === "ON THE WAY") {
       return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    }else if (status === "CANCELLED") {
+    } else if (status === "CANCELLED") {
       return <img src={cancel} alt="Now" style={{ width: '20px', height: '20px' }} />;
     } else if (status === "NOW") {
       return <img src={truck} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    } else if (status === "ON THE WAY") {
-      return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
     }
-    return null; // Default case for when the status does not match any condition
+    return null;
   };
 
   const getBorderColor = (status) => {
     switch (status) {
       case "DELIVERED":
-        return "green";  // Delivered status için yeşil
+        return "green";
       case "NOW":
-        return "Orange";  // Now status için mavi
+        return "Orange";
       case "ON THE WAY":
-        return "orange";  // On the way status için turuncu
+        return "orange";
       case "CANCELLED":
-        return "red";  // Cancelled status için kırmızı
+        return "red";
       default:
-        return "gray";  // Diğer tüm durumlar için gri
+        return "gray";
     }
   };
 
   return (
-    <>
-    <MapContainer center={[39.750745, 30.482254]} zoom={16} style={{ height: `${height}px`, borderRadius: "12px", overflow: "hidden" }}>
-      <LayersControl position="topright">
-        <LayersControl.BaseLayer checked name="OpenStreetMap">
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        </LayersControl.BaseLayer>
+    <div>
+      <MapContainer 
+        center={[39.750745, 30.482254]} 
+        zoom={16} 
+        style={{ height: `${height}px`, borderRadius: "12px", overflow: "hidden" }}
+      >
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="OpenStreetMap">
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          </LayersControl.BaseLayer>
 
-        <LayersControl.Overlay name="Araçlar">
-          <LayerGroup>
-            {vehicles.map((vehicle, index) => {
-              const nextPos = plannedRoutes[index]?.positions[1] || vehicle.position;
-              const angle = calculateBearing(vehicle.position, nextPos);
-              return (
-                <Marker key={vehicle.id} position={vehicle.position} icon={getArrowIcon(angle)}>
-                  <Popup>
-                    <p><strong>Araç:</strong> {vehicle.name}</p>
-                    <p><strong>Hız:</strong> {vehicle.velocity} km/h</p>
-                    <p><strong>Şarj:</strong> %{vehicle.soc}</p>
-                    <p><strong>Yük:</strong> {vehicle.payload} kg</p>
-                    <p><strong>Sürücü:</strong> {vehicle.driver}</p>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        <LayersControl.Overlay name="Şarj İstasyonları">
-          <LayerGroup>
-            {chargingStations.map((station) => {
-              let iconUrl = stationIconImg; // Default icon
-              // let iconColor = "green"; // Default color for available stations
-              
-              // Change icon and color based on the station's status
-              if (station.status === "occupied") {
-                iconUrl = stationRed;
-                // iconColor = "red"; // Color for occupied stations
-              }
-
-              // Use the color/icon in the marker
-              return (
-                <Marker
-                  key={station.id}
-                  position={station.position}
-                  icon={new L.Icon({ iconUrl, iconSize: [24, 24], iconAnchor: [12, 12] })}
+          <LayersControl.Overlay checked name="Araçlar">
+            <LayerGroup>
+              {vehiclePositions.map((vehicle) => (
+                <LeafletTrackingMarker
+                  key={vehicle.id}
+                  position={vehicle.position}
+                  previousPosition={vehicle.prevPosition}
+                  duration={1000}
+                  rotationAngle={vehicle.angle}
+                  icon={L.divIcon({
+                    className: "custom-icon",
+                    html: `<div style="display: flex; justify-content: center; align-items: center; width: 28px; height: 28px;">
+                              <img src="${truck}" style="width: 28px; height: 28px;" />
+                           </div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14], // Center the icon
+                  })}
                 >
                   <Popup>
-                    <p><strong>İstasyon:</strong> {station.id}</p>
-                    <p><strong>Durum:</strong> {station.status}</p>
-                    <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
+                    <div>
+                      <p><strong>Araç:</strong> {vehicle.id}</p>
+                      <p><strong>Hız:</strong> {vehicle.speed} km/h</p>
+                      <p><strong>Konum:</strong> {vehicle.position.map(p => p.toFixed(5)).join(', ')}</p>
+                      <p><strong>Rota İlerlemesi:</strong> {Math.min(100, Math.round(vehicle.routeProgress * 100))}%</p>
+                      <p><strong>Durum:</strong> {vehicle.active ? "Aktif" : "Duruyor"}</p>
+                      
+                      <div style={{ marginTop: '10px' }}>
+                        <button 
+                          onClick={() => changeVehicleSpeed(vehicle.id, vehicle.speed + 10)}
+                          style={{ marginRight: '5px', padding: '3px 8px', fontSize: '12px' }}
+                        >
+                          Hız +10
+                        </button>
+                        <button 
+                          onClick={() => changeVehicleSpeed(vehicle.id, Math.max(10, vehicle.speed - 10))}
+                          style={{ marginRight: '5px', padding: '3px 8px', fontSize: '12px' }}
+                        >
+                          Hız -10
+                        </button>
+                        <button 
+                          onClick={() => resetVehicleProgress(vehicle.id)}
+                          style={{ padding: '3px 8px', fontSize: '12px' }}
+                        >
+                          Yeniden Başlat
+                        </button>
+                      </div>
+                    </div>
                   </Popup>
+                </LeafletTrackingMarker>
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="Şarj İstasyonları">
+            <LayerGroup>
+              {chargingStations.map((station) => {
+                let iconUrl = stationIconImg;
+                
+                if (station.status === "occupied") {
+                  iconUrl = stationRed;
+                }
+
+                return (
+                  <Marker
+                    key={station.id}
+                    position={station.position}
+                    icon={new L.Icon({ iconUrl, iconSize: [24, 24], iconAnchor: [12, 12] })}
+                  >
+                    <Popup>
+                      <p><strong>İstasyon:</strong> {station.id}</p>
+                      <p><strong>Durum:</strong> {station.status}</p>
+                      <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="All Orders">
+            <LayerGroup>
+              {orders.map((order) => {
+                let orderIcon = orderIconImg;
+
+                if (order.status === "Pending") {
+                  orderIcon = orderIconImg;
+                } else if (order.status === "Requested") {
+                  orderIcon = orderrequested;
+                } else if (order.status === "On the way") {
+                  orderIcon = orderontheway;
+                } else if (order.status === "Cancelled") {
+                  orderIcon = ordercanceled;
+                } else if (order.status === "Delivered") {
+                  orderIcon = orderdelivered;
+                }
+
+                return (
+                  <Marker
+                    key={order.id}
+                    position={order.position}
+                    icon={new L.Icon({ iconUrl: orderIcon, iconSize: [28, 28] })}
+                  >
+                    <Popup>
+                      <p><strong>Order ID:</strong> {order.id}</p>
+                      <p><strong>Status:</strong> {order.status}</p>
+                      <p><strong>Vehicle ID:</strong> {order.vehicleId}</p>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="Bekleyen Talepler">
+            <LayerGroup>
+              {orders.filter((order) => order.status === "Pending").map((order) => (
+                <Marker key={order.id} position={order.position} icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}>
+                  <Popup>Talep ID: {order.id} - Bekliyor</Popup>
                 </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
 
-        <LayersControl.Overlay name="All Orders">
-          <LayerGroup>
-            {orders.map((order) => {
-              let orderIconImg = order; // Default icon for unrecognized statuses
-
-              // Assign specific icons based on the order's status
-              if (order.status === "Pending") {
-                orderIconImg = "path/to/pending_icon.png"; // Replace with your Pending icon
-              } else if (order.status === "Requested") {
-                orderIconImg = orderrequested; // Replace with your Requested icon
-              } else if (order.status === "On the way") {
-                orderIconImg = orderontheway; // Replace with your On the way icon
-              } else if (order.status === "Cancelled") {
-                orderIconImg = ordercanceled; // Replace with your Cancelled icon
-              } else if (order.status === "Delivered") {
-                orderIconImg = orderdelivered; // Replace with your Delivered icon
-              }else{
-                orderIconImg = orderdelivered;
-              }
-
-              return (
-                <Marker
-                  key={order.id}
-                  position={order.position}
-                  icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}
-                >
-                  <Popup>
-                    <p><strong>Order ID:</strong> {order.id}</p>
-                    <p><strong>Status:</strong> {order.status}</p>
-                    <p><strong>Vehicle ID:</strong> {order.vehicleId}</p>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-
-        <LayersControl.Overlay name="Bekleyen Talepler">
-          <LayerGroup>
-            {orders.filter((order) => order.status === "Pending").map((order) => (
-              <Marker key={order.id} position={order.position} icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}>
-                <Popup>Talep ID: {order.id} - Bekliyor</Popup>
-              </Marker>
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-
-        
-        <LayersControl.Overlay name="Planlanmış Rotalar">
+          <LayersControl.Overlay checked name="Planlanmış Rotalar">
             <LayerGroup>
               {plannedRoutes.map((route, index) => (
                 <Polyline
@@ -216,74 +387,114 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
             </LayerGroup>
           </LayersControl.Overlay>
 
-        <LayersControl.Overlay name="Tamamlanmış Rotalar">
-          <LayerGroup>
-            {completedRoutes.map((route, index) => (
-              <Polyline
-                key={index}
-                positions={route.positions}
-                color={routeColors[index] || "green"}
-                weight={4}
-                opacity={0.7}
-              />
-            ))}
-          </LayerGroup>
-        </LayersControl.Overlay>
-      </LayersControl>
-    </MapContainer>
-    {isRouteVisible && (
-      <div
-        className="overlay-container"
-        style={{
-          position: "absolute",
-          bottom: "65px", 
-          left: "63%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
-          maxWidth: "70%",
-          overflowX: "scroll",
-        }}
-      >
+          <LayersControl.Overlay name="Tamamlanmış Rotalar">
+            <LayerGroup>
+              {completedRoutes.map((route, index) => (
+                <Polyline
+                  key={index}
+                  positions={route.positions}
+                  color={routeColors[index] || "green"}
+                  weight={4}
+                  opacity={0.7}
+                />
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
+      </MapContainer>
+      
+      {/* Araç Durumu Denetim Paneli */}
+      <div style={{ 
+        position: 'absolute', 
+        top: '10px', 
+        right: '10px', 
+        zIndex: 1000, 
+        backgroundColor: 'white', 
+        padding: '10px', 
+        borderRadius: '5px',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+      }}>
+        <h4 style={{ margin: '0 0 10px 0' }}>Araç Kontrolü</h4>
+        {vehiclePositions.map((vehicle) => (
+          <div key={vehicle.id} style={{ marginBottom: '10px' }}>
+            <strong>Araç {vehicle.id}</strong>: {vehicle.active ? "Hareket Ediyor" : "Duruyor"} - %{Math.min(100, Math.round(vehicle.routeProgress * 100))}
+            <div>
+              <button 
+                onClick={() => resetVehicleProgress(vehicle.id)}
+                style={{ marginRight: '5px', padding: '2px 5px', fontSize: '12px' }}
+              >
+                Yeniden Başlat
+              </button>
+              <button 
+                onClick={() => changeVehicleSpeed(vehicle.id, vehicle.speed + 10)}
+                style={{ marginRight: '5px', padding: '2px 5px', fontSize: '12px' }}
+              >
+                Hız +10
+              </button>
+              <button 
+                onClick={() => changeVehicleSpeed(vehicle.id, Math.max(10, vehicle.speed - 10))}
+                style={{ padding: '2px 5px', fontSize: '12px' }}
+              >
+                Hız -10
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {isRouteVisible && (
         <div
+          className="overlay-container"
           style={{
-            display: "flex",
-            flexDirection: "row", // Horizontal layout
-            gap: "20px", // Space between cards
+            position: "absolute",
+            bottom: "65px", 
+            left: "63%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+            maxWidth: "70%",
+            overflowX: "scroll",
           }}
         >
-          {stopsData[0].stops.map((stop, index) => (
-            <div
-              key={index}
-              className="stop-card"
-              style={{
-                flex: "0 0 auto",
-                padding: "10px",
-                backgroundColor: "#f4f4f4",
-                borderRadius: "8px",
-                minWidth: "200px",
-                border: `2px solid ${getBorderColor(stop.status)}`
-              }}
-            >
-              {/* Add icon at the top based on stop's status */}
-              <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40px' }}>
-                {getStatusIcon(stop.status)} 
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "20px",
+            }}
+          >
+            {stopsData[0].stops.map((stop, index) => (
+              <div
+                key={index}
+                className="stop-card"
+                style={{
+                  flex: "0 0 auto",
+                  padding: "10px",
+                  backgroundColor: "#f4f4f4",
+                  borderRadius: "8px",
+                  minWidth: "200px",
+                  border: `2px solid ${getBorderColor(stop.status)}`,
+                }}
+              >
+                <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40px' }}>
+                  {getStatusIcon(stop.status)} 
+                </div>
+                <h4>{stop.title}</h4>
+                <p>{stop.address}</p>
+                <p>{stop.timeWindow}</p>
+                <p>{stop.amount} items</p>
+                <p>{stop.clientName}</p>
               </div>
-              <h4>{stop.title}</h4>
-              <p>{stop.address}</p>
-              <p>{stop.timeWindow}</p>
-              <p>{stop.amount} items</p>
-              <p>{stop.clientName}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button onClick={handleStopContainerClose} style={{ marginRight: "20px", padding: "10px" }}>
+            Kapat
+          </button>
         </div>
-        <button onClick={handleStopContainerClose} style={{ marginRight: "20px", padding: "10px" }}>
-          Kapat
-        </button>
-      </div>
-    )}
-  </>
-);}
+      )}
+    </div>
+  );
+}
