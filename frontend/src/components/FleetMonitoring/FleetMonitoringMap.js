@@ -3,20 +3,20 @@ import { MapContainer, TileLayer, Marker, Popup, LayersControl, LayerGroup, Poly
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { LeafletTrackingMarker } from "react-leaflet-tracking-marker";
-import "../assets/styles/global.css";
-import stationIconImg from "../assets/icons/station.png";
-import orderIconImg from "../assets/icons/order.png";
-import ordercanceled from "../assets/icons/order2.png";
-import orderdelivered from "../assets/icons/order3.png";
-import orderontheway from "../assets/icons/order4.png";
-import orderrequested from "../assets/icons/order7.png";
-import truck from "../assets/icons/arrow_up.png";
-import check from "../assets/icons/check.png";
-import cancel from "../assets/icons/cancel.png";
-import waiting from "../assets/icons/waiting.png";
-import stationRed from "../assets/icons/station_red.png";
-import stopsData from "../data/stops.js";
-import "../assets/styles/RouteInfoPanel.css";
+import "../../assets/styles/global.css";
+import stationIconImg from "../../assets/icons/station.png";
+import orderIconImg from "../../assets/icons/order.png";
+import ordercanceled from "../../assets/icons/order2.png";
+import orderdelivered from "../../assets/icons/order3.png";
+import orderontheway from "../../assets/icons/order4.png";
+import orderrequested from "../../assets/icons/order7.png";
+import truck from "../../assets/icons/arrow_up.png";
+import check from "../../assets/icons/check.png";
+import cancel from "../../assets/icons/cancel.png";
+import waiting from "../../assets/icons/waiting.png";
+import stationRed from "../../assets/icons/station_red.png";
+import stopsData from "../../data/stops.js";
+import "../../assets/styles/RouteInfoPanel.css";
 
 export default function FleetMonitoringMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
   const [selectedRoute, setSelectedRoute] = useState(null);
