@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { 
     IconButton, Dialog, DialogTitle, DialogContent, Typography, Card, CardContent, Button,
     CircularProgress, Snackbar, Alert, Box, List, ListItem, ListItemIcon, ListItemText,
-    Tabs, Tab, Paper
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CompareIcon from "@mui/icons-material/Compare";
@@ -11,7 +10,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MapIcon from "@mui/icons-material/Map";
 import CustomerPool from "./RouteOptimization/CustomerPool";
 import RouteOptimizationMap from "./RouteOptimization/RouteOptimizationMap";
-import RouteMapVisualizer from "./RouteOptimization/RouteMapVisualizer";
 import { ComparisonResults, ComparisonChart } from "./RouteOptimization/MultiAlgorithmComparison";
 import OptimizationForm from "./RouteOptimization/OptimizationForm";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -20,6 +18,11 @@ import RouteDetailPanel from "./RouteDetailPanel";
 import axios from "axios";
 import { parseRouteXML } from '../utils/xmlParser';
 import RouteAnalysisDashboard from './RouteOptimization/RouteAnalysisDashboard';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import FormHelperText from '@mui/material/FormHelperText';
 
 export default function Layout({
     customers,
@@ -36,9 +39,6 @@ export default function Layout({
     runComparison,
     openOptimization,
     setOpenOptimization,
-    algorithm,
-    setAlgorithm,
-    handleSaveParameters,
 }) {
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [openRouteDetail, setOpenRouteDetail] = useState(false);
@@ -59,8 +59,16 @@ export default function Layout({
     const [routePlanData, setRoutePlanData] = useState(null);
     const [loadingPlanData, setLoadingPlanData] = useState(false);
     const [planDataError, setPlanDataError] = useState(null);
+    // State for scenario selection
+    const [availableScenarios, setAvailableScenarios] = useState([]);
+    const [selectedScenario, setSelectedScenario] = useState(null); // Add this line to fix the error
+    const [processingScenario, setProcessingScenario] = useState(null);
+    const [processedScenarios, setProcessedScenarios] = useState([]);
+    const [scenarioProgress, setScenarioProgress] = useState({ current: 0, total: 0 });
+    const [showScenarioSelector, setShowScenarioSelector] = useState(false);
     // ESOGU task and route data persistence
     useEffect(() => {
+
         // Get selected task from localStorage on component mount
         const storedTask = localStorage.getItem('selectedEsoguTask');
         if (storedTask) {
@@ -166,43 +174,61 @@ export default function Layout({
         }
     }, []);
 
+    // Load available scenarios from localStorage
+    useEffect(() => {
+        const loadScenarios = () => {
+            try {
+                const savedScenarios = localStorage.getItem('optimizationScenarios');
+                if (savedScenarios) {
+                    const parsedData = JSON.parse(savedScenarios);
+                    // Flatten into a single array of all scenarios
+                    const allScenarios = Object.values(parsedData).flat();
+                    setAvailableScenarios(allScenarios);
+                    
+                    // If scenarios exist, show the selector
+                    setShowScenarioSelector(allScenarios.length > 0);
+                    
+                    // If there's exactly one scenario, select it by default
+                    if (allScenarios.length === 1) {
+                        setSelectedScenario(allScenarios[0]);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading scenarios:', error);
+            }
+        };
+        
+        loadScenarios();
+    }, []);
+    
+    // Handle scenario selection change
+    const handleScenarioChange = (event) => {
+        const scenarioId = event.target.value;
+        const selected = availableScenarios.find(s => s.id.toString() === scenarioId.toString());
+        setSelectedScenario(selected);
+    };
+    
+    // Get the endpoint URL based on algorithm
+    const getAlgorithmEndpoint = (algorithm) => {
+        switch (algorithm) {
+            case 'ALNS':
+                return 'http://157.230.17.89:8003/start_alns';
+            case 'SA':
+                return 'http://localhost:8000/start_sa';
+            case 'TS':
+                return 'http://localhost:8000/start_ts';
+            case 'OR':
+            default:
+                return 'http://localhost:8000/start_ortools';
+        }
+    };
+
     // Route click handler
     const handleRouteClick = (route) => {
         setSelectedRoute(route);
         setOpenRouteDetail(true);
-    };
-    
-    // Helper functions for file handling
-    const base64ToBlob = (base64, mimeType) => {
-        const byteCharacters = atob(base64);
-        const byteArrays = [];
-        for (let i = 0; i < byteCharacters.length; i += 512) {
-            const slice = byteCharacters.slice(i, i + 512);
-            const byteNumbers = new Array(slice.length);
-            for (let j = 0; j < slice.length; j++) {
-                byteNumbers[j] = slice.charCodeAt(j);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
-        }
-        return new Blob(byteArrays, { type: mimeType });
-    };
+    };    
 
-    const saveResponseToPublicOutput = async (data, contentType, filename) => {
-        try {
-            const blob = new Blob([data], { type: contentType });
-            const formData = new FormData();
-            formData.append('file', blob, filename);
-            const saveResponse = await axios.post('http://localhost:3001/save-file', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            console.log('File saved to public/output:', saveResponse.data);
-            return saveResponse.data.path;
-        } catch (error) {
-            console.error('Error saving file to public/output:', error);
-            return null;
-        }
-    };
 
     const saveZipToPublicOutput = async (data, filename) => {
         try {
@@ -219,41 +245,16 @@ export default function Layout({
             return null;
         }
     };
-
-    const getFileExtensionFromMimeType = (mimeType) => {
-        const extensions = {
-            'application/json': 'json',
-            'application/xml': 'xml',
-            'application/octet-stream': 'bin',
-            'text/plain': 'txt'
-        };
-        return extensions[mimeType] || 'bin';
-    };
     
-    // Handle Start Optimization
-    const handleStartOptimization = async () => {
-        // Check if a task is selected
-        if (!selectedTask) {
-            alert('Please select an ESOGU task first using the Select ESOGU Task Data button');
-            return;
-        }
-
-        setIsOptimizing(true);
-        setOptimizationError('');
+    // Process a single scenario
+    const processScenario = async (scenario) => {
         try {
-            // Step 0: Clear output directory first
-            try {
-                await axios.post('http://localhost:3001/clear-output');
-                console.log('Output directory cleared successfully');
-            } catch (clearError) {
-                console.error('Error clearing output directory:', clearError);
-                // Continue with optimization even if clearing fails
-            }
+            setProcessingScenario(scenario);
             
-            // Step 1: Create FormData for file uploads
+            // Create FormData for file uploads
             const formData = new FormData();
             
-            // Step 2: Fetch each XML file and append to FormData
+            // Fetch each XML file and append to FormData
             const filesToFetch = [
                 { 
                     path: `/esogu_dataset/Info4Tasks/newesoguv32-${selectedTask.toLowerCase()}-ds1.xml`, 
@@ -268,8 +269,8 @@ export default function Layout({
                     name: 'Info4ChargingStation.xml' 
                 },
                 { 
-                    path: '/esogu_dataset/Info4Vehicle/FC_Info4Vehicle.xml', 
-                    name: 'FC_Info4Vehicle.xml' 
+                    path: '/esogu_dataset/Info4Vehicle/Info4Vehicle.xml', 
+                    name: 'Info4Vehicle.xml' 
                 },
                 { 
                     path: '/esogu_dataset/Map4Environment/Map4Environment.xml', 
@@ -283,40 +284,46 @@ export default function Layout({
             
             // Fetch each file and convert to blob
             for (const file of filesToFetch) {
-                try {
-                    const response = await fetch(file.path);
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch ${file.path}: ${response.statusText}`);
-                    }
-                    const blob = await response.blob();
-                    
-                    // Append each file with the field name 'input_files' (matching Python example)
-                    formData.append('input_files', blob, file.name);
-                } catch (error) {
-                    console.error(`Error fetching file ${file.path}:`, error);
-                    throw error;
+                const response = await fetch(file.path);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${file.path}: ${response.statusText}`);
                 }
+                const blob = await response.blob();
+                
+                // Append each file with the field name 'input_files'
+                formData.append('input_files', blob, file.name);
             }
             
             // Add the task type as a form field
             formData.append('taskType', selectedTask);
             
-            // Step 3: Send FormData to server
-            const response = await axios.post('http://localhost:8000/start_alns', formData, {
+            // Add scenario parameters to the form data
+            Object.entries(scenario.parameters).forEach(([key, value]) => {
+                formData.append(`param_${key}`, value);
+            });
+            
+            // Add algorithm type and other scenario settings
+            formData.append('algorithmType', scenario.algorithm);
+            formData.append('objectiveFunction', scenario.objectiveFunction);
+            formData.append('chargeStrategy', scenario.chargeStrategy);
+            
+            // Choose the endpoint based on the scenario algorithm
+            const endpoint = getAlgorithmEndpoint(scenario.algorithm);
+            
+            console.log(`Processing scenario: ${scenario.algorithm} - ${scenario.objectiveFunction} to endpoint: ${endpoint}`);
+            
+            // Send FormData to server with the selected algorithm's endpoint
+            const response = await axios.post(endpoint, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
                 responseType: 'arraybuffer' // Important for binary responses
             });
             
-            // Step 4: Handle server response with files
-            console.log('Server response received');
-            const savedFiles = [];
-            
             // If response is a ZIP file
             if (response.headers['content-type'] === 'application/zip') {
                 // Get filename from Content-Disposition header if available
-                let filename = `output_${selectedTask}_${new Date().getTime()}.zip`;
+                let filename = `output_${selectedTask}_${scenario.algorithm}_${new Date().getTime()}.zip`;
                 const contentDisposition = response.headers['content-disposition'];
                 if (contentDisposition) {
                     const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -329,117 +336,120 @@ export default function Layout({
                 const saveResult = await saveZipToPublicOutput(response.data, filename);
                 
                 if (saveResult) {
-                    savedFiles.push({
-                        name: filename,
-                        path: saveResult.zipPath,
-                        type: 'application/zip'
-                    });
+                    // Process the extracted files
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     
-                    // ZIP dosyası extract edildikten sonra içinde Route4Vehicle.json dosyasını arayalım
-                    try {
-                        console.log('Checking for Route4Vehicle.json in extracted files');
-                        // Kısa bir süre bekleyelim, zip dosyasının çıkarılması için
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        
-                        // Çıkarılan dosyaları listeleyen endpoint çağrısı
-                        const extractedFilesResponse = await axios.get('http://localhost:3001/list-extracted-files');
-                        const extractedFiles = extractedFilesResponse.data.files;
-                        setResponseFiles(extractedFiles);
-                        console.log('Extracted files:', extractedFiles);
-                        console.log('Response files:', responseFiles);
-                        // RML/Route4Vehicle.json dosyasını bul
-                        const results_excel = extractedFiles.find(filePath =>
-                            filePath.includes('.xlsx')   
-                        );
-                        
-                        const route4VehiclePath = extractedFiles.find(filePath => 
-                            filePath.includes('Route4Vehicle.json')
-                        );
-                        const route4PlanPath = extractedFiles.find(filePath =>
-                            filePath.includes('Route4Plan.xml')
-                        );
-                        const route4SimPath = extractedFiles.find(filePath =>
-                            filePath.includes('Route4Sim.xml')
-                        );
-                        if (results_excel) {
-                            console.log('Found results.xlsx in extracted files:', results_excel);
-                            // Bu dosyayı da savedFiles listesine ekleyelim
-                            const baseUrl = window.location.origin;
-                            const url = `${baseUrl}${results_excel}`;
-                            console.log('Results Excel URL:', url);
-                            console.log('Base URL:', baseUrl);
-                            savedFiles.push({
-                                name: 'results.xlsx',
-                                path: results_excel,
-                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                            });
-                        }    
-                        
-                        
-                        if (route4VehiclePath) {
-                            console.log('Found Route4Vehicle.json in extracted files:', route4VehiclePath);
-                            // Bu dosyayı da savedFiles listesine ekleyelim
-                            const baseUrl = window.location.origin;
-                            const url = `${baseUrl}${route4VehiclePath}`;
-                            console.log('Route4Vehicle URL:', url);
-                            console.log('Base URL:', baseUrl);
-
-                            setRoute4VehicleUrl(url);
-                            
-                            savedFiles.push({
-                                name: 'Route4Vehicle.json',
-                                path: route4VehiclePath,
-                                type: 'application/json'
-                            });
-                            
-                        } 
-                        if (route4PlanPath) {
-                            console.log('Found Route4Plan.xml in extracted files:', route4PlanPath);
-                            // Bu dosyayı da savedFiles listesine ekleyelim
-                            const baseUrl = window.location.origin;
-                            const url = `${baseUrl}${route4PlanPath}`;
-                            console.log('Route4Plan URL:', url);
-
-                            setRoute4PlanUrl(url);  // Route4Plan.xml URL'sini set et
-                            
-                            savedFiles.push({
-                                name: 'Route4Plan.xml',
-                                path: route4PlanPath,
-                                type: 'application/xml'
-                            });
-                        }
-                        if (route4SimPath) {
-                            console.log('Found Route4Sim.xml in extracted files:', route4SimPath);
-                            // Bu dosyayı da savedFiles listesine ekleyelim
-                            const baseUrl = window.location.origin;
-                            const url = `${baseUrl}${route4SimPath}`;
-                            console.log('Route4Sim URL:', url);
-                            console.log('Base URL:', baseUrl);
-
-                            savedFiles.push({
-                                name: 'Route4Sim.xml',
-                                path: route4SimPath,
-                                type: 'application/xml'
-                            });
-                        }
-                        console.log('Saved files:', savedFiles);
-                        
-                    } catch (error) {
-                        console.error('Error checking for Route4Vehicle.json in extracted files:', error);
+                    const extractedFilesResponse = await axios.get('http://localhost:3001/list-extracted-files');
+                    const extractedFiles = extractedFilesResponse.data.files;
+                    
+                    // Find important files in the extracted files
+                    const route4VehiclePath = extractedFiles.find(filePath => filePath.includes('Route4Vehicle.json'));
+                    const route4PlanPath = extractedFiles.find(filePath => filePath.includes('Route4Plan.xml'));
+                    
+                    // Set the file URLs if found
+                    if (route4VehiclePath) {
+                        const baseUrl = window.location.origin;
+                        const url = `${baseUrl}${route4VehiclePath}`;
+                        setRoute4VehicleUrl(url);
                     }
+                    
+                    if (route4PlanPath) {
+                        const baseUrl = window.location.origin;
+                        const url = `${baseUrl}${route4PlanPath}`;
+                        setRoute4PlanUrl(url);
+                    }
+                    
+                    // Add scenario to processed scenarios
+                    setProcessedScenarios(prev => [...prev, { 
+                        ...scenario,
+                        processingTime: new Date(),
+                        result: 'success',
+                        files: extractedFiles.map(path => ({
+                            path,
+                            name: path.split('/').pop(),
+                            type: path.endsWith('.json') 
+                                ? 'application/json' 
+                                : path.endsWith('.xml') 
+                                    ? 'application/xml' 
+                                    : 'application/octet-stream'
+                        }))
+                    }]);
+                    
+                    return true;
                 }
             }
+            
+            return false;
+        } catch (error) {
+            console.error(`Error processing scenario ${scenario.algorithm}:`, error);
+            setProcessedScenarios(prev => [...prev, { 
+                ...scenario,
+                processingTime: new Date(),
+                result: 'error',
+                errorMessage: error.message
+            }]);
+            return false;
+        }
+    };
 
-            // Update UI with saved files
-            setDownloadedFiles(savedFiles);
-            setOptimizationSuccess(true);
-            setShowOptimizationResults(true);
+    // Handle Start Optimization - Updated to process all scenarios
+    const handleStartOptimization = async () => {
+        // Check if a task is selected
+        if (!selectedTask) {
+            alert('Please select an ESOGU task first using the Select ESOGU Task Data button');
+            return;
+        }
+        
+        // Check if there are scenarios available
+        if (availableScenarios.length === 0) {
+            alert('Please create optimization scenarios first using the Optimization Settings button');
+            return;
+        }
+
+        setIsOptimizing(true);
+        setOptimizationError('');
+        setProcessedScenarios([]);
+        
+        try {
+            // Clear output directory first
+            await axios.post('http://localhost:3001/clear-output');
+            console.log('Output directory cleared successfully');
+            
+            // Process each scenario one at a time
+            const totalScenarios = availableScenarios.length;
+            setScenarioProgress({ current: 0, total: totalScenarios });
+            
+            let hasSuccessfulScenario = false;
+            
+            for (let i = 0; i < totalScenarios; i++) {
+                const scenario = availableScenarios[i];
+                setScenarioProgress({ current: i + 1, total: totalScenarios });
+                
+                const success = await processScenario(scenario);
+                if (success) {
+                    hasSuccessfulScenario = true;
+                }
+                
+                // Add a small delay between processing scenarios
+                if (i < totalScenarios - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            // Show success message if at least one scenario was successful
+            if (hasSuccessfulScenario) {
+                setOptimizationSuccess(true);
+                setShowOptimizationResults(true);
+            } else {
+                setOptimizationError('No scenarios were successfully processed. Please check the console for errors.');
+            }
 
         } catch (error) {
             console.error('Error during optimization:', error);
             setOptimizationError(error.message || 'Failed to process optimization. Please try again.');
         } finally {
             setIsOptimizing(false);
+            setProcessingScenario(null);
         }
     };
 
@@ -456,6 +466,11 @@ export default function Layout({
         setRoute4VehicleUrl(null);
         setRoute4PlanUrl(null);
         setRoutePlanData(null);
+    };
+
+    const printScenarios = () => {
+        const scenarios = localStorage.getItem('optimizationScenarios');
+        console.log("Senaryolar :", scenarios);
     };
 
     // Delete files handler
@@ -550,6 +565,20 @@ export default function Layout({
                         </Box>
                     )}
                     
+                    {/* Scenarios Info - Show how many scenarios will be processed */}
+                    {availableScenarios.length > 0 && (
+                        <Box sx={{ mb: 2, p: 1, bgcolor: '#fff4e5', borderRadius: 1 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'medium' }}>
+                                Available Scenarios: <span style={{ color: '#ed6c02', fontWeight: 'bold' }}>{availableScenarios.length}</span>
+                                {isOptimizing && processingScenario && (
+                                    <span style={{ marginLeft: '10px', color: '#1976d2' }}>
+                                        Processing: {scenarioProgress.current}/{scenarioProgress.total} - {processingScenario.algorithm}
+                                    </span>
+                                )}
+                            </Typography>
+                        </Box>
+                    )}
+                    
                     <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
                         {/* Algoritma Karşılaştırma Butonu */}
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginRight: "15px" }}>
@@ -571,12 +600,12 @@ export default function Layout({
                             </Typography>
                         </div>
 
-                        {/* Start Optimization Butonu */}
+                        {/* Start Optimization Button - Updated text to show it will run all scenarios */}
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "15px" }}>
                             <IconButton 
                                 color="success" 
                                 onClick={handleStartOptimization}
-                                disabled={isOptimizing || !selectedTask}
+                                disabled={isOptimizing || !selectedTask || availableScenarios.length === 0}
                                 style={{ position: 'relative' }}
                             >
                                 {isOptimizing ? 
@@ -585,7 +614,7 @@ export default function Layout({
                                 }
                             </IconButton>
                             <Typography variant="caption" style={{ fontSize: "14px", color: "#555", marginTop: "2px" }}>
-                                {isOptimizing ? "Processing..." : "Start Optimization"}
+                                {isOptimizing ? `Processing ${scenarioProgress.current}/${scenarioProgress.total}` : "Run All Scenarios"}
                             </Typography>
                         </div>
                         
@@ -621,7 +650,67 @@ export default function Layout({
                                 {viewMode === "normal" ? "Show Route Map" : "Show Normal Map"}
                             </Typography>
                         </div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: "15px" }}>
+                            <IconButton 
+                                color="info" 
+                                onClick={printScenarios}
+                                style={{ position: 'relative' }}
+                            >
+                                <MapIcon />
+                            </IconButton>
+                            <Typography variant="caption" style={{ fontSize: "14px", color: "#555", marginTop: "2px" }}>
+                                Console Log
+                            </Typography>
+                        </div>
                     </div>
+
+                    {/* Show processed scenarios results */}
+                    {processedScenarios.length > 0 && (
+                        <Box sx={{ 
+                            mt: 3, 
+                            p: 2, 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: 1,
+                            maxHeight: '200px',
+                            overflowY: 'auto'
+                        }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                                Processed Scenarios:
+                            </Typography>
+                            
+                            <List dense disablePadding>
+                                {processedScenarios.map((scenario, index) => (
+                                    <ListItem 
+                                        key={index} 
+                                        sx={{ 
+                                            mb: 0.5, 
+                                            py: 0.5,
+                                            bgcolor: scenario.result === 'success' ? '#f0fff0' : '#fff0f0',
+                                            borderRadius: 1
+                                        }}
+                                    >
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant="body2">
+                                                    <strong>{scenario.algorithm}</strong> - {scenario.objectiveFunction}
+                                                </Typography>
+                                            }
+                                            secondary={
+                                                scenario.result === 'success' 
+                                                    ? `Success (${scenario.files?.length || 0} files)` 
+                                                    : `Error: ${scenario.errorMessage || 'Processing failed'}`
+                                            }
+                                            primaryTypographyProps={{ fontSize: '0.85rem' }}
+                                            secondaryTypographyProps={{ 
+                                                fontSize: '0.75rem',
+                                                color: scenario.result === 'success' ? 'green' : 'error'
+                                            }}
+                                        />
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Box>
+                    )}
 
                     {/* Show optimization results and debug info */}
                     {showOptimizationResults && downloadedFiles.length > 0 && (
@@ -741,15 +830,9 @@ export default function Layout({
             </Dialog>
 
             {/* Algoritma Seçimi Dialog */}
-            <Dialog open={openOptimization} onClose={() => setOpenOptimization(false)} maxWidth="l" fullWidth>
-                <DialogTitle>
-                    <Typography variant="h6">Algoritma Seçimi</Typography>
-                    <IconButton onClick={() => setOpenOptimization(false)} size="small">
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
+            <Dialog open={openOptimization} onClose={() => setOpenOptimization(false)} maxWidth="lg" fullWidth>
                 <DialogContent>
-                    <OptimizationForm algorithm={algorithm} setAlgorithm={setAlgorithm} onSave={handleSaveParameters} />
+                    <OptimizationForm onClose={() => setOpenOptimization(false)} />
                 </DialogContent>
             </Dialog>
 

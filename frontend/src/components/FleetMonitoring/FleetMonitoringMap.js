@@ -22,8 +22,8 @@ import stopsData from "../../data/stops.js";
 import "../../assets/styles/RouteInfoPanel.css";
 
 export default function FleetMonitoringMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [/*selectedRoute*/, setSelectedRoute] = useState(null);
+  const [/*isPanelOpen*/, setIsPanelOpen] = useState(false);
   const [isRouteVisible, setIsRouteVisible] = useState(false); // Yeni state
 
   const handleRouteClick = (route, vehicle) => {
@@ -127,12 +127,12 @@ export default function FleetMonitoringMap({ vehicles, chargingStations, orders,
           <LayerGroup>
             {chargingStations.map((station) => {
               let iconUrl = stationIconImg; // Default icon
-              let iconColor = "green"; // Default color for available stations
+              // let iconColor = "green"; // Default color for available stations
               
               // Change icon and color based on the station's status
               if (station.status === "occupied") {
                 iconUrl = stationRed;
-                iconColor = "red"; // Color for occupied stations
+                // iconColor = "red"; // Color for occupied stations
               }
 
               // Use the color/icon in the marker

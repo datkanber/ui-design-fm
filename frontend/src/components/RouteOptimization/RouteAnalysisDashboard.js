@@ -36,7 +36,7 @@ const RouteAnalysisDashboard = ({ routeData, loading, error }) => {
   }
   
   // Formatters
-  const formatDistance = (value) => `${value.toFixed(2)} km`;
+  const formatDistance = (value) => `${value.toFixed(2)} meters`;
   const formatDuration = (value) => {
     const hours = Math.floor(value / 3600);
     const minutes = Math.floor((value % 3600) / 60);
@@ -47,7 +47,7 @@ const RouteAnalysisDashboard = ({ routeData, loading, error }) => {
     }
     return `${minutes}d ${seconds}s`;
   };
-  const formatEnergy = (value) => `${value.toFixed(2)} kWh`;
+  const formatEnergy = (value) => `${value.toFixed(2)} Wh`;
   
   return (
     <Paper sx={{ p: 2, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
