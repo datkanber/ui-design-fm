@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SUMO versiyon 3.2 Ferdanur ARMUTLU 2024 10 24 tarihinde oluşturulmuştur-->
+<!-- generated on 2024-07-03 14:33:39 by Eclipse SUMO sumo Version 1.19.0
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="osm.net.xml"/>
+        <route-files value="Route4Sim.xml"/>
+        <additional-files value="cs.add.xml"/>
+    </input>
+
+    <gui_only>
+        <gui-settings-file value="delay100.settings.xml"/>
+    </gui_only>
+
+</configuration>

@@ -6,6 +6,9 @@ const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 const extract = require('extract-zip'); // ZIP dosyalarını açmak için eklenti
 const mongoose = require("mongoose"); // Mongoose eklendi
+const { exec } = require('child_process');
+const mariadb = require('mariadb'); // MariaDB for vehicle tracking
+const { safeJSONStringify } = require('./utils/serialization');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -20,6 +23,57 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
+
+// MariaDB connection pool - Using credentials from sumo_func.py
+const pool = mariadb.createPool({
+  host: '127.0.0.1',
+  user: 'root',
+  password: '123456',
+  database: 'fleetmanagementdb',
+  connectionLimit: 100, // Bağlantı havuzu boyutunu artırın
+  acquireTimeout: 10000, // Bağlantı edinme zaman aşımı (ms)
+  idleTimeout: 30000,
+});
+
+// Test MariaDB connection
+async function testMariaDbConnection() {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    console.log('MariaDB bağlantısı başarılı!');
+    
+    // Make sure the vehicle_tracking table exists
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS vehicle_tracking (
+        vehicle_id VARCHAR(50) PRIMARY KEY,
+        latitude FLOAT,
+        longitude FLOAT,
+        speed FLOAT,
+        state_of_charge FLOAT,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Create simulation_runs table if it doesn't exist
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS simulation_runs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        start_time TIMESTAMP,
+        end_time TIMESTAMP NULL,
+        status VARCHAR(20),
+        parameters JSON
+      )
+    `);
+    
+  } catch (err) {
+    console.error('MariaDB bağlantı hatası:', err);
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
+// Run the test connection
+testMariaDbConnection();
 
 // Create output directory if it doesn't exist
 const outputDir = path.join(__dirname, "../frontend/public/output");
@@ -295,6 +349,277 @@ app.delete("/api/alerts/:id", async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: "Uyarı silinirken hata oluştu." });
   }
+});
+
+// SUMO Simulation API Endpoints
+let sumoProcess = null;
+let simulationRunning = false;
+let simulationStartTime = null;
+let simulationId = null;
+
+// Araç bilgilerini almak için API
+app.get('/vehicles', (req, res) => {
+  const query = 'SELECT * FROM vehicle_tracking ORDER BY last_updated DESC LIMIT 100'; // Son 100 güncel veriyi al
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error('Veri alma hatası:', err);
+          res.status(500).send('Veri alma hatası');
+          return;
+      }
+      res.json(results);
+  });
+});
+
+app.get("/api/sumo/vehicles/all", async (req, res) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    
+    // SQL Sorgusu: Her araç için en son iki konumu almak
+    const rows = await conn.query(
+      `SELECT vehicle_id, tracking_id, latitude, longitude, timestamp, rn
+      FROM (
+        SELECT 
+          vehicle_id,
+          tracking_id,
+          latitude,
+          longitude,
+          timestamp,
+          ROW_NUMBER() OVER (PARTITION BY vehicle_id ORDER BY timestamp DESC) AS rn
+        FROM vehicle_tracking
+      ) AS ranked
+      WHERE rn <= 2
+      ORDER BY vehicle_id, rn;`
+    );
+
+    if (!Array.isArray(rows)) {
+      return res.status(500).json({ error: "Unexpected response format" });
+    }
+
+    if (rows.length === 0) {
+      return res.json({});
+    }
+
+    const vehicleData = {};
+
+    rows.forEach(row => {
+      if (!vehicleData[row.vehicle_id]) {
+        vehicleData[row.vehicle_id] = {
+          currentPosition: null,
+          previousPosition: null
+        };
+      }
+
+      // Konum objesi oluştur
+      const position = {
+        lat: parseFloat(row.latitude),
+        lng: parseFloat(row.longitude),
+        timestamp: row.timestamp
+      };
+
+      //console.log("Vehicle ID:", row.vehicle_id, "Position:", position);
+      // Eğer rn == 1, bu en güncel konum (currentPosition)
+      if (row.rn == 1) {
+        vehicleData[row.vehicle_id].currentPosition = position;
+      }
+
+      // Eğer rn == 2, bu bir önceki konum (previousPosition)
+      if (row.rn == 2) {
+        vehicleData[row.vehicle_id].previousPosition = position;
+      }
+    });
+
+    //console.log("Vehicle data to be sent:", vehicleData); // Verileri loglayın
+    res.json(vehicleData);
+  } catch (err) {
+    console.error("Error fetching vehicle data:", err);
+    res.status(500).json({ error: "Database error" });
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
+
+
+// Get SUMO vehicle tracking data from MariaDB - Fix BigInt issue
+app.get("/api/sumo/vehicles", async (req, res) => {
+  try {
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      
+      // Query to get all vehicles from vehicle_tracking table
+      const vehicles = await conn.query(`
+        SELECT vehicle_id as id, latitude, longitude, last_updated
+        FROM vehicle_tracking
+        WHERE last_updated = (
+          SELECT MAX(last_updated)
+          FROM vehicle_tracking
+          WHERE vehicle_id = vehicle_tracking.vehicle_id
+        )
+      `);
+      
+      //const vehicles = await conn.query(
+        //"SELECT vehicle_id as id, speed, latitude, longitude, state_of_charge as battery, last_updated FROM vehicle_tracking"
+        
+      //);
+      
+      // Format data for frontend and use imported safeJSONStringify
+      const formattedVehicles = vehicles.map(vehicle => ({
+        id: vehicle.id,
+        speed: parseFloat(vehicle.speed),
+        position: [parseFloat(vehicle.latitude), parseFloat(vehicle.longitude)],
+        battery: parseFloat(vehicle.battery),
+        lastUpdated: vehicle.last_updated instanceof Date ? vehicle.last_updated.toISOString() : vehicle.last_updated
+      }));
+      
+      const runTime = simulationRunning ? 
+        Math.floor((new Date() - simulationStartTime) / 1000) : 0;
+      
+      // Use the imported safeJSONStringify function
+      res.setHeader('Content-Type', 'application/json');
+      res.send(safeJSONStringify({ 
+        vehicles: formattedVehicles,
+        simulationTime: runTime,
+        simulationRunning: simulationRunning,
+        timestamp: new Date().toISOString()
+      }));
+      
+    } catch (err) {
+      console.error("Database error:", err);
+      throw new Error(`Database error: ${err.message}`);
+    } finally {
+      if (conn) conn.release();
+    }
+  } catch (error) {
+    console.error("SUMO araç verisi alma hatası:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Start SUMO simulation
+app.post("/api/start-simulation", async (req, res) => {
+  try {
+    if (simulationRunning) {
+      return res.status(400).json({ error: "Simülasyon zaten çalışıyor" });
+    }
+
+    console.log("SUMO simülasyonu başlatılıyor...");
+    
+    // Set path to SUMO python script - first check if the file exists
+    const pythonPath = "python"; // python command
+    const sumoScriptPath = path.join(__dirname, "../Sumo/sumo_func.py");
+    
+    if (!fs.existsSync(sumoScriptPath)) {
+      console.error(`SUMO script not found at: ${sumoScriptPath}`);
+      return res.status(500).json({ error: `SUMO script not found at: ${sumoScriptPath}` });
+    }
+    
+    console.log(`Starting SUMO with script: ${sumoScriptPath}`);
+    
+  
+    
+    // Start SUMO simulation as a child process - use sumo_func.py directly
+    sumoProcess = exec(`${pythonPath} "${sumoScriptPath}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`SUMO execution error: ${error.message}`);
+        console.error(`Command: ${pythonPath} "${sumoScriptPath}"`);
+        simulationRunning = false;
+        return;
+      }
+      
+      if (stderr) {
+        console.error(`SUMO stderr: ${stderr}`);
+      }
+      
+      console.log(`SUMO stdout: ${stdout}`);
+    });
+    
+    simulationRunning = true;
+    simulationStartTime = new Date();
+    
+    // Add record to the database - using try/catch to prevent failure if DB error
+    try {
+      const conn = await pool.getConnection();
+      try {
+        // Use MariaDB parameter binding instead of directly inserting values
+        const result = await conn.query(
+          "INSERT INTO simulation_runs (start_time, status) VALUES (NOW(), ?)",
+          ["running"]
+        );
+        simulationId = result.insertId ? Number(result.insertId) : null; // Handle BigInt
+      } catch (dbErr) {
+        console.warn("Could not record simulation start:", dbErr.message);
+      } finally {
+        conn.release();
+      }
+    } catch (connErr) {
+      console.error("Database connection error:", connErr.message);
+      // Continue even if DB connection fails
+    }
+    
+    // FIX: Avoid BigInt serialization issues by using primitive types
+    const responseData = { 
+      message: "SUMO simülasyonu başlatıldı", 
+      simulationId: simulationId ? Number(simulationId) : null,
+      startTime: simulationStartTime.toISOString() // Convert Date to string
+    };
+    
+    // FIX: Use res.json() instead of res.send() for proper serialization
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.error("SUMO simülasyon başlatma hatası:", error);
+    simulationRunning = false;
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// Stop SUMO simulation
+app.post("/api/stop-simulation", async (req, res) => {
+  try {
+    if (!simulationRunning) {
+      return res.status(400).json({ error: "Simülasyon çalışmıyor" });
+    }
+    
+    // Kill the SUMO process
+    if (sumoProcess) {
+      sumoProcess.kill('SIGTERM');
+      sumoProcess = null;
+    }
+    
+    simulationRunning = false;
+    
+    // Update simulation run record in database
+    try {
+      const conn = await pool.getConnection();
+      try {
+        await conn.query(
+          "UPDATE simulation_runs SET end_time = NOW(), status = 'completed' WHERE id = ?",
+          [simulationId]
+        );
+      } finally {
+        conn.release();
+      }
+    } catch (dbError) {
+      console.error("Database error:", dbError);
+      // Continue even if DB logging fails
+    }
+    
+    res.status(200).json({ message: "SUMO simülasyonu durduruldu" });
+  } catch (error) {
+    console.error("SUMO simülasyon durdurma hatası:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get simulation status
+app.get("/api/simulation-status", (req, res) => {
+  res.status(200).json({ 
+    running: simulationRunning,
+    startTime: simulationStartTime,
+    runTimeSeconds: simulationRunning ? Math.floor((new Date() - simulationStartTime) / 1000) : 0,
+    simulationId: simulationId
+  });
 });
 
 app.listen(port, () => {

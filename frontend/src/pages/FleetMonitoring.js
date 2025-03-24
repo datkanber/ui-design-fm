@@ -6,11 +6,13 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonIcon from "@mui/icons-material/Person";
 import CloseIcon from "@mui/icons-material/Close";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FleetMonitoringMap from "../components/FleetMonitoring/FleetMonitoringMap";
 import FleetMonitoringPerformanceMap from "../components/FleetMonitoring/FleetMonitoringPerformanceMap";
 import Alert from "../components/FleetMonitoring/FM_AlertPanel"; // Import Alert component
 import { vehicles } from "../data/vehicles";
 import { chargingStations } from "../data/chargingStations";
+import SimulationStatus from '../components/FleetMonitoring/SimulationStatus';
 import { orders } from "../data/orders";
 import { routes } from "../data/routes";
 import { drivers } from "../data/drivers";
@@ -19,7 +21,11 @@ import { routess } from "../data/routess"; // Import the new routess data
 // Example of different types of alerts
 const handleButtonClick = () => {
     // Button click handler
+
 };
+
+
+
 const API_URL = "http://localhost:3001/api/alerts";
 
 // TaskCompletionChart Component Definition
@@ -29,7 +35,7 @@ const TaskCompletionChart = ({ routes }) => {
     return <p>Veri bulunamadı</p>;
   }
 
-  console.log("TaskCompletionChart Data:", routes);
+  //console.log("TaskCompletionChart Data:", routes);
 
   // Rota bazında tamamlanma yüzdelerini hesapla
   const data = routes.map((route) => {
@@ -66,6 +72,8 @@ const TaskCompletionChart = ({ routes }) => {
     </div>
   );
 };
+
+
 
 // New RouteEnergyConsumptionChart Component
 const RouteEnergyConsumptionChart = ({ routeId }) => {
@@ -200,11 +208,12 @@ const OrderStatusPieChart = ({ orders }) => {
       count: 0
     },
     unassigned: {
-      label: "Atanmamış",
-      color: "#9E9E9E",  // Gray
+      label: "İptal edildi",
+      color: "#FA1B1B",  // Gray
       count: 0
     }
   };
+
 
   // Count orders by status (this would use real data in production)
   // For demo purposes, we'll generate random counts
@@ -309,13 +318,15 @@ const OrderStatusPieChart = ({ orders }) => {
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedRoute, setSelectedRoute] = useState("route1"); // Default route selection
-  
+    const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+    const [simulationStatus, setSimulationStatus] = useState("");
+
     // **MongoDB'den Uyarıları Çek**
     useEffect(() => {
-      fetch(API_URL)
-        .then((response) => response.json())
-        .then((data) => setAlerts(data))
-        .catch((error) => console.error("Hata:", error));
+      //fetch(API_URL)
+      //  .then((response) => response.json())
+      //  .then((data) => setAlerts(data))
+      //  .catch((error) => console.error("Hata:", error));
     }, []);
   
     // **Uyarıyı Çöz**
@@ -357,6 +368,29 @@ const OrderStatusPieChart = ({ orders }) => {
         console.error("Silme hatası:", error);
       }
     };
+
+    // Start SUMO simulation
+  const startSumoSimulation = async () => {
+    setSimulationStatus("Starting simulation...");
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/start-simulation', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.text();
+      setIsSimulationRunning(true);
+      setSimulationStatus("Simulation running");
+      console.log(data);
+    } catch (error) {
+      setSimulationStatus(`Error starting simulation: ${error.message}`);
+      console.error("Error starting SUMO simulation:", error);
+    }
+  };
   
     // **Uyarıları Kategoriye Göre Grupla**
     const categorizedAlerts = alerts.reduce((acc, alert) => {
@@ -579,25 +613,33 @@ const OrderStatusPieChart = ({ orders }) => {
                                 </Dialog>
                               </div>
                             
-                              {/* New Statistics Section */}
-                              <div style={{ height: "23%", backgroundColor: "#fff", padding: "8px", borderRadius: "8px", display: "flex", flexDirection: "column" }}>
+                              {/* New Statistics Section with SUMO Start Button and Status Component */}
+                              <div style={{ height: "23%", backgroundColor: "#fff", padding: "8px", borderRadius: "8px", display: "flex", flexDirection: "column", overflowY: "auto" }}>
                                 <div>
-                                  <h2>Diğer</h2>
+                                  <h2>Simulation Control</h2>
                                 </div>
-                                <button
-                                  onClick={handleButtonClick}
-                                  style={{
-                                    padding: "10px",
-                                    backgroundColor: "#4caf50",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    cursor: "pointer",
-                                    marginTop: "12px",
-                                  }}
-                                >
-                                  Details
-                                </button>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                  {/* SUMO Start Button */}
+                                  <button
+                                    onClick={startSumoSimulation}
+                                    disabled={isSimulationRunning}
+                                    style={{
+                                      padding: "10px",
+                                      backgroundColor: isSimulationRunning ? "#cccccc" : "#2196F3",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "5px",
+                                      cursor: isSimulationRunning ? "not-allowed" : "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      gap: "8px"
+                                    }}
+                                  >
+                                    
+                                  </button>
+
+                                </div>
                               </div>
                             </div>
 
@@ -626,3 +668,4 @@ const OrderStatusPieChart = ({ orders }) => {
                           </div>
                         );
                       }
+

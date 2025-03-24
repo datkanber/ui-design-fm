@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SUMO versiyon 3.2 Ferdanur ARMUTLU 2024 10 24 tarihinde oluşturulmuştur-->
+<!-- generated on 2024-10-24 17:53:54 by Eclipse SUMO netedit Version 1.20.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- StoppingPlaces -->
+    <containerStop id="1" name="HASTANE" lane="E3_0" startPos="2.74" endPos="7.74"/>
+    <containerStop id="10" name="T_TIP_BIL_B2" lane="-727290764_0" startPos="15.19" endPos="25.19"/>
+    <containerStop id="11" name="A1/C1" lane="-212712085#1_0" startPos="15.80" endPos="25.80"/>
+    <containerStop id="113" name="HASTANE_GIRISI" lane="697983200_0" startPos="10.79" endPos="20.79"/>
+    <containerStop id="114" lane="369625683#4_0" startPos="4.44" endPos="14.44"/>
+    <containerStop id="115" lane="E4_0" startPos="10.08" endPos="20.08"/>
+    <containerStop id="116" name="GIRIS" lane="212712107#0_0" startPos="74.86" endPos="84.86" friendlyPos="true"/>
+    <containerStop id="117" lane="212712097#16_0" startPos="133.68" endPos="143.68" friendlyPos="true"/>
+    <containerStop id="118" lane="E8_0" startPos="21.74" endPos="31.74"/>
+    <containerStop id="119" lane="369628890#13_1" startPos="29.77" endPos="39.77"/>
+    <containerStop id="12" name="TEMEL_TIP_BIL_A1" lane="212712085#10_0" startPos="18.64" endPos="28.64"/>
+    <containerStop id="120" lane="212712119#5_0" startPos="21.67" endPos="31.67"/>
+    <containerStop id="121" name="ATM" lane="-605647262#6_0" startPos="7.81" endPos="12.81" friendlyPos="true"/>
+    <containerStop id="122" name="ATM" lane="-212712115#8_0" startPos="7.06" endPos="12.06"/>
+    <containerStop id="123" lane="-724024576#2_0" startPos="16.31" endPos="26.31"/>
+    <containerStop id="124" lane="724024576#11_0" startPos="119.79" endPos="129.79"/>
+    <containerStop id="125" name="YOG_BAK" lane="-212712097#23_0" startPos="34.27" endPos="44.27"/>
+    <containerStop id="13" lane="212712085#1.130_0" startPos="9.14" endPos="19.14"/>
+    <containerStop id="14" name="T_TIP_BIL_B3" lane="642121509#0_0" startPos="11.16" endPos="21.16"/>
+    <containerStop id="15" name="TIP_FAK_DEKANLIK" lane="642121509#1_0" startPos="21.03" endPos="31.03"/>
+    <containerStop id="152" name="K_HALISAHA" lane="591658296#2_0" startPos="1.00" endPos="11.00"/>
+    <containerStop id="153" name="K_HALISAHA" lane="591658296#2_0" startPos="15.00" endPos="25.00"/>
+    <containerStop id="154" lane="-212712117#1_0" startPos="27.26" endPos="32.26" friendlyPos="true"/>
+    <containerStop id="16" name="ISI_MERKEZI" lane="-727288475_0" startPos="7.96" endPos="17.96"/>
+    <containerStop id="17" name="DIS_HAST" lane="374420282#0_0" startPos="8.17" endPos="18.17" friendlyPos="true"/>
+    <containerStop id="18" name="ESK_SAGLIK_YO" lane="-724278031_0" startPos="23.56" endPos="33.56"/>
+    <containerStop id="19" name="TICAM" lane="-724278030#1_0" startPos="48.25" endPos="58.25"/>
+    <containerStop id="2" name="ACIL" lane="-697983196_0" startPos="113.71" endPos="123.71"/>
+    <containerStop id="20" name="DIS_HEK_FAK" lane="374420283_0" startPos="4.53" endPos="14.53" friendlyPos="true"/>
+    <containerStop id="21" name="FEN_ED_FAK" lane="3744202830_0" startPos="48.07" endPos="58.07" friendlyPos="true"/>
+    <containerStop id="22A" lane="-212712099#1_0" startPos="81.55" endPos="91.55"/>
+    <containerStop id="22B" lane="3744202830_0" startPos="5.47" endPos="15.47"/>
+    <containerStop id="22C" lane="3744202830_0" startPos="27.81" endPos="37.81" friendlyPos="true"/>
+    <containerStop id="22D" lane="-212712099#1_0" startPos="52.50" endPos="62.50"/>
+    <containerStop id="22E" name="TIP_FAK_DERSLIK" lane="3744202830_0" startPos="16.53" endPos="26.53"/>
+    <containerStop id="23" name="MEDIKO_SOSYAL" lane="-212712099#10_0" startPos="20.27" endPos="30.27"/>
+    <containerStop id="24" name="FEN_ED_FAK" lane="-212712099#1_0" startPos="20.93" endPos="30.93"/>
+    <containerStop id="25" name="BUFE_POL" lane="-371317621#0_0" startPos="0.79" endPos="10.79" friendlyPos="true"/>
+    <containerStop id="26" name="GAZIPARK" lane="-373178346#1_0" startPos="10.98" endPos="20.98"/>
+    <containerStop id="27" name="ILAHIYAT_FAK" lane="369625682#1_0" startPos="64.13" endPos="74.13"/>
+    <containerStop id="28" name="CAMI" lane="369625682#3_0" startPos="20.33" endPos="30.33"/>
+    <containerStop id="29" name="SADIRVAN" lane="369625682#3_0" startPos="43.13" endPos="53.13"/>
+    <containerStop id="3" name="POLIKLINIK" lane="370540854#2_0" startPos="12.00" endPos="22.00"/>
+    <containerStop id="30" name="ULUSLARARASI_ILISKILER" lane="-700262760_0" startPos="0.63" endPos="5.63" friendlyPos="true"/>
+    <containerStop id="31" name="KAMPUS_KAFE" lane="369625682#12_0" startPos="4.10" endPos="14.10" friendlyPos="true"/>
+    <containerStop id="32" name="IIBF_DEK" lane="212712098#0_0" startPos="42.56" endPos="52.56"/>
+    <containerStop id="33" name="IKT_ID_BIL_FAK" lane="368620842#1_0" startPos="29.10" endPos="39.10"/>
+    <containerStop id="34" name="IKT_ID_BIL_FAK" lane="369628890#13_0" startPos="117.15" endPos="127.15"/>
+    <containerStop id="35" name="FEN_ED_FAK" lane="387336085_0" startPos="41.57" endPos="51.57"/>
+    <containerStop id="36" name="FEN_ED_FAK" lane="368620842#4_0" startPos="16.39" endPos="26.39"/>
+    <containerStop id="37A" lane="368620842#6_0" startPos="5.21" endPos="15.21" friendlyPos="true"/>
+    <containerStop id="37B" name="FEN_ED_FAK" lane="368620842#5_0" startPos="25.98" endPos="35.98"/>
+    <containerStop id="38" name="GUVENLIK" lane="369628890#10_0" startPos="23.80" endPos="33.80"/>
+    <containerStop id="39" name="EGITIM_FAK" lane="-212712101#3_0" startPos="11.21" endPos="21.21"/>
+    <containerStop id="4" name="YOG_BAK" lane="212712108_0" startPos="82.53" endPos="92.53"/>
+    <containerStop id="40" name="HAMER" lane="387334898_0" startPos="2.00" endPos="12.00" friendlyPos="true"/>
+    <containerStop id="41" name="HAMER" lane="387334898_0" startPos="14.00" endPos="24.00" friendlyPos="true"/>
+    <containerStop id="42A" lane="368620842#9_0" startPos="6.64" endPos="16.64"/>
+    <containerStop id="42B" lane="387337624#0_0" startPos="6.89" endPos="16.89" friendlyPos="true"/>
+    <containerStop id="42C" name="CARSI" lane="368620842#13_0" startPos="8.12" endPos="18.12"/>
+    <containerStop id="43A" name="YABANCI_DILLER" lane="368620842#16_0" startPos="31.00" endPos="41.00"/>
+    <containerStop id="43B" name="YABANCI_DILLER" lane="368620842#16_0" startPos="53.27" endPos="63.27"/>
+    <containerStop id="43C" name="YABANCI_DILLER" lane="369628890#5_0" startPos="7.60" endPos="17.60"/>
+    <containerStop id="44" name="TURIZM_FAK" lane="368620842#17_0" startPos="3.48" endPos="13.48"/>
+    <containerStop id="45" name="MRK_YEMEKHANE" lane="212712083#4_0" startPos="5.77" endPos="15.77"/>
+    <containerStop id="46" name="KONGRE_MRK" lane="-368620842#4_0" startPos="3.87" endPos="13.87"/>
+    <containerStop id="47" name="KUTUPHANE" lane="-368620842#5_0" startPos="27.26" endPos="37.26"/>
+    <containerStop id="48" name="REKTORLUK" lane="-212712119#4_0" startPos="6.32" endPos="16.32"/>
+    <containerStop id="49" name="AKADEMI_KAFE" lane="-368620842#8_0" startPos="100.83" endPos="110.83"/>
+    <containerStop id="5" name="OTACI_KAFE" lane="369625683#4_0" startPos="26.37" endPos="36.37"/>
+    <containerStop id="50" name="KRES" lane="700307260_0" startPos="44.62" endPos="54.62"/>
+    <containerStop id="51" name="OTEL" lane="-212712104#2_0" startPos="1.00" endPos="11.00" friendlyPos="true"/>
+    <containerStop id="52" name="TIM" lane="-212712104#4.105_0" startPos="9.15" endPos="19.15"/>
+    <containerStop id="53" name="KAPALI_SPOR_SALONU" lane="212712117#4_0" startPos="26.44" endPos="36.44"/>
+    <containerStop id="54" lane="212712117#1_0" startPos="2.99" endPos="7.99"/>
+    <containerStop id="55" name="Y_HAVUZU" lane="-368620842#17_0" startPos="42.83" endPos="52.83"/>
+    <containerStop id="56" name="MMF_DEK" lane="221800343#0_0" startPos="10.49" endPos="20.49"/>
+    <containerStop id="57" name="MAKINE_MUH" lane="-212712115#10_0" startPos="16.83" endPos="26.83"/>
+    <containerStop id="58/1" name="MADEN_MUH" lane="-212712115#10_0" startPos="9.60" endPos="19.60"/>
+    <containerStop id="59" lane="718805023#1_0" startPos="7.64" endPos="17.64"/>
+    <containerStop id="6" name="KARDIYOLOJI" lane="213093207_0" startPos="8.82" endPos="18.82"/>
+    <containerStop id="60A/2" name="KIMYA" lane="605647262#5_0" startPos="22.45" endPos="27.45" friendlyPos="true"/>
+    <containerStop id="60B/2" name="ENDUSTRI_MUH" lane="605647262#6_0" startPos="0.20" endPos="10.20"/>
+    <containerStop id="61A/1" name="ELK_ELKT_MUH" lane="-212712115#8_0" startPos="12.91" endPos="22.91"/>
+    <containerStop id="61B" name="INSAAT_MUH" lane="-212712115#8_0" startPos="19.14" endPos="29.14"/>
+    <containerStop id="62" name="JEOLOJI_LAB" lane="374419204#10_0" startPos="13.36" endPos="23.36" friendlyPos="true"/>
+    <containerStop id="63" name="MATALURJI_ENS" lane="-374419204#1_0" startPos="9.25" endPos="19.25"/>
+    <containerStop id="64" name="KIMYA_LAB" lane="-212712115#6_0" startPos="3.34" endPos="13.34" friendlyPos="true"/>
+    <containerStop id="65" name="KIMYA_LAB" lane="-212712115#5_0" startPos="5.18" endPos="15.18" friendlyPos="true"/>
+    <containerStop id="66" name="MADEN_LAB" lane="-374419204#2_0" startPos="9.50" endPos="19.50"/>
+    <containerStop id="67" name="ELEKTRONIK_LAB" lane="374419204#2_0" startPos="9.06" endPos="19.06"/>
+    <containerStop id="68" name="INS_MAK_LAB" lane="374419204#3_0" startPos="7.12" endPos="17.12"/>
+    <containerStop id="69" name="HIDROLIK_ISI_LAB" lane="-374419204#3_0" startPos="43.69" endPos="53.69"/>
+    <containerStop id="7" name="ONKOLOJI_MRK" lane="-387687288#1_0" startPos="0.44" endPos="10.44"/>
+    <containerStop id="70" name="HIDR_FIZIK_LAB" lane="-212712115#4_0" startPos="4.79" endPos="14.79" friendlyPos="true"/>
+    <containerStop id="71" name="INSAAT_LAB" lane="-212712115#3_0" startPos="6.20" endPos="16.20"/>
+    <containerStop id="72" name="METALURJI_LAB" lane="-374419204#3_0" startPos="21.64" endPos="31.64"/>
+    <containerStop id="73" name="TAKIM_TEZGAH_MOTOR_LAB" lane="-374419204#3_0" startPos="1.73" endPos="11.73"/>
+    <containerStop id="74" name="DEPREM_LAB" lane="724024576#4_0" startPos="17.30" endPos="27.30" friendlyPos="true"/>
+    <containerStop id="75" lane="699411518#1_0" startPos="5.23" endPos="10.23"/>
+    <containerStop id="76" lane="221800347#4_0" startPos="1.04" endPos="6.04"/>
+    <containerStop id="77" lane="221800347#4_0" startPos="10.11" endPos="15.11" friendlyPos="true"/>
+    <containerStop id="78" name="TEKNOKENT" lane="-724024576#4_0" startPos="0.71" endPos="5.71"/>
+    <containerStop id="79" lane="699411518#1_0" startPos="14.80" endPos="19.80" friendlyPos="true"/>
+    <containerStop id="8" name="TRAFO" lane="-212712097#22_0" startPos="17.31" endPos="27.31"/>
+    <containerStop id="80" lane="-724024576#4_0" startPos="10.34" endPos="15.34"/>
+    <containerStop id="81" name="MATBAA" lane="-724024576#4_0" startPos="20.39" endPos="25.39"/>
+    <containerStop id="82" name="ATOLYELER" lane="-724024576#1_0" startPos="25.28" endPos="35.28"/>
+    <containerStop id="83" lane="-718864870#1_0" startPos="21.93" endPos="26.93" friendlyPos="true"/>
+    <containerStop id="84" lane="-718864870#1_0" startPos="12.61" endPos="17.61"/>
+    <containerStop id="85" lane="-718864870#2_0" startPos="9.55" endPos="14.55"/>
+    <containerStop id="86" name="AYNIYAT" lane="-718864870#2_0" startPos="20.54" endPos="25.54" friendlyPos="true"/>
+    <containerStop id="87" name="MERKEZI_LAB" lane="668817445#3_0" startPos="41.93" endPos="51.93"/>
+    <containerStop id="88" name="STADYUM" lane="-700064866#2_0" startPos="31.04" endPos="41.04"/>
+    <containerStop id="89" name="OGU_BAHCE" lane="-440213718#1.19_0" startPos="55.00" endPos="65.00"/>
+    <containerStop id="9" name="T_TIP_BIL_B1" lane="-212712085#1.44_0" startPos="35.78" endPos="45.78"/>
+    <containerStop id="90" lane="-440213718#1_0" startPos="1.00" endPos="11.00"/>
+    <chargingStation id="cs1" name="CS_STADYUM" lane="700064866#4_0" startPos="0.99" endPos="10.99" power="200000.00"/>
+    <chargingStation id="cs10" name="CS_OTEL_OTOPARK" lane="-718824131_0" startPos="28.89" endPos="38.89" power="200000.00"/>
+    <chargingStation id="cs2" name="CS_MUHFAK_OTOPARK" lane="221800346_0" startPos="116.78" endPos="126.78" power="200000.00"/>
+    <chargingStation id="cs3" name="CS_TEKNOPARK_OTOPARK" lane="221800350#0_0" startPos="10.45" endPos="20.45" power="200000.00"/>
+    <chargingStation id="cs4" name="CS_CAMI_OTOPARK" lane="-700262764_0" startPos="8.67" endPos="18.67" power="200000.00"/>
+    <chargingStation id="cs5" name="CS_CARSI" lane="-698869618_0" startPos="8.08" endPos="18.08" friendlyPos="true" power="200000.00"/>
+    <chargingStation id="cs6" name="CS_YEMEKHANE_OTOPARK" lane="371345507_0" startPos="4.11" endPos="14.11" power="200000.00"/>
+    <chargingStation id="cs7" name="CS_HASTANE_OTOPARK" lane="696601824_0" startPos="8.78" endPos="18.78" power="200000.00"/>
+    <chargingStation id="cs8" name="CS_TIPBIL_OTOPARK" lane="-371317618_0" startPos="6.94" endPos="16.94" power="200000.00"/>
+    <chargingStation id="cs9" name="CS_EGITIMFAK_OTOPARK" lane="718805023#2_0" startPos="49.22" endPos="59.22" power="200000.00"/>
+</additional>
