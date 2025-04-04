@@ -212,7 +212,7 @@ export default function Layout({
     const getAlgorithmEndpoint = (algorithm) => {
         switch (algorithm) {
             case 'ALNS':
-                return 'http://157.230.17.89:8003/start_alns';
+                return 'http://31.141.247.181:8003/start_alns';
             case 'SA':
                 return 'http://localhost:8000/start_sa';
             case 'TS':

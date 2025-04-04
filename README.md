@@ -46,63 +46,46 @@ Yeni bir terminal penceresi açın ve sunucuyu başlatın
 ## System Diagrams 
 
 
-```mermaid
+```mermaid	
 sequenceDiagram
-    participant Kullanıcı
-    participant FiloApp as Filo Yönetim Uygulaması
-    participant DB as Veritabanı
-    participant RML as RoutingMarkupLanguage Servisi
-    participant Cloud as Cloud Algoritma Servisi
-    participant EV as Elektrikli Araç
-    participant SUMO as Simulasyon Sistemi
-    participant Analiz as Filo Yönetim Analiz Modülü
+    actor Admin
+    participant FleetApp as Fleet Management Application
+    participant Cloud as Cloud Routing Algorithms
+    participant EV as EV (MUSOSHI)
+    participant SUMO as Simulation (SUMO)
     
-    %% Kullanıcı Kaydı Süreci
-    Kullanıcı->>FiloApp: Kayıt İsteği Gönder
-    FiloApp->>DB: Kullanıcı Bilgilerini Kaydet
-    DB->>FiloApp: Kayıt Onayı
-    FiloApp->>RML: Kullanıcı Bilgisi ile RML Yapısını Güncelle
-    RML->>FiloApp: RML Güncelleme Onayı
-    FiloApp->>Kullanıcı: Kayıt Başarılı Bildirimi
+    %% Admin selects customer requests
+    Admin->>FleetApp: Select Customer Requests
+    FleetApp->>FleetApp: Process Selected Requests
     
-    %% Sipariş Oluşturma Süreci
-    Kullanıcı->>FiloApp: Sipariş Oluştur (Konum, Zaman, Detaylar)
-    FiloApp->>DB: Sipariş Bilgilerini Kaydet
-    DB->>FiloApp: Sipariş Kaydı Onayı
-    FiloApp->>Kullanıcı: Sipariş Oluşturuldu Bildirimi
+    %% Convert to RoutingML format and send to Cloud
+    FleetApp->>FleetApp: Convert Requests to RoutingML Format
+    FleetApp->>Cloud: Send Requests in RoutingML Format
     
-    %% Task Toplama ve Cloud'a Gönderme
-    FiloApp->>FiloApp: Bekleyen Taskları Topla
-    FiloApp->>RML: Taskları RML Formatına Dönüştür
-    RML->>FiloApp: RML Formatında Tasklar
-    FiloApp->>Cloud: RML Formatında Taskları Gönder
+    %% Cloud processing
+    Cloud->>Cloud: Run Route Optimization Algorithm
     
-    %% Cloud İşleme Süreci
-    Cloud->>Cloud: Optimizasyon Algoritmasını Çalıştır
+    %% Return optimized routes
+    Cloud->>FleetApp: Send Optimized Results (RoutingML: R4P, R4V, R4S)
+    FleetApp->>Admin: Display Optimized Results
     
-    %% Sonuçların Alınması ve İşlenmesi
-    Cloud->>FiloApp: EV Rota Sonuçları (RML)
-    Cloud->>FiloApp: Simulasyon Sonuçları (RML)
-    Cloud->>FiloApp: Analiz Sonuçları (RML)
+    %% Admin approval
+    Admin->>FleetApp: Approve Routes
     
-    %% Veritabanı Güncellemesi
-    FiloApp->>DB: Cloud Sonuçlarını Kaydet
-    DB->>FiloApp: Güncelleme Onayı
+    %% Distribution of approved routes
+    FleetApp->>FleetApp: Save Approved Results (RoutingML: R4P)
+    FleetApp->>EV: Send Approved Results (RoutingML: R4V)
+    FleetApp->>SUMO: Send Approved Results (RoutingML: R4S)
     
-    %% Sonuçların İlgili Sistemlere Dağıtılması
-    FiloApp->>EV: EV Rota Talimatları Gönder
-    FiloApp->>SUMO: Simulasyon Verilerini Gönder
-    FiloApp->>Analiz: Analiz Verilerini Gönder
+    %% Continuous status updates
+    loop Periodic Status Updates
+        EV->>FleetApp: Route Status Update
+        SUMO->>FleetApp: Route Status Update
+        FleetApp->>Admin: Route Status Notification
+    end
     
-    %% Sonuçların İşlenmesi
-    EV->>FiloApp: Rota Alındı Onayı
-    SUMO->>FiloApp: Simulasyon Başlatıldı Onayı
-    Analiz->>FiloApp: Analiz Başlatıldı Onayı
-    
-    %% Teslimat Süreci
-    EV->>FiloApp: Teslimat Başladı Bildirimi
-    FiloApp->>DB: Teslimat Durumu Güncelle
-    EV->>FiloApp: Teslimat Tamamlandı Bildirimi
-    FiloApp->>DB: Teslimat Tamamlandı Bilgisi Kaydet
-    FiloApp->>Kullanıcı: Teslimat Tamamlandı Bildirimi
+    %% Simulation results
+    SUMO->>FleetApp: Simulation Results
+    FleetApp->>Admin: Simulation Results Notification
+    FleetApp->>FleetApp: Real vs Simulation Comparison and Analysis
 ```
