@@ -21,3 +21,15 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python cache dosyaları
+__pycache__/
+*.pyc
+
+# Virtual environment
+env/
+venv/
+Sumo/env/
+Sumo/__pycache__/
+Sumo/env/Lib/site-packages
+Sumo/modules/socket/__pycache__/

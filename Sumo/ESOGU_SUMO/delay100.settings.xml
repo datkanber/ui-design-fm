@@ -1,0 +1,6 @@
+<!-- SUMO versiyon 3.2 Ferdanur ARMUTLU 2024 10 24 tarihinde oluşturulmuştur-->
+<viewsettings>
+    <delay value="200"/>
+    <viewport zoom="300" x="5300" y="2600"/>
+    <scheme name="real world"/>
+</viewsettings>

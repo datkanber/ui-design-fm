@@ -1,0 +1,50 @@
+<Routes>
+  <Route>
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="3" PointType="Delivery" EVtotalcapacity="200/200" DeliveryWeight="10" requestId="1458" />
+    <Point id="8" PointType="Delivery" EVtotalcapacity="190/200" DeliveryWeight="40" requestId="1461" />
+    <Point id="cs8" PointType="Charging" EVtotalcapacity="150/200" DeliveryWeight="0" />
+    <Point id="1" PointType="Delivery" EVtotalcapacity="150/200" DeliveryWeight="6" requestId="1462" />
+    <Point id="1" PointType="Delivery" EVtotalcapacity="144/200" DeliveryWeight="16" requestId="1467" />
+    <Point id="3" PointType="Delivery" EVtotalcapacity="128/200" DeliveryWeight="16" requestId="1471" />
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="112/200" DeliveryWeight="0" />
+  </Route>
+  <Route>
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="cs4" PointType="Charging" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="cs7" PointType="Charging" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="5" PointType="Delivery" EVtotalcapacity="200/200" DeliveryWeight="4" requestId="1454" />
+    <Point id="5" PointType="Delivery" EVtotalcapacity="196/200" DeliveryWeight="6" requestId="1470" />
+    <Point id="4" PointType="Delivery" EVtotalcapacity="190/200" DeliveryWeight="10" requestId="1460" />
+    <Point id="8" PointType="Delivery" EVtotalcapacity="180/200" DeliveryWeight="25" requestId="1465" />
+    <Point id="2" PointType="Delivery" EVtotalcapacity="155/200" DeliveryWeight="14" requestId="1457" />
+    <Point id="4" PointType="Delivery" EVtotalcapacity="141/200" DeliveryWeight="20" requestId="1472" />
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="121/200" DeliveryWeight="0" />
+  </Route>
+  <Route>
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="cs6" PointType="Charging" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="7" PointType="Delivery" EVtotalcapacity="200/200" DeliveryWeight="16" requestId="1459" />
+    <Point id="7" PointType="Delivery" EVtotalcapacity="184/200" DeliveryWeight="20" requestId="1469" />
+    <Point id="cs3" PointType="Charging" EVtotalcapacity="164/200" DeliveryWeight="0" />
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="164/200" DeliveryWeight="0" />
+  </Route>
+  <Route>
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="cs9" PointType="Charging" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="cs1" PointType="Charging" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="71" PointType="Delivery" EVtotalcapacity="200/200" DeliveryWeight="45" requestId="1455" />
+    <Point id="71" PointType="Delivery" EVtotalcapacity="155/200" DeliveryWeight="12" requestId="1463" />
+    <Point id="44" PointType="Delivery" EVtotalcapacity="143/200" DeliveryWeight="45" requestId="1456" />
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="98/200" DeliveryWeight="0" />
+  </Route>
+  <Route>
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="200/200" DeliveryWeight="0" />
+    <Point id="44" PointType="Delivery" EVtotalcapacity="200/200" DeliveryWeight="2" requestId="1466" />
+    <Point id="cs2" PointType="Charging" EVtotalcapacity="198/200" DeliveryWeight="0" />
+    <Point id="cs10" PointType="Charging" EVtotalcapacity="198/200" DeliveryWeight="0" />
+    <Point id="6" PointType="Delivery" EVtotalcapacity="198/200" DeliveryWeight="18" requestId="1453" />
+    <Point id="6" PointType="Delivery" EVtotalcapacity="180/200" DeliveryWeight="40" requestId="1464" />
+    <Point id="cs5" PointType="Depot" EVtotalcapacity="140/200" DeliveryWeight="0" />
+  </Route>
+</Routes>

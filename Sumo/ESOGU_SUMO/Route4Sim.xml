@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="evehicle" length="2.88" minGap="2.50" maxSpeed="12.5" vClass="evehicle" emissionClass="Energy/default" accel="1.0" decel="1.0" sigma="0.0">
+        <param key="airDragCoefficient" value="0.48"/>
+        <param key="constantPowerIntake" value="100"/>
+        <param key="device.battery.capacity" value="3000"/>
+        <param key="device.battery.chargeLevel" value="3000"/>
+        <param key="device.battery.stoppingThreshold" value="0.1"/>
+        <param key="engine.efficiency" value="0.8"/>
+        <param key="frontSurfaceArea" value="2.3"/>
+        <param key="engine.power.max" value="1000"/>
+        <param key="has.battery.device" value="true"/>
+        <param key="mass" value="1000"/>
+        <param key="propulsionEfficiency" value="0.9"/>
+        <param key="radialDragCoefficient" value="0.5"/>
+        <param key="recuperationEfficiency" value="0.9"/>
+        <param key="rollDragCoefficient" value="0.01"/>
+        <param key="rotatingMass" value="0.01"/>
+    </vType>
+    <vehicle id="veh0" type="evehicle" depart="5.11" color="red">
+        <param key="device.battery.chargeLevel" value="3000"/>
+        <route edges="-698869618 -698869617#1 -698869617#0 -368620842#8 -368620842#6 -368620842#5 -368620842#4 212712095#1 212712095#2 212712095#3 212712095#4 212712095#6 212712095#7 387336085 -387336085 369628890#13 369625684#2 369625683#0 696601824 -696601824 369625683#1 369625683#2 E2 E0 E4 E5 E6 E3 E11 369625683#3.8 -697983196 212712108 697983206#2 697983206#3 697983206#4 697983206#5 369625684#4 369625684#1 212712098#0 212712098#1 368620842#0 368620842#1 368620842#2 368620842#4 368620842#5 368620842#6 368620842#8 698869617#0 698869617#1 698869618 -698869618"/>
+        <stop chargingStation="cs5" duration="0"/>
+        <stop containerStop="35" duration="120"/>
+        <stop chargingStation="cs7" duration="181.23119999999994"/>
+        <stop containerStop="115" duration="180"/>
+        <stop containerStop="2" duration="120"/>
+        <stop containerStop="32" duration="180"/>
+        <stop chargingStation="cs5" duration="0"/>
+    </vehicle>
+    <vehicle id="veh1" type="evehicle" depart="5.11" color="red">
+        <param key="device.battery.chargeLevel" value="3000"/>
+        <route edges="-698869618 -698869617#1 -698869617#0 368620842#9 368620842#12 368620842#13 669466787#1 669466787#2 669466787#3 369628890#7 387337624#0 -387337624#0 369625682#15 -E13 -669466787#3 -669466787#2 -669466787#1 -368620842#13 -368620842#12 -368620842#9 698869617#0 698869617#1 698869618 -698869618"/>
+        <stop chargingStation="cs5" duration="0"/>
+        <stop containerStop="42B" duration="120"/>
+        <stop chargingStation="cs5" duration="0"/>
+    </vehicle>
+</routes>
