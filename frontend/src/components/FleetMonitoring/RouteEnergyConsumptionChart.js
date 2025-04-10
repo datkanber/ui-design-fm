@@ -1,11 +1,20 @@
 import React from "react";
 
-const RouteEnergyConsumptionChart = ({ data = [], hideTitle }) => {
-  if (!data.length) {
-    return <div style={{ padding: "10px" }}>Enerji verisi bulunamadı.</div>;
+const RouteEnergyConsumptionChart = ({ shapData = [], labels = [] }) => {
+  if (!shapData.length || !labels.length) {
+    return <div style={{ padding: "10px" }}>SHAP verisi bekleniyor...</div>;
   }
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const total = shapData.reduce((sum, val) => sum + Math.abs(val), 0);
+
+  const data = shapData.map((val, i) => ({
+    name: labels[i],
+    value: Math.abs(val),
+    rawValue: val,
+    color: val >= 0
+      ? ["#4CAF50", "#2196F3", "#FF9800", "#F44336"][i % 4]
+      : ["#A5D6A7", "#90CAF9", "#FFE082", "#EF9A9A"][i % 4] // pastel renkler negatifler için
+  }));
 
   const segments = [];
   let cumulativeAngle = 0;
@@ -24,7 +33,7 @@ const RouteEnergyConsumptionChart = ({ data = [], hideTitle }) => {
 
   return (
     <div style={{ padding: "10px" }}>
-      {!hideTitle && <h3>Enerji Tüketimini Etkileyen Faktörler</h3>}
+      <h3>Enerji Tüketimini Etkileyen Faktörler (SHAP)</h3>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div style={{ position: "relative", width: "150px", height: "150px" }}>
           {segments.map((segment, index) => {
@@ -51,17 +60,17 @@ const RouteEnergyConsumptionChart = ({ data = [], hideTitle }) => {
           })}
         </div>
 
-        {!hideTitle && (
-          <div style={{ marginLeft: "20px", flex: 1 }}>
-            {segments.map((item, index) => (
-              <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                <div style={{ width: "14px", height: "14px", backgroundColor: item.color, marginRight: "8px", borderRadius: "2px" }} />
-                <div style={{ marginRight: "8px" }}>{item.name}:</div>
-                <div style={{ fontWeight: "bold" }}>{item.percentage.toFixed(1)}% ({item.value.toFixed(1)})</div>
+        <div style={{ marginLeft: "20px", flex: 1 }}>
+          {segments.map((item, index) => (
+            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+              <div style={{ width: "14px", height: "14px", backgroundColor: item.color, marginRight: "8px", borderRadius: "2px" }} />
+              <div style={{ marginRight: "8px" }}>{item.name}:</div>
+              <div style={{ fontWeight: "bold" }}>
+              {item.rawValue < 0 ? "-" : ""}{item.percentage.toFixed(1)}%
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

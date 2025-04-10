@@ -30,9 +30,11 @@ const TaskCompletionChart = ({ routes }) => {
                 }}
               />
             </div>
+
             <div style={{ marginLeft: "10px", width: "60px", textAlign: "right" }}>
               {item.completion.toFixed(1)}%
             </div>
+            
           </div>
         </div>
       ))}
