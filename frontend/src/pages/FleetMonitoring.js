@@ -27,14 +27,20 @@ import { routes } from "../data/routes";
 
 const API_ALERTS = "http://localhost:3001/api/alerts";
 const API_PERFORMANCE = "http://localhost:3001/api/performance";
+const API_PREDICT = "http://localhost:5002/predict";
+
 
 export default function FleetMonitoring() {
   const [alerts, setAlerts] = useState([]);
   const [selectedRoute, setSelectedRoute] = useState("");
   const [routeOptions, setRouteOptions] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [activeTab, setActiveTab] = useState("rota");
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [shapContributions, setShapContributions] = useState([]);
+  const [shapLabels, setShapLabels] = useState([]);
+  const [shapPrediction, setShapPrediction] = useState(null);
 
   useEffect(() => {
     fetch(API_ALERTS)
@@ -61,37 +67,55 @@ export default function FleetMonitoring() {
     return () => clearInterval(interval);
   }, [selectedRoute]);
 
-  const filteredData = performanceData.filter(item => item.route_id === selectedRoute);
+  useEffect(() => {
+    const filtered = performanceData.filter(item => item.route_id === selectedRoute);
+    setFilteredData(filtered);
+  }, [performanceData, selectedRoute]);
 
-  const scores = {
-    gradient: 0,
-    segmentLength: 0,
-    speed_kmh: 0,
-    acceleration: 0,
-    weight_kg: 0
+  const fetchSHAP = async () => {
+    if (filteredData.length === 0) return;
+  
+    const latest = filteredData.at(-1);
+  
+    const inputData = {
+      slope: latest?.slope || 0,
+      avg_vehicle_speed: latest?.avg_vehicle_speed || 0,
+      avg_Acceleration: latest?.avg_Acceleration || 0,
+      avg_Total_Mass: latest?.avg_Total_Mass || 0,
+      timestamp: latest?.timestamp
+    };
+  
+    try {
+      const response = await fetch(API_PREDICT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inputData),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setShapContributions([...data.shap_values]);
+        setShapLabels(["slope", "avg_vehicle_speed", "avg_Acceleration", "avg_Total_Mass"]);
+        setShapPrediction(data.prediction);
+      }
+    } catch (error) {
+      console.error("SHAP verisi alınamadı:", error);
+    }
   };
 
-  filteredData.forEach(item => {
-    scores.gradient += Math.abs(Number(item.gradient) || 0);
-    scores.segmentLength += Number(item.distance_traveled_km) / 10 || 0;
-    scores.speed_kmh += Number(item.speed_kmh) / 100 || 0;
-    scores.acceleration += Math.abs(Number(item.acceleration) || 0) * 10;
-    scores.weight_kg += Number(item.weight_kg) / 1000 || 0;
-  });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchSHAP(); // Her 5 saniyede SHAP hesapla
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const total = Object.values(scores).reduce((sum, val) => sum + val, 0);
-
-  const pieData = [
-    { name: "Eğim", value: scores.gradient * 10, color: "#4CAF50" },
-    { name: "Segment Uzunluğu", value: scores.segmentLength * 10, color: "#2196F3" },
-    { name: "Ortalama Araç Hızı", value: scores.speed_kmh * 10, color: "#FF9800" },
-    { name: "Ortalama İvmelenme", value: scores.acceleration, color: "#9C27B0" },
-    { name: "Ortalama Total Ağırlık", value: scores.weight_kg * 10, color: "#F44336" },
-  ];
+  useEffect(() => {
+    fetchSHAP();
+  }, [selectedRoute, performanceData]);
 
   const plannedRoutes = routes["Simulated Annealing"]?.map(r => ({ positions: r.path || [] })) || [];
   const completedRoutes = routes["Completed"]?.map(r => ({ positions: r.path || [] })) || [];
-
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <div style={{ flex: 1, padding: 16, backgroundColor: "#f0f0f0" }}>
@@ -101,7 +125,6 @@ export default function FleetMonitoring() {
             <Alert key={alert._id} {...alert} onResolve={() => {}} onDelete={() => {}} />
           ))}
         </div>
-
         <div style={{ height: "50%", backgroundColor: "#fff", padding: 16, borderRadius: 8 }}>
           <h2>Performans İzleme</h2>
           <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
@@ -120,7 +143,13 @@ export default function FleetMonitoring() {
                 </Select>
               </FormControl>
 
-              <RouteEnergyConsumptionChart data={pieData} />
+              {shapPrediction !== null && (
+                <Typography style={{ fontWeight: "bold", marginBottom: 8 }}>
+                  Tahmin Edilen Enerji Tüketimi: {shapPrediction.toFixed(2)} kWh
+                </Typography>
+              )}
+
+              <RouteEnergyConsumptionChart shapData={shapContributions} labels={shapLabels} />
 
               <Button variant="outlined" onClick={() => setShowDetailDialog(true)} style={{ marginTop: 12 }}>Detayları Göster</Button>
 
@@ -136,7 +165,7 @@ export default function FleetMonitoring() {
                     </Select>
                   </FormControl>
 
-                  <RouteEnergyConsumptionChart data={pieData} />
+                  <RouteEnergyConsumptionChart shapData={shapContributions} labels={shapLabels} />
 
                   {filteredData.length > 0 ? (
                     <>

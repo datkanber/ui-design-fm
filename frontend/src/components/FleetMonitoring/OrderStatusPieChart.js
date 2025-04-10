@@ -2,15 +2,15 @@ import React from "react";
 
 const OrderStatusPieChart = ({ orders }) => {
   const statusCategories = {
-    requested: { label: "Talep Edildi", color: "#3498db", icon: "📩", count: 0 },
-    onTheWay: { label: "Yolda", color: "#f1c40f", icon: "🚚", count: 0 },
-    delivered: { label: "Teslim Edildi", color: "#2ecc71", icon: "📦", count: 0 },
-    cancelled: { label: "İptal Edildi", color: "#e74c3c", icon: "❌", count: 0 },
+    requested: { label: "Talep Edildi", color: "#3498db", count: 0 },
+    onTheWay: { label: "Yolda", color: "#f1c40f", count: 0 },
+    delivered: { label: "Teslim Edildi", color: "#2ecc71", count: 0 },
+    cancelled: { label: "İptal Edildi", color: "#e74c3c", count: 0 },
   };
 
   const totalOrders = orders?.length || 0;
 
-  // Örnek veri dağılımı
+  // Basit dağılım (istersen burada gerçek veriye göre dağılım hesaplayabiliriz)
   statusCategories.requested.count = Math.floor(totalOrders * 0.2);
   statusCategories.onTheWay.count = Math.floor(totalOrders * 0.3);
   statusCategories.delivered.count = Math.floor(totalOrders * 0.4);
@@ -41,7 +41,7 @@ const OrderStatusPieChart = ({ orders }) => {
     <div style={{ padding: "10px" }}>
       <h3>Sipariş Durumu Dağılımı</h3>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Pasta grafik */}
+        {/* Pie Chart */}
         <div style={{ position: "relative", width: "150px", height: "150px" }}>
           {segments.map((segment, index) => {
             const startAngle = (segment.startAngle * Math.PI) / 180;
@@ -61,39 +61,23 @@ const OrderStatusPieChart = ({ orders }) => {
           })}
         </div>
 
-        {/* Açıklama kutuları */}
+        {/* Açıklama kutuları (renk bloklu) */}
         <div style={{ marginLeft: "20px", flex: 1 }}>
           {segments.map((item, index) => (
             <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <div style={{ fontSize: "18px", marginRight: "8px" }}>{item.icon}</div>
+              <div
+                style={{
+                  width: "14px",
+                  height: "14px",
+                  backgroundColor: item.color,
+                  borderRadius: "2px",
+                  marginRight: "8px",
+                }}
+              />
               <div style={{ marginRight: "8px", flex: 1 }}>{item.label}:</div>
               <div style={{ fontWeight: "bold" }}>{item.percentage.toFixed(1)}% ({item.count})</div>
             </div>
           ))}
-
-          {/* 🟢 Legend başlığı */}
-          <div style={{ marginTop: "16px", fontSize: "14px", color: "#555" }}>
-            <strong>Renk & İkon Açıklamaları:</strong>
-            <ul style={{ display: "flex", flexWrap: "wrap", gap: "12px", paddingLeft: "0", marginTop: "12px" }}>
-              {Object.values(statusCategories).map((s, i) => (
-                <li
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: "6px", listStyle: "none" }}
-                >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: "14px",
-                      height: "14px",
-                      backgroundColor: s.color,
-                      borderRadius: "2px",
-                    }}
-                  />
-                  <span>{s.icon}</span> – <span>{s.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
     </div>

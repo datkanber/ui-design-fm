@@ -216,7 +216,23 @@ mongoose.connect(mongoURI)
   .then(() => console.log("MongoDB Atlas bağlantısı başarılı!"))
   .catch(err => console.error("MongoDB bağlantı hatası:", err));
 
+app.post("/api/energy-predict", async (req, res) => {
+  try {
+    const flaskUrl = "http://localhost:5002/predict"; // Flask API adresi
+    const inputData = req.body;
+
+    // Flask API'ye POST isteği gönder
+    const response = await axios.post(flaskUrl, inputData);
+
+    // Flask'tan dönen cevabı doğrudan ilet
+    res.json(response.data);
+  } catch (error) {
+    console.error("Flask API hatası:", error.message);
+    res.status(500).json({ error: "Enerji tahmini alınamadı"});
+}
+});
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
