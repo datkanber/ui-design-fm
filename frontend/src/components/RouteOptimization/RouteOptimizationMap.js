@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   MapContainer, 
   TileLayer, 
@@ -13,10 +13,10 @@ import L from "leaflet";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
 import "../../assets/styles/global.css";
-import arrowRight from "../../assets/icons/arrow_right.png";  
-import arrowLeft from "../../assets/icons/arrow_left.png";    
-import arrowUp from "../../assets/icons/arrow_up.png";        
-import arrowDown from "../../assets/icons/arrow_down.png";    
+// import arrowRight from "../../assets/icons/arrow_right.png";  
+// import arrowLeft from "../../assets/icons/arrow_left.png";    
+// import arrowUp from "../../assets/icons/arrow_up.png";        
+// import arrowDown from "../../assets/icons/arrow_down.png";    
 import vehicleIconImg from '../../assets/icons/vehicle.png';
 import stationIconImg from "../../assets/icons/station.png";  
 import orderIconImg from "../../assets/icons/order.png";
@@ -50,7 +50,7 @@ export default function RouteOptimizationMap({
   viewMode,
   route4VehicleUrl
 }) {
-  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [setSelectedRoute] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -258,39 +258,39 @@ export default function RouteOptimizationMap({
   };
 
   // Aracın yönünü hesaplayan fonksiyon
-  const calculateBearing = (start, end) => {
-    if (!start || !end) return 0;
+  // const calculateBearing = (start, end) => {
+  //   if (!start || !end) return 0;
 
-    const lat1 = (start[0] * Math.PI) / 180;
-    const lon1 = (start[1] * Math.PI) / 180;
-    const lat2 = (end[0] * Math.PI) / 180;
-    const lon2 = (end[1] * Math.PI) / 180;
+  //   const lat1 = (start[0] * Math.PI) / 180;
+  //   const lon1 = (start[1] * Math.PI) / 180;
+  //   const lat2 = (end[0] * Math.PI) / 180;
+  //   const lon2 = (end[1] * Math.PI) / 180;
 
-    const dLon = lon2 - lon1;
-    const y = Math.sin(dLon) * Math.cos(lat2);
-    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-    const bearing = (Math.atan2(y, x) * 180) / Math.PI;
-    return (bearing + 360) % 360;
-  };
+  //   const dLon = lon2 - lon1;
+  //   const y = Math.sin(dLon) * Math.cos(lat2);
+  //   const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  //   const bearing = (Math.atan2(y, x) * 180) / Math.PI;
+  //   return (bearing + 360) % 360;
+  // };
 
   // Yönüne göre doğru oku seçen fonksiyon
-  const getArrowIcon = (angle) => {
-    let arrowImg = arrowRight;
-    if (angle >= 45 && angle < 135) {
-      arrowImg = arrowUp;
-    } else if (angle >= 135 && angle < 225) {
-      arrowImg = arrowLeft;
-    } else if (angle >= 225 && angle < 315) {
-      arrowImg = arrowDown;
-    }
+  // const getArrowIcon = (angle) => {
+  //   let arrowImg = arrowRight;
+  //   if (angle >= 45 && angle < 135) {
+  //     arrowImg = arrowUp;
+  //   } else if (angle >= 135 && angle < 225) {
+  //     arrowImg = arrowLeft;
+  //   } else if (angle >= 225 && angle < 315) {
+  //     arrowImg = arrowDown;
+  //   }
 
-    return new L.divIcon({
-      html: `<img src='${arrowImg}' style='width: 32px; height: 32px;' />`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      className: "arrow-icon",
-    });
-  };
+  //   return new L.divIcon({
+  //     html: `<img src='${arrowImg}' style='width: 32px; height: 32px;' />`,
+  //     iconSize: [32, 32],
+  //     iconAnchor: [16, 16],
+  //     className: "arrow-icon",
+  //   });
+  // };
 
   const handleRouteClick = (route, vehicle) => {
     if (onRouteClick) {

@@ -25,8 +25,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import InfoIcon from "@mui/icons-material/Info";
-import { useScenarios } from "../../contexts/ScenarioContext";
+// import InfoIcon from "@mui/icons-material/Info";
+// import { useScenarios } from "../../contexts/ScenarioContext";
 
 export default function OptimizationForm({ onClose }) {
   // Algoritmalara özel varsayılan parametreler - Güncellendi
@@ -270,21 +270,21 @@ export default function OptimizationForm({ onClose }) {
     console.log("Senaryolar:", scenarios);
   };
 
-  const getAllScenarios = () => {
-    try {
-      const savedScenarios = JSON.parse(localStorage.getItem('optimizationScenarios'));
-      if (savedScenarios) {
-        setScenarios(Object.values(savedScenarios).flat());
-      }
-    } catch (error) {
-      console.error("Senaryolar çekme hatası:", error);
-      setSaveStatus({
-        show: true,
-        message: `Hata: ${error.message}`,
-        severity: "error"
-      });
-    }
-  };
+  // const getAllScenarios = () => {
+  //   try {
+  //     const savedScenarios = JSON.parse(localStorage.getItem('optimizationScenarios'));
+  //     if (savedScenarios) {
+  //       setScenarios(Object.values(savedScenarios).flat());
+  //     }
+  //   } catch (error) {
+  //     console.error("Senaryolar çekme hatası:", error);
+  //     setSaveStatus({
+  //       show: true,
+  //       message: `Hata: ${error.message}`,
+  //       severity: "error"
+  //     });
+  //   }
+  // };
 
   return (
     <Card sx={{ p: 3, maxHeight: '80vh', overflowY: 'auto' }}>

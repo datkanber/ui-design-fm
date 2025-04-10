@@ -20,358 +20,361 @@ import Alert from "../components/FleetMonitoring/FM_AlertPanel";
 import FleetMonitoringPerformanceMap from "../components/FleetMonitoring/FleetMonitoringPerformanceMap";
 import { vehicles } from "../data/vehicles";
 import { chargingStations } from "../data/chargingStations";
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+
 import { orders } from "../data/orders";
 import { routes } from "../data/routes";
 
-import { drivers } from "../data/drivers";
-import { routess } from "../data/routess"; // Import the new routess data
-import EnergyPredictor from "../components/test";
 import OrderStatusPieChart from "../components/FleetMonitoring/OrderStatusPieChart";
 import RouteEnergyConsumptionChart from "../components/FleetMonitoring/RouteEnergyConsumptionChart";
-
+// import TaskCompletionChart from "../components/FleetMonitoring/TaskCompletionChart";
 const API_ALERTS = "http://localhost:3001/api/alerts";
 const API_PERFORMANCE = "http://localhost:3001/api/performance";
 const API_URL = "http://localhost:3001/api/alerts";
 const API_PREDICT = "http://localhost:5002/predict";
 
+
+/* YÜ : BU KISIMLAR KULLANILMAYANLAR*/
+
+
+// import { drivers } from "../data/drivers";
+// import { routess } from "../data/routess"; // Import the new routess data
+// import EnergyPredictor from "../components/test";
+// import IconButton from '@mui/material/IconButton';
+// import CloseIcon from '@mui/icons-material/Close';
+
+/* YÜ : BU KISIMI İNCELEYİN, BURASI DİĞER DOSYALARDA DA TANIMLI, GEREKSİZSE SİLEBİLİRSİNİZ. */ 
+// YÜ : TASK COMPLETION CHART NEREDE KULLANILIYOR BUNA DİKKAT EDİN 
 // TaskCompletionChart Component Definition
-const TaskCompletionChart = ({ routes }) => {
-  if (!routes || routes.length === 0) {
-    console.error("TaskCompletionChart: routes prop is undefined or empty");
-    return <p>Veri bulunamadı</p>;
-  }
-  const data = routes.map((route) => {
-  const taskList = route.tasks || []; // fallback boş array
-  const totalTasks = taskList.length;
-  const completedTasks = taskList.filter((task) => task.status === "completed").length;
-  const completionRate = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
-  return { name: route.name || "Bilinmeyen Rota", completion: completionRate };
-});
+// const TaskCompletionChart = ({ routes }) => {
+//   if (!routes || routes.length === 0) {
+//     console.error("TaskCompletionChart: routes prop is undefined or empty");
+//     return <p>Veri bulunamadı</p>;
+//   }
+//   const data = routes.map((route) => {
+//   const taskList = route.tasks || []; // fallback boş array
+//   const totalTasks = taskList.length;
+//   const completedTasks = taskList.filter((task) => task.status === "completed").length;
+//   const completionRate = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+//   return { name: route.name || "Bilinmeyen Rota", completion: completionRate };
+// });
 
 
-  // Create simple bar chart visualization
-  return (
-    <div style={{ padding: "10px" }}>
-      <h3>Görev Tamamlanma Oranları</h3>
-      {data.map(item => (
-        <div key={item.name} style={{ marginBottom: "15px" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ width: "80px", marginRight: "10px" }}>{item.name}:</div>
-            <div style={{ flex: 1, backgroundColor: "#e0e0e0", height: "24px", borderRadius: "4px", overflow: "hidden" }}>
-              <div 
-                style={{ 
-                  width: `${item.completion}%`, 
-                  height: "100%", 
-                  backgroundColor: item.completion > 75 ? "#4caf50" : item.completion > 50 ? "#ff9800" : "#f44336",
-                  transition: "width 0.5s ease-in-out"
-                }}
-              />
-            </div>
-            <div style={{ marginLeft: "10px", width: "60px", textAlign: "right" }}>
-              {item.completion.toFixed(1)}%
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+//   // Create simple bar chart visualization
+//   return (
+//     <div style={{ padding: "10px" }}>
+//       <h3>Görev Tamamlanma Oranları</h3>
+//       {data.map(item => (
+//         <div key={item.name} style={{ marginBottom: "15px" }}>
+//           <div style={{ display: "flex", alignItems: "center" }}>
+//             <div style={{ width: "80px", marginRight: "10px" }}>{item.name}:</div>
+//             <div style={{ flex: 1, backgroundColor: "#e0e0e0", height: "24px", borderRadius: "4px", overflow: "hidden" }}>
+//               <div 
+//                 style={{ 
+//                   width: `${item.completion}%`, 
+//                   height: "100%", 
+//                   backgroundColor: item.completion > 75 ? "#4caf50" : item.completion > 50 ? "#ff9800" : "#f44336",
+//                   transition: "width 0.5s ease-in-out"
+//                 }}
+//               />
+//             </div>
+//             <div style={{ marginLeft: "10px", width: "60px", textAlign: "right" }}>
+//               {item.completion.toFixed(1)}%
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
 
-// New RouteEnergyConsumptionChart Component
-const RouteEnergyConsumptionChart = ({ routeId }) => {
-  // Different energy consumption factors based on route selection
-  const routeEnergyData = {
-    "route1": [
-      { name: "Eğim", value: 35, color: "#4CAF50" },
-      { name: "Segment Uzunluğu", value: 25, color: "#2196F3" },
-      { name: "Ortalama Araç Hızı", value: 20, color: "#FF9800" },
-      { name: "Ortalama İvmelenme", value: 15, color: "#9C27B0" },
-      { name: "Ortalama Total Ağırlık", value: 5, color: "#F44336" }
-    ],
-    "route2": [
-      { name: "Eğim", value: 15, color: "#4CAF50" },
-      { name: "Segment Uzunluğu", value: 40, color: "#2196F3" },
-      { name: "Ortalama Araç Hızı", value: 30, color: "#FF9800" },
-      { name: "Ortalama İvmelenme", value: 10, color: "#9C27B0" },
-      { name: "Ortalama Total Ağırlık", value: 15, color: "#F44336" }
-    ]
-  };
+// // New RouteEnergyConsumptionChart Component
+// const RouteEnergyConsumptionChart = ({ routeId }) => {
+//   // Different energy consumption factors based on route selection
+//   // const routeEnergyData = {
+//   //   "route1": [
+//   //     { name: "Eğim", value: 35, color: "#4CAF50" },
+//   //     { name: "Segment Uzunluğu", value: 25, color: "#2196F3" },
+//   //     { name: "Ortalama Araç Hızı", value: 20, color: "#FF9800" },
+//   //     { name: "Ortalama İvmelenme", value: 15, color: "#9C27B0" },
+//   //     { name: "Ortalama Total Ağırlık", value: 5, color: "#F44336" }
+//   //   ],
+//   //   "route2": [
+//   //     { name: "Eğim", value: 15, color: "#4CAF50" },
+//   //     { name: "Segment Uzunluğu", value: 40, color: "#2196F3" },
+//   //     { name: "Ortalama Araç Hızı", value: 30, color: "#FF9800" },
+//   //     { name: "Ortalama İvmelenme", value: 10, color: "#9C27B0" },
+//   //     { name: "Ortalama Total Ağırlık", value: 15, color: "#F44336" }
+//   //   ]
+//   // };
 
-  const selectedData = routeEnergyData[routeId] || routeEnergyData.route1;
-  const total = selectedData.reduce((sum, item) => sum + item.value, 0);
+//   const selectedData = routeEnergyData[routeId] || routeEnergyData.route1;
+//   const total = selectedData.reduce((sum, item) => sum + item.value, 0);
   
-  // Calculate segments for pie chart
-  const segments = [];
-  let cumulativeAngle = 0;
+//   // Calculate segments for pie chart
+//   const segments = [];
+//   let cumulativeAngle = 0;
 
-  selectedData.forEach(item => {
-    const percentage = (item.value / total) * 100;
-    const angle = (percentage / 100) * 360;
+//   selectedData.forEach(item => {
+//     const percentage = (item.value / total) * 100;
+//     const angle = (percentage / 100) * 360;
     
-    segments.push({
-      ...item,
-      percentage,
-      startAngle: cumulativeAngle,
-      endAngle: cumulativeAngle + angle
-    });
+//     segments.push({
+//       ...item,
+//       percentage,
+//       startAngle: cumulativeAngle,
+//       endAngle: cumulativeAngle + angle
+//     });
     
-    cumulativeAngle += angle;
-  });
+//     cumulativeAngle += angle;
+//   });
 
-  return (
-    <div style={{ padding: "10px" }}>
-      <h3>Enerji Tüketimini Etkileyen Faktörler</h3>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ position: "relative", width: "150px", height: "150px" }}>
-          {segments.map((segment, index) => {
-            const startAngle = segment.startAngle * Math.PI / 180;
-            const endAngle = segment.endAngle * Math.PI / 180;
+//   return (
+//     <div style={{ padding: "10px" }}>
+//       <h3>Enerji Tüketimini Etkileyen Faktörler</h3>
+//       <div style={{ display: "flex", justifyContent: "space-between" }}>
+//         <div style={{ position: "relative", width: "150px", height: "150px" }}>
+//           {segments.map((segment, index) => {
+//             const startAngle = segment.startAngle * Math.PI / 180;
+//             const endAngle = segment.endAngle * Math.PI / 180;
             
-            // Calculate path for pie segment
-            const x1 = 75 + 75 * Math.cos(startAngle);
-            const y1 = 75 + 75 * Math.sin(startAngle);
-            const x2 = 75 + 75 * Math.cos(endAngle);
-            const y2 = 75 + 75 * Math.sin(endAngle);
+//             // Calculate path for pie segment
+//             const x1 = 75 + 75 * Math.cos(startAngle);
+//             const y1 = 75 + 75 * Math.sin(startAngle);
+//             const x2 = 75 + 75 * Math.cos(endAngle);
+//             const y2 = 75 + 75 * Math.sin(endAngle);
             
-            const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
+//             const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
             
-            const pathData = [
-              `M 75 75`,
-              `L ${x1} ${y1}`,
-              `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-              `Z`
-            ].join(' ');
+//             const pathData = [
+//               `M 75 75`,
+//               `L ${x1} ${y1}`,
+//               `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+//               `Z`
+//             ].join(' ');
             
-            return (
-              <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-                <path d={pathData} fill={segment.color} />
-              </svg>
-            );
-          })}
-        </div>
+//             return (
+//               <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+//                 <path d={pathData} fill={segment.color} />
+//               </svg>
+//             );
+//           })}
+//         </div>
         
-        <div style={{ marginLeft: "20px", flex: 1 }}>
-          {segments.map((item, index) => (
-            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <div 
-                style={{ 
-                  width: "14px", 
-                  height: "14px", 
-                  backgroundColor: item.color, 
-                  marginRight: "8px",
-                  borderRadius: "2px"
-                }}
-              />
-              <div style={{ marginRight: "8px" }}>{item.name}:</div>
-              <div style={{ fontWeight: "bold" }}>
-                {item.percentage.toFixed(1)}% ({item.value})
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+//         <div style={{ marginLeft: "20px", flex: 1 }}>
+//           {segments.map((item, index) => (
+//             <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+//               <div 
+//                 style={{ 
+//                   width: "14px", 
+//                   height: "14px", 
+//                   backgroundColor: item.color, 
+//                   marginRight: "8px",
+//                   borderRadius: "2px"
+//                 }}
+//               />
+//               <div style={{ marginRight: "8px" }}>{item.name}:</div>
+//               <div style={{ fontWeight: "bold" }}>
+//                 {item.percentage.toFixed(1)}% ({item.value})
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
       
-      <div style={{ marginTop: "20px" }}>
-        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>Enerji Tüketimi Özeti:</div>
-        <div>Ortalama Enerji Tüketimi: {routeId === "route1" ? "0.25 kWh/km" : "0.31 kWh/km"}</div>
-        <div>Toplam Tahmini Enerji: {routeId === "route1" ? "18.7 kWh" : "24.2 kWh"}</div>
-        <div>Menzil Etkisi: {routeId === "route1" ? "-15%" : "-22%"}</div>
-      </div>
-    </div>
-  );
-};
+//       <div style={{ marginTop: "20px" }}>
+//         <div style={{ fontWeight: "bold", marginBottom: "8px" }}>Enerji Tüketimi Özeti:</div>
+//         <div>Ortalama Enerji Tüketimi: {routeId === "route1" ? "0.25 kWh/km" : "0.31 kWh/km"}</div>
+//         <div>Toplam Tahmini Enerji: {routeId === "route1" ? "18.7 kWh" : "24.2 kWh"}</div>
+//         <div>Menzil Etkisi: {routeId === "route1" ? "-15%" : "-22%"}</div>
+//       </div>
+//     </div>
+//   );
+// };
 
-// New OrderStatusPieChart Component Definition
-const OrderStatusPieChart = ({ orders }) => {
-  if (!orders || orders.length === 0) {
-    return <p>Sipariş verisi bulunamadı</p>;
-  }
+// // New OrderStatusPieChart Component Definition
+// const OrderStatusPieChart = ({ orders }) => {
+//   if (!orders || orders.length === 0) {
+//     return <p>Sipariş verisi bulunamadı</p>;
+//   }
 
-  // Define status categories
-  const statusCategories = {
-    delivered: {
-      label: "Teslim Edildi",
-      color: "#4CAF50",  // Green
-      count: 0
-    },
-    inTransit: {
-      label: "Yolda",
-      color: "#2196F3",  // Blue
-      count: 0
-    },
-    canceled: {
-      label: "İptal Edildi",
-      color: "#F44336",  // Red
-      count: 0
-    },
-    pending: {
-      label: "Beklemede",
-      color: "#FF9800",  // Orange
-      count: 0
-    },
-    unassigned: {
-      label: "İptal edildi",
-      color: "#FA1B1B",  // Gray
-      count: 0
-    }
-  };
+//   // Define status categories
+//   const statusCategories = {
+//     delivered: {
+//       label: "Teslim Edildi",
+//       color: "#4CAF50",  // Green
+//       count: 0
+//     },
+//     inTransit: {
+//       label: "Yolda",
+//       color: "#2196F3",  // Blue
+//       count: 0
+//     },
+//     canceled: {
+//       label: "İptal Edildi",
+//       color: "#F44336",  // Red
+//       count: 0
+//     },
+//     pending: {
+//       label: "Beklemede",
+//       color: "#FF9800",  // Orange
+//       count: 0
+//     },
+//     unassigned: {
+//       label: "İptal edildi",
+//       color: "#FA1B1B",  // Gray
+//       count: 0
+//     }
+//   };
 
 
-  // Count orders by status (this would use real data in production)
-  // For demo purposes, we'll generate random counts
-  const totalOrders = orders.length;
+//   // Count orders by status (this would use real data in production)
+//   // For demo purposes, we'll generate random counts
+//   const totalOrders = orders.length;
   
-  // Using a fixed distribution for demonstration
-  statusCategories.delivered.count = Math.floor(totalOrders * 0.65);
-    statusCategories.inTransit.count = Math.floor(totalOrders * 0.15);
-    statusCategories.canceled.count = Math.floor(totalOrders * 0.08);
-    statusCategories.pending.count = Math.floor(totalOrders * 0.07);
-    statusCategories.unassigned.count = totalOrders - statusCategories.delivered.count - 
-                                       statusCategories.inTransit.count - 
-                                       statusCategories.canceled.count - 
-                                       statusCategories.pending.count;
+//   // Using a fixed distribution for demonstration
+//   statusCategories.delivered.count = Math.floor(totalOrders * 0.65);
+//     statusCategories.inTransit.count = Math.floor(totalOrders * 0.15);
+//     statusCategories.canceled.count = Math.floor(totalOrders * 0.08);
+//     statusCategories.pending.count = Math.floor(totalOrders * 0.07);
+//     statusCategories.unassigned.count = totalOrders - statusCategories.delivered.count - 
+//                                        statusCategories.inTransit.count - 
+//                                        statusCategories.canceled.count - 
+//                                        statusCategories.pending.count;
   
-    // Prepare data for pie chart
-    const statusData = Object.values(statusCategories).filter(category => category.count > 0);
-    const total = statusData.reduce((sum, item) => sum + item.count, 0);
+//     // Prepare data for pie chart
+//     const statusData = Object.values(statusCategories).filter(category => category.count > 0);
+//     const total = statusData.reduce((sum, item) => sum + item.count, 0);
   
-    // Calculate percentages and angles
-    const segments = [];
-    let cumulativeAngle = 0;
+//     // Calculate percentages and angles
+//     const segments = [];
+//     let cumulativeAngle = 0;
   
-    statusData.forEach(item => {
-      const percentage = (item.count / total) * 100;
-      const angle = (percentage / 100) * 360;
+//     statusData.forEach(item => {
+//       const percentage = (item.count / total) * 100;
+//       const angle = (percentage / 100) * 360;
       
-      segments.push({
-        ...item,
-        percentage,
-        startAngle: cumulativeAngle,
-        endAngle: cumulativeAngle + angle
-      });
+//       segments.push({
+//         ...item,
+//         percentage,
+//         startAngle: cumulativeAngle,
+//         endAngle: cumulativeAngle + angle
+//       });
       
-      cumulativeAngle += angle;
-    });
+//       cumulativeAngle += angle;
+//     });
   
-    // Render the pie chart
-    return (
-      <div style={{ padding: "10px" }}>
-        <h3>Sipariş Durumu Dağılımı</h3>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ position: "relative", width: "150px", height: "150px" }}>
-            {segments.map((segment, index) => {
-              const startAngle = segment.startAngle * Math.PI / 180;
-              const endAngle = segment.endAngle * Math.PI / 180;
+//     // Render the pie chart
+//     return (
+//       <div style={{ padding: "10px" }}>
+//         <h3>Sipariş Durumu Dağılımı</h3>
+//         <div style={{ display: "flex", justifyContent: "space-between" }}>
+//           <div style={{ position: "relative", width: "150px", height: "150px" }}>
+//             {segments.map((segment, index) => {
+//               const startAngle = segment.startAngle * Math.PI / 180;
+//               const endAngle = segment.endAngle * Math.PI / 180;
               
-              // Calculate path for pie segment
-              const x1 = 75 + 75 * Math.cos(startAngle);
-              const y1 = 75 + 75 * Math.sin(startAngle);
-              const x2 = 75 + 75 * Math.cos(endAngle);
-              const y2 = 75 + 75 * Math.sin(endAngle);
+//               // Calculate path for pie segment
+//               const x1 = 75 + 75 * Math.cos(startAngle);
+//               const y1 = 75 + 75 * Math.sin(startAngle);
+//               const x2 = 75 + 75 * Math.cos(endAngle);
+//               const y2 = 75 + 75 * Math.sin(endAngle);
               
-              const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
+//               const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
               
-              const pathData = [
-                `M 75 75`,
-                `L ${x1} ${y1}`,
-                `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                `Z`
-              ].join(' ');
+//               const pathData = [
+//                 `M 75 75`,
+//                 `L ${x1} ${y1}`,
+//                 `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+//                 `Z`
+//               ].join(' ');
               
-              return (
-                <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-                  <path d={pathData} fill={segment.color} />
-                </svg>
-              );
-            })}
-          </div>
+//               return (
+//                 <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+//                   <path d={pathData} fill={segment.color} />
+//                 </svg>
+//               );
+//             })}
+//           </div>
           
-          <div style={{ marginLeft: "20px", flex: 1 }}>
-            {segments.map((item, index) => (
-              <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                <div 
-                  style={{ 
-                    width: "14px", 
-                    height: "14px", 
-                    backgroundColor: item.color, 
-                    marginRight: "8px",
-                    borderRadius: "2px"
-                  }}
-                />
-                <div style={{ marginRight: "8px" }}>{item.label}:</div>
-                <div style={{ fontWeight: "bold" }}>
-                  {item.percentage.toFixed(1)}% ({item.count})
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-const handleButtonClick = () => {
-  // Handle button click event
-}
+//           <div style={{ marginLeft: "20px", flex: 1 }}>
+//             {segments.map((item, index) => (
+//               <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+//                 <div 
+//                   style={{ 
+//                     width: "14px", 
+//                     height: "14px", 
+//                     backgroundColor: item.color, 
+//                     marginRight: "8px",
+//                     borderRadius: "2px"
+//                   }}
+//                 />
+//                 <div style={{ marginRight: "8px" }}>{item.label}:</div>
+//                 <div style={{ fontWeight: "bold" }}>
+//                   {item.percentage.toFixed(1)}% ({item.count})
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   };
 
 
 
 // New OrderStatusPieChart Component Definition
   export default function FleetMonitoring() {
     const [alerts, setAlerts] = useState([]);
-    const [isPerformanceMode, setIsPerformanceMode] = useState(false); // **Performance toggle için state**
+    const [isPerformanceMode] = useState(false); // **Performance toggle için state**
     const [activeTab, setActiveTab] = useState("Rota"); // Başlangıçta Rota sekmesi aktif
-    const [selectedId, setSelectedId] = useState(null);
+    // const [selectedId, setSelectedId] = useState(null);
     const [showInfo, setShowInfo] = useState(true); // Info göster/gizle
     const [showWarning, setShowWarning] = useState(true); // Warning göster/gizle
     const [routeOptions, setRouteOptions] = useState([]);
     const [performanceData, setPerformanceData] = useState([]);
-    const [selectedAlert, setSelectedAlert] = useState(null);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [setSelectedAlert] = useState(null);
+    // const [openDialog, setOpenDialog] = useState(false);
     const [selectedRoute, setSelectedRoute] = useState("route1"); // Default route selection
     const [isSimulationRunning, setIsSimulationRunning] = useState(false);
-    const [simulationStatus, setSimulationStatus] = useState("");
-    // const [filteredData, setFilteredData] = useState([]);
+    const [setSimulationStatus] = useState("");
+    const [filteredData, setFilteredData] = useState([]);
     const [showDetailDialog, setShowDetailDialog] = useState(false);
     const [shapContributions, setShapContributions] = useState([]);
     const [shapLabels, setShapLabels] = useState([]);
     const [shapPrediction, setShapPrediction] = useState(null);
     
-      
     useEffect(() => {
-      fetch(API_URL)
+      // Uyarıları çek (bir kez)
+      fetch(API_ALERTS)
         .then((res) => res.json())
         .then((data) => setAlerts(data))
-        .catch((err) => console.error(err));
-  
-      
-  
-      fetchData();
-      const interval = setInterval(fetchData, 5000);
-      return () => clearInterval(interval);
+        .catch((err) => console.error("Uyarı verisi alınamadı:", err));
+    }, []); // sadece component mount edildiğinde çalışır
+    
+    useEffect(() => {
+      // Performans verilerini çek
+      const fetchData = () => {
+        fetch(API_PERFORMANCE)
+          .then((res) => res.json())
+          .then((data) => {
+            setPerformanceData(data);
+            const uniqueRoutes = Array.from(
+              new Set(data.map((item) => item.route_id))
+            );
+            setRouteOptions(uniqueRoutes);
+            if (!selectedRoute && uniqueRoutes.length > 0) {
+              setSelectedRoute(uniqueRoutes[0]);
+            }
+          })
+          .catch((err) => console.error("Performans verisi alınamadı:", err));
+      };
+    
+      fetchData(); // İlk veri çekimi
+      const interval = setInterval(fetchData, 5000); // 5 saniyede bir tekrar
+    
+      return () => clearInterval(interval); // temizleme
     }, [selectedRoute]);
-
-  useEffect(() => {
-    fetch(API_ALERTS)
-      .then((res) => res.json())
-      .then((data) => setAlerts(data))
-      .catch((err) => console.error(err));
-
-    const fetchData = () => {
-      fetch(API_PERFORMANCE)
-        .then((res) => res.json())
-        .then((data) => {
-          setPerformanceData(data);
-          const uniqueRoutes = Array.from(new Set(data.map(item => item.route_id)));
-          setRouteOptions(uniqueRoutes);
-          if (!selectedRoute && uniqueRoutes.length > 0) {
-            setSelectedRoute(uniqueRoutes[0]);
-          }
-        })
-        .catch((err) => console.error("Performans verisi alınamadı:", err));
-    };
+    
 
     // **MongoDB'den Uyarıları Çek**
     // useEffect(() => {
@@ -429,56 +432,6 @@ const handleButtonClick = () => {
     useEffect(() => {
       fetchSHAP();
     }, [selectedRoute, performanceData]);
-
-
-    // **Uyarıyı Çöz**
-    const handleResolve = async (id) => {
-      try {
-        const response = await fetch(`${API_URL}/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ resolved: true }),
-        });
-  
-        if (!response.ok) throw new Error("Sunucu hatası");
-  
-        await response.json();
-  
-        // Uyarıyı "Success" yapma, sadece resolved: true olarak işaretle
-        setAlerts((prevAlerts) =>
-          prevAlerts.map((alert) =>
-            alert._id === id ? { ...alert, resolved: true } : alert
-          )
-        );
-      } catch (error) {
-        console.error("Çözümleme hatası:", error);
-      }
-    };
-  
-    // **Uyarıyı Sil**
-    const handleDelete = async (id) => {
-      try {
-        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  
-        if (!response.ok) {
-          throw new Error(`Sunucu hatası: ${response.status}`);
-        }
-  
-        setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert._id !== id));
-        setSelectedAlert(null);
-      } catch (error) {
-        console.error("Silme hatası:", error);
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
-  }, [selectedRoute]);
-
-  const filteredData = performanceData.filter(
-    (item) => item.route_id === selectedRoute
-  );
 
   const handleResolve = async (id) => {
     try {
@@ -557,31 +510,31 @@ const handleButtonClick = () => {
     scores.weight_kg += Number(item.weight_kg) / 1000 || 0;
   });
 
-  const total = Object.values(scores).reduce((sum, val) => sum + val, 0);
+  // const total = Object.values(scores).reduce((sum, val) => sum + val, 0);
 
-  const pieData = [
-    { name: "Eğim", value: scores.gradient * 10, color: "#4CAF50" },
-    {
-      name: "Segment Uzunluğu",
-      value: scores.segmentLength * 10,
-      color: "#2196F3",
-    },
-    {
-      name: "Ortalama Araç Hızı",
-      value: scores.speed_kmh * 10,
-      color: "#FF9800",
-    },
-    {
-      name: "Ortalama İvmelenme",
-      value: scores.acceleration,
-      color: "#9C27B0",
-    },
-    {
-      name: "Ortalama Total Ağırlık",
-      value: scores.weight_kg * 10,
-      color: "#F44336",
-    },
-  ];
+  // const pieData = [
+  //   { name: "Eğim", value: scores.gradient * 10, color: "#4CAF50" },
+  //   {
+  //     name: "Segment Uzunluğu",
+  //     value: scores.segmentLength * 10,
+  //     color: "#2196F3",
+  //   },
+  //   {
+  //     name: "Ortalama Araç Hızı",
+  //     value: scores.speed_kmh * 10,
+  //     color: "#FF9800",
+  //   },
+  //   {
+  //     name: "Ortalama İvmelenme",
+  //     value: scores.acceleration,
+  //     color: "#9C27B0",
+  //   },
+  //   {
+  //     name: "Ortalama Total Ağırlık",
+  //     value: scores.weight_kg * 10,
+  //     color: "#F44336",
+  //   },
+  // ];
 
   const plannedRoutes =
     routes["Simulated Annealing"]?.map((r) => ({ positions: r.path || [] })) ||
@@ -615,26 +568,26 @@ const handleButtonClick = () => {
   };
 
   // **Performans izleme**
-  const renderPerformanceContent = () => {
-    switch (activeTab) {
-      case "Rota":
-        return (
-          <div style={{ height: "200px", backgroundColor: "#e0f7fa", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
-            {/* Route chart */}
-            <TaskCompletionChart routes={routes["Simulated Annealing"] || []} />
-          </div>
-        );
-      case "Sipariş":
-        return (
-          <div style={{ height: "200px", backgroundColor: "#fce4ec", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
-            {/* Order status pie chart */}
-            <OrderStatusPieChart orders={orders} />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  // const renderPerformanceContent = () => {
+  //   switch (activeTab) {
+  //     case "Rota":
+  //       return (
+  //         <div style={{ height: "200px", backgroundColor: "#e0f7fa", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
+  //           {/* Route chart */}
+  //           <TaskCompletionChart routes={routes["Simulated Annealing"] || []} />
+  //         </div>
+  //       );
+  //     case "Sipariş":
+  //       return (
+  //         <div style={{ height: "200px", backgroundColor: "#fce4ec", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
+  //           {/* Order status pie chart */}
+  //           <OrderStatusPieChart orders={orders} />
+  //         </div>
+  //       );
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   const routeColors = {
     "Simulated Annealing": "blue",
@@ -643,22 +596,22 @@ const handleButtonClick = () => {
     "Completed": "green",
   };
 
-  const handleSelect = (id) => {
-    setSelectedId(id);
-  };
+  // const handleSelect = (id) => {
+  //   setSelectedId(id);
+  // };
 
-  const getCardStyle = (id) => ({
-    padding: "10px",
-    margin: "10px 0",
-    backgroundColor: selectedId === id ? "#007BFF" : "#f0f0f0",
-    color: selectedId === id ? "#fff" : "#000",
-    borderRadius: "8px",
-    cursor: "pointer",
-  });
+  // const getCardStyle = (id) => ({
+  //   padding: "10px",
+  //   margin: "10px 0",
+  //   backgroundColor: selectedId === id ? "#007BFF" : "#f0f0f0",
+  //   color: selectedId === id ? "#fff" : "#000",
+  //   borderRadius: "8px",
+  //   cursor: "pointer",
+  // });
 
-  const handleRouteChange = (event) => {
-    setSelectedRoute(event.target.value);
-  };
+  // const handleRouteChange = (event) => {
+  //   setSelectedRoute(event.target.value);
+  // };
 
   
 
@@ -1137,4 +1090,3 @@ const handleButtonClick = () => {
         </div>
       </div>
     );}
-    

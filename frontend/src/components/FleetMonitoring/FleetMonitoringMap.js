@@ -13,7 +13,7 @@ import "leaflet/dist/leaflet.css";
 import { LeafletTrackingMarker } from "react-leaflet-tracking-marker";
 import "../../assets/styles/global.css";
 
-import FMRouteDetailPanel from "./FM_RouteDetailPanel.js"; 
+// import FMRouteDetailPanel from "./FM_RouteDetailPanel.js"; 
 
 import stationIconImg from "../../assets/icons/station.png";
 import orderIconImg from "../../assets/icons/order.png";
@@ -22,9 +22,9 @@ import orderdelivered from "../../assets/icons/order3.png";
 import orderontheway from "../../assets/icons/order4.png";
 import orderrequested from "../../assets/icons/order7.png";
 import truck from "../../assets/icons/car.png";
-import check from "../../assets/icons/check.png";
-import cancel from "../../assets/icons/cancel.png";
-import waiting from "../../assets/icons/waiting.png";
+// import check from "../../assets/icons/check.png";
+// import cancel from "../../assets/icons/cancel.png";
+// import waiting from "../../assets/icons/waiting.png";
 import stationRed from "../../assets/icons/station_red.png";
 import "../../assets/styles/RouteInfoPanel.css";
 import FM_RouteDetailPanel from "./FM_RouteDetailPanel.js";
@@ -39,8 +39,8 @@ export default function FleetMonitoringMap({
   height = 900,
 }) {
   const [selectedRoute, setSelectedRoute] = useState(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isRouteVisible, setIsRouteVisible] = useState(false);
+  const [setIsPanelOpen] = useState(false);
+  const [setIsRouteVisible] = useState(false);
   const [vehiclePositions, setVehiclePositions] = useState({});
   const truckIcon = new L.Icon({
     iconUrl: truck, // truck.png'yi doğru yolda olduğundan emin olun
@@ -116,39 +116,39 @@ export default function FleetMonitoringMap({
     setIsRouteVisible(true);
   };
 
-  const handleStopContainerClose = () => {
-    setIsRouteVisible(false);
-  };
+  // const handleStopContainerClose = () => {
+  //   setIsRouteVisible(false);
+  // };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "DELIVERED":
-        return <img src={check} alt="Delivered" style={{ width: 20, height: 20 }} />;
-      case "ON THE WAY":
-        return <img src={waiting} alt="Now" style={{ width: 20, height: 20 }} />;
-      case "CANCELLED":
-        return <img src={cancel} alt="Cancelled" style={{ width: 20, height: 20 }} />;
-      case "NOW":
-        return <img src={truck} alt="Now" style={{ width: 20, height: 20 }} />;
-      default:
-        return null;
-    }
-  };
+  // const getStatusIcon = (status) => {
+  //   switch (status) {
+  //     case "DELIVERED":
+  //       return <img src={check} alt="Delivered" style={{ width: 20, height: 20 }} />;
+  //     case "ON THE WAY":
+  //       return <img src={waiting} alt="Now" style={{ width: 20, height: 20 }} />;
+  //     case "CANCELLED":
+  //       return <img src={cancel} alt="Cancelled" style={{ width: 20, height: 20 }} />;
+  //     case "NOW":
+  //       return <img src={truck} alt="Now" style={{ width: 20, height: 20 }} />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
-  const getBorderColor = (status) => {
-    switch (status) {
-      case "DELIVERED":
-        return "green";
-      case "NOW":
-        return "orange";
-      case "ON THE WAY":
-        return "orange";
-      case "CANCELLED":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
+  // const getBorderColor = (status) => {
+  //   switch (status) {
+  //     case "DELIVERED":
+  //       return "green";
+  //     case "NOW":
+  //       return "orange";
+  //     case "ON THE WAY":
+  //       return "orange";
+  //     case "CANCELLED":
+  //       return "red";
+  //     default:
+  //       return "gray";
+  //   }
+  // };
 
   return (
     <div>
@@ -355,3 +355,4 @@ export default function FleetMonitoringMap({
     </div>
   );
 }
+ 

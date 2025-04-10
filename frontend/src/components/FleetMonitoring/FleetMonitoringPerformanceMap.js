@@ -13,20 +13,19 @@ import ordercanceled from "../../assets/icons/order2.png";
 import orderdelivered from "../../assets/icons/order3.png";
 import orderontheway from "../../assets/icons/order4.png";
 import orderrequested from "../../assets/icons/order7.png";
-import truck from "../../assets/icons/vehicle.png";
-import check from "../../assets/icons/check.png";
-import cancel from "../../assets/icons/cancel.png";
-import waiting from "../../assets/icons/waiting.png";
+// import truck from "../../assets/icons/vehicle.png";
+// import check from "../../assets/icons/check.png";
+// import cancel from "../../assets/icons/cancel.png";
+// import waiting from "../../assets/icons/waiting.png";
 import stationRed from "../../assets/icons/station_red.png";
-import stopsData from "../../data/stops.js";
 import "../../assets/styles/RouteInfoPanel.css";
 import RouteDetailPanel from "./FM_RouteDetailPanel.js"; 
 
 
 export default function FleetMonitoringPerformanceMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
   const [selectedRoute, setSelectedRoute] = useState(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [isRouteVisible, setIsRouteVisible] = useState(false); // Yeni state
+  const [setIsPanelOpen] = useState(false);
+  const [setIsRouteVisible] = useState(false); // Yeni state
 
   const handleRouteClick = (route, vehicle) => {
     setSelectedRoute({
@@ -37,9 +36,9 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
     setIsRouteVisible(true);  // Rota tıklandığında görünür yapıyoruz
   };
   
-  const handleStopContainerClose = () => {
-    setIsRouteVisible(false);  // Stop container'ını gizlemek için state'i false yapıyoruz
-  };
+  // const handleStopContainerClose = () => {
+  //   setIsRouteVisible(false);  // Stop container'ını gizlemek için state'i false yapıyoruz
+  // };
   
   const calculateBearing = (start, end) => {
     if (!start || !end) return 0;
@@ -67,35 +66,35 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
       className: "arrow-icon",
     });
   };
-    const getStatusIcon = (status) => {
-    if (status === "DELIVERED") {
-      return <img src={check} alt="Delivered" style={{ width: '20px', height: '20px' }} />;
-    } else if (status === "ON THE WAY") {
-      return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    }else if (status === "CANCELLED") {
-      return <img src={cancel} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    } else if (status === "NOW") {
-      return <img src={truck} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    } else if (status === "ON THE WAY") {
-      return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
-    }
-    return null; // Default case for when the status does not match any condition
-  };
+  //   const getStatusIcon = (status) => {
+  //   if (status === "DELIVERED") {
+  //     return <img src={check} alt="Delivered" style={{ width: '20px', height: '20px' }} />;
+  //   } else if (status === "ON THE WAY") {
+  //     return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
+  //   }else if (status === "CANCELLED") {
+  //     return <img src={cancel} alt="Now" style={{ width: '20px', height: '20px' }} />;
+  //   } else if (status === "NOW") {
+  //     return <img src={truck} alt="Now" style={{ width: '20px', height: '20px' }} />;
+  //   } else if (status === "ON THE WAY") {
+  //     return <img src={waiting} alt="Now" style={{ width: '20px', height: '20px' }} />;
+  //   }
+  //   return null; // Default case for when the status does not match any condition
+  // };
 
-  const getBorderColor = (status) => {
-    switch (status) {
-      case "DELIVERED":
-        return "green";  // Delivered status için yeşil
-      case "NOW":
-        return "Orange";  // Now status için mavi
-      case "ON THE WAY":
-        return "orange";  // On the way status için turuncu
-      case "CANCELLED":
-        return "red";  // Cancelled status için kırmızı
-      default:
-        return "gray";  // Diğer tüm durumlar için gri
-    }
-  };
+  // const getBorderColor = (status) => {
+  //   switch (status) {
+  //     case "DELIVERED":
+  //       return "green";  // Delivered status için yeşil
+  //     case "NOW":
+  //       return "Orange";  // Now status için mavi
+  //     case "ON THE WAY":
+  //       return "orange";  // On the way status için turuncu
+  //     case "CANCELLED":
+  //       return "red";  // Cancelled status için kırmızı
+  //     default:
+  //       return "gray";  // Diğer tüm durumlar için gri
+  //   }
+  // };
 
   return (
     <div>
@@ -131,12 +130,10 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
           <LayerGroup>
             {chargingStations.map((station) => {
               let iconUrl = stationIconImg; // Default icon
-              let iconColor = "green"; // Default color for available stations
               
               // Change icon and color based on the station's status
               if (station.status === "occupied") {
                 iconUrl = stationRed;
-                iconColor = "red"; // Color for occupied stations
               }
 
               // Use the color/icon in the marker

@@ -13,8 +13,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { keyframes, styled } from "@mui/system";
-import axios from "axios";
-import { loadTaskData } from "../../services/taskService";
 
 const statusColors = {
   Requested: "#FFC107",
@@ -40,7 +38,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
   const [customers, setCustomers] = useState([]);
   const [originalCustomers, setOriginalCustomers] = useState([]);
   const [isNewDataAdded, setIsNewDataAdded] = useState(false);
-  const [downloadedFiles, setDownloadedFiles] = useState([]);
+  const [downloadedFiles] = useState([]);
 
   useEffect(() => {
     if (initialCustomers && initialCustomers.length > 0) {
@@ -241,7 +239,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
   // ESOGU Task Selection modal state
   const [openEsoguModal, setOpenEsoguModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [taskError, setTaskError] = useState('');
 
   const handleOpenEsoguModal = () => setOpenEsoguModal(true);

@@ -18,11 +18,7 @@ import RouteDetailPanel from "./RouteDetailPanel";
 import axios from "axios";
 import { parseRouteXML } from '../utils/xmlParser';
 import RouteAnalysisDashboard from './RouteOptimization/RouteAnalysisDashboard';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
+
 
 export default function Layout({
     customers,
@@ -54,18 +50,17 @@ export default function Layout({
     const [clearSuccess, setClearSuccess] = useState(false);
     const [route4VehicleUrl, setRoute4VehicleUrl] = useState(null);
     const [viewMode, setViewMode] = useState("normal"); // normal veya route4vehicle
-    const [responseFiles, setResponseFiles] = useState([]);
     const [route4PlanUrl, setRoute4PlanUrl] = useState(null);
     const [routePlanData, setRoutePlanData] = useState(null);
     const [loadingPlanData, setLoadingPlanData] = useState(false);
     const [planDataError, setPlanDataError] = useState(null);
     // State for scenario selection
     const [availableScenarios, setAvailableScenarios] = useState([]);
-    const [selectedScenario, setSelectedScenario] = useState(null); // Add this line to fix the error
+    const [setSelectedScenario] = useState(null); // Add this line to fix the error
     const [processingScenario, setProcessingScenario] = useState(null);
     const [processedScenarios, setProcessedScenarios] = useState([]);
     const [scenarioProgress, setScenarioProgress] = useState({ current: 0, total: 0 });
-    const [showScenarioSelector, setShowScenarioSelector] = useState(false);
+    const [setShowScenarioSelector] = useState(false);
     // ESOGU task and route data persistence
     useEffect(() => {
 
@@ -172,7 +167,7 @@ export default function Layout({
         if (route4VehicleUrl || route4PlanUrl) {
             checkFileExistence();
         }
-    }, []);
+    }, [route4PlanUrl, route4VehicleUrl]);
 
     // Load available scenarios from localStorage
     useEffect(() => {
@@ -199,14 +194,7 @@ export default function Layout({
         };
         
         loadScenarios();
-    }, []);
-    
-    // Handle scenario selection change
-    const handleScenarioChange = (event) => {
-        const scenarioId = event.target.value;
-        const selected = availableScenarios.find(s => s.id.toString() === scenarioId.toString());
-        setSelectedScenario(selected);
-    };
+    }, [setSelectedScenario, setShowScenarioSelector]);
     
     // Get the endpoint URL based on algorithm
     const getAlgorithmEndpoint = (algorithm) => {
