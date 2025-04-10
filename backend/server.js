@@ -254,6 +254,7 @@ app.get('/get-route4vehicle', (req, res) => {
   }
 });
 
+
 // MongoDB Atlas bağlantısı
 const mongoURI = "mongodb+srv://burak2kanber:ploW4nuSpzwXakhM@cluster0.on8m7.mongodb.net/RouteManagementDB?retryWrites=true&w=majority";
 
@@ -264,6 +265,42 @@ mongoose.connect(mongoURI, {
 .then(() => console.log("MongoDB Atlas bağlantısı başarılı!"))
 .catch(err => console.error("MongoDB bağlantı hatası:", err));
 
+// MongoDB Models
+const performanceSchema = new mongoose.Schema({
+  route_id: String,
+  vehicle_id: String,
+  timestamp: Date,
+  location: { lat: Number, lon: Number },
+  elevation: Number,
+  speed_kmh: Number,
+  gradient: Number,
+  direction: Number,
+  distance_traveled_km: Number,
+  status: String,
+});
+const PerformanceData = mongoose.model("PerformanceData", performanceSchema, "anlikPerformansRota");
+// API Routes
+app.get("/api/performance", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const performanceData = await PerformanceData.find().sort({ timestamp: -1 }).limit(limit);
+    res.json(performanceData);
+  } catch (error) {
+    res.status(500).json({ error: "Veriler alınırken hata oluştu." });
+  }
+});
+
+app.get("/api/performance/:routeId", async (req, res) => {
+  try {
+    const { routeId } = req.params;
+    const limit = parseInt(req.query.limit) || 10;
+    const performanceData = await PerformanceData.find({ route_id: routeId }).sort({ timestamp: -1 }).limit(limit);
+    res.json(performanceData);
+  } catch (error) {
+    res.status(500).json({ error: "Veriler alınırken hata oluştu." });
+  }
+});
+
 // Alert Schema ve Model
 const alertSchema = new mongoose.Schema({
     type: String,
@@ -273,6 +310,7 @@ const alertSchema = new mongoose.Schema({
     detail: String,
     resolved: { type: Boolean, default: false } // Yeni alan eklendi
   });
+
   
 
 const Alert = mongoose.model("Alert", alertSchema);
@@ -621,6 +659,23 @@ app.get("/api/simulation-status", (req, res) => {
     simulationId: simulationId
   });
 });
+
+app.post("/api/energy-predict", async (req, res) => {
+  try {
+    const flaskUrl = "http://localhost:5002/predict"; // Flask API adresi
+    const inputData = req.body;
+
+    // Flask API'ye POST isteği gönder
+    const response = await axios.post(flaskUrl, inputData);
+
+    // Flask'tan dönen cevabı doğrudan ilet
+    res.json(response.data);
+  } catch (error) {
+    console.error("Flask API hatası:", error.message);
+    res.status(500).json({ error: "Enerji tahmini alınamadı" });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

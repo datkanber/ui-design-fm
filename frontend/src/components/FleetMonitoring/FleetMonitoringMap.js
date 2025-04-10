@@ -13,6 +13,8 @@ import "leaflet/dist/leaflet.css";
 import { LeafletTrackingMarker } from "react-leaflet-tracking-marker";
 import "../../assets/styles/global.css";
 
+import FMRouteDetailPanel from "./FM_RouteDetailPanel.js"; 
+
 import stationIconImg from "../../assets/icons/station.png";
 import orderIconImg from "../../assets/icons/order.png";
 import ordercanceled from "../../assets/icons/order2.png";
@@ -25,6 +27,7 @@ import cancel from "../../assets/icons/cancel.png";
 import waiting from "../../assets/icons/waiting.png";
 import stationRed from "../../assets/icons/station_red.png";
 import "../../assets/styles/RouteInfoPanel.css";
+import FM_RouteDetailPanel from "./FM_RouteDetailPanel.js";
 
 export default function FleetMonitoringMap({
   vehicles,
@@ -247,47 +250,108 @@ export default function FleetMonitoringMap({
               })}
             </LayerGroup>
           </LayersControl.Overlay>
-
-          <LayersControl.Overlay name="Tüm Siparişler">
-            <LayerGroup>
-              {orders.map((order) => {
-                let orderIcon = orderIconImg;
-                switch (order.status) {
-                  case "Requested":
-                    orderIcon = orderrequested;
-                    break;
-                  case "On the way":
-                    orderIcon = orderontheway;
-                    break;
-                  case "Delivered":
-                    orderIcon = orderdelivered;
-                    break;
-                  case "Cancelled":
-                    orderIcon = ordercanceled;
-                    break;
-                  default:
-                    break;
-                }
-
-                return (
-                  <Marker
-                    key={order.id}
-                    position={order.destination}
-                    icon={new L.Icon({ iconUrl: orderIcon, iconSize: [24, 24], iconAnchor: [12, 12] })}
-                  >
-                    <Popup>
-                      <p><strong>Order:</strong> {order.id}</p>
-                      <p><strong>Status:</strong> {order.status}</p>
-                      <p><strong>Customer:</strong> {order.customer}</p>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </LayerGroup>
-          </LayersControl.Overlay>
+          <LayersControl.Overlay name="Şarj İstasyonları">
+                      <LayerGroup>
+                        {chargingStations.map((station) => {
+                          let iconUrl = stationIconImg;
+                          
+                          if (station.status === "occupied") {
+                            iconUrl = stationRed;
+                          }
+          
+                          return (
+                            <Marker
+                              key={station.id}
+                              position={station.position}
+                              icon={new L.Icon({ iconUrl, iconSize: [24, 24], iconAnchor: [12, 12] })}
+                            >
+                              <Popup>
+                                <p><strong>İstasyon:</strong> {station.id}</p>
+                                <p><strong>Durum:</strong> {station.status}</p>
+                                <p><strong>Şarj Tipi:</strong> {station.chargingType}</p>
+                              </Popup>
+                            </Marker>
+                          );
+                        })}
+                      </LayerGroup>
+                    </LayersControl.Overlay>
+          
+                    <LayersControl.Overlay name="All Orders">
+                      <LayerGroup>
+                        {orders.map((order) => {
+                          let orderIcon = orderIconImg;
+          
+                          if (order.status === "Pending") {
+                            orderIcon = orderIconImg;
+                          } else if (order.status === "Requested") {
+                            orderIcon = orderrequested;
+                          } else if (order.status === "On the way") {
+                            orderIcon = orderontheway;
+                          } else if (order.status === "Cancelled") {
+                            orderIcon = ordercanceled;
+                          } else if (order.status === "Delivered") {
+                            orderIcon = orderdelivered;
+                          }
+          
+                          return (
+                            <Marker
+                              key={order.id}
+                              position={order.position}
+                              icon={new L.Icon({ iconUrl: orderIcon, iconSize: [28, 28] })}
+                            >
+                              <Popup>
+                                <p><strong>Order ID:</strong> {order.id}</p>
+                                <p><strong>Status:</strong> {order.status}</p>
+                                <p><strong>Vehicle ID:</strong> {order.vehicleId}</p>
+                              </Popup>
+                            </Marker>
+                          );
+                        })}
+                      </LayerGroup>
+                    </LayersControl.Overlay>
+          
+                    <LayersControl.Overlay name="Bekleyen Talepler">
+                      <LayerGroup>
+                        {orders.filter((order) => order.status === "Pending").map((order) => (
+                          <Marker key={order.id} position={order.position} icon={new L.Icon({ iconUrl: orderIconImg, iconSize: [28, 28] })}>
+                            <Popup>Talep ID: {order.id} - Bekliyor</Popup>
+                          </Marker>
+                        ))}
+                      </LayerGroup>
+                    </LayersControl.Overlay>
+          
+                    <LayersControl.Overlay checked name="Planlanmış Rotalar">
+                      <LayerGroup>
+                        {plannedRoutes.map((route, index) => (
+                          <Polyline
+                            key={index}
+                            positions={route.positions}
+                            color={routeColors[index] || "blue"}
+                            weight={4}
+                            eventHandlers={{ click: () => handleRouteClick(route, vehicles[index]) }}
+                          />
+                        ))}
+                      </LayerGroup>
+                    </LayersControl.Overlay>
+          
+                    <LayersControl.Overlay name="Tamamlanmış Rotalar">
+                      <LayerGroup>
+                        {completedRoutes.map((route, index) => (
+                          <Polyline
+                            key={index}
+                            positions={route.positions}
+                            color={routeColors[index] || "green"}
+                            weight={4}
+                            opacity={0.7}
+                          />
+                        ))}
+                      </LayerGroup>
+                    </LayersControl.Overlay>
 
         </LayersControl>
       </MapContainer>
+      <FM_RouteDetailPanel selectedRoute={selectedRoute} open={Boolean(selectedRoute)} onClose={() => setSelectedRoute(null)} />
+
     </div>
   );
 }

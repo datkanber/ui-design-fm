@@ -17,297 +17,22 @@ import { orders } from "../data/orders";
 import { routes } from "../data/routes";
 import { drivers } from "../data/drivers";
 import { routess } from "../data/routess"; // Import the new routess data
-
+import EnergyPredictor from "../components/test";
+import OrderStatusPieChart from "../components/FleetMonitoring/OrderStatusPieChart";
+import RouteEnergyConsumptionChart from "../components/FleetMonitoring/RouteEnergyConsumptionChart";
 // Example of different types of alerts
 const handleButtonClick = () => {
     // Button click handler
 
 };
 
-
-
 const API_URL = "http://localhost:3001/api/alerts";
-
-// TaskCompletionChart Component Definition
-const TaskCompletionChart = ({ routes }) => {
-  if (!routes || routes.length === 0) {
-    console.error("TaskCompletionChart: routes prop is undefined or empty");
-    return <p>Veri bulunamadı</p>;
-  }
-
-  //console.log("TaskCompletionChart Data:", routes);
-
-  // Rota bazında tamamlanma yüzdelerini hesapla
-  const data = routes.map((route) => {
-    const totalTasks = route.tasks.length;
-    const completedTasks = route.tasks.filter((task) => task.status === "completed").length;
-    const completionRate = (completedTasks / totalTasks) * 100;
-    return { name: route.name, completion: completionRate };
-  });
-  
-  // Create simple bar chart visualization
-  return (
-    <div style={{ padding: "10px" }}>
-      <h3>Görev Tamamlanma Oranları</h3>
-      {data.map(item => (
-        <div key={item.name} style={{ marginBottom: "15px" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ width: "80px", marginRight: "10px" }}>{item.name}:</div>
-            <div style={{ flex: 1, backgroundColor: "#e0e0e0", height: "24px", borderRadius: "4px", overflow: "hidden" }}>
-              <div 
-                style={{ 
-                  width: `${item.completion}%`, 
-                  height: "100%", 
-                  backgroundColor: item.completion > 75 ? "#4caf50" : item.completion > 50 ? "#ff9800" : "#f44336",
-                  transition: "width 0.5s ease-in-out"
-                }}
-              />
-            </div>
-            <div style={{ marginLeft: "10px", width: "60px", textAlign: "right" }}>
-              {item.completion.toFixed(1)}%
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+const API_PERFORMANCE = "http://localhost:3001/api/performance";
+const API_PREDICT = "http://localhost:5002/predict";
 
 
-
-// New RouteEnergyConsumptionChart Component
-const RouteEnergyConsumptionChart = ({ routeId }) => {
-  // Different energy consumption factors based on route selection
-  const routeEnergyData = {
-    "route1": [
-      { name: "Eğim", value: 35, color: "#4CAF50" },
-      { name: "Segment Uzunluğu", value: 25, color: "#2196F3" },
-      { name: "Ortalama Araç Hızı", value: 20, color: "#FF9800" },
-      { name: "Ortalama İvmelenme", value: 15, color: "#9C27B0" },
-      { name: "Ortalama Total Ağırlık", value: 5, color: "#F44336" }
-    ],
-    "route2": [
-      { name: "Eğim", value: 15, color: "#4CAF50" },
-      { name: "Segment Uzunluğu", value: 40, color: "#2196F3" },
-      { name: "Ortalama Araç Hızı", value: 30, color: "#FF9800" },
-      { name: "Ortalama İvmelenme", value: 10, color: "#9C27B0" },
-      { name: "Ortalama Total Ağırlık", value: 15, color: "#F44336" }
-    ]
-  };
-
-  const selectedData = routeEnergyData[routeId] || routeEnergyData.route1;
-  const total = selectedData.reduce((sum, item) => sum + item.value, 0);
-  
-  // Calculate segments for pie chart
-  const segments = [];
-  let cumulativeAngle = 0;
-
-  selectedData.forEach(item => {
-    const percentage = (item.value / total) * 100;
-    const angle = (percentage / 100) * 360;
-    
-    segments.push({
-      ...item,
-      percentage,
-      startAngle: cumulativeAngle,
-      endAngle: cumulativeAngle + angle
-    });
-    
-    cumulativeAngle += angle;
-  });
-
-  return (
-    <div style={{ padding: "10px" }}>
-      <h3>Enerji Tüketimini Etkileyen Faktörler</h3>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ position: "relative", width: "150px", height: "150px" }}>
-          {segments.map((segment, index) => {
-            const startAngle = segment.startAngle * Math.PI / 180;
-            const endAngle = segment.endAngle * Math.PI / 180;
-            
-            // Calculate path for pie segment
-            const x1 = 75 + 75 * Math.cos(startAngle);
-            const y1 = 75 + 75 * Math.sin(startAngle);
-            const x2 = 75 + 75 * Math.cos(endAngle);
-            const y2 = 75 + 75 * Math.sin(endAngle);
-            
-            const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
-            
-            const pathData = [
-              `M 75 75`,
-              `L ${x1} ${y1}`,
-              `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-              `Z`
-            ].join(' ');
-            
-            return (
-              <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-                <path d={pathData} fill={segment.color} />
-              </svg>
-            );
-          })}
-        </div>
-        
-        <div style={{ marginLeft: "20px", flex: 1 }}>
-          {segments.map((item, index) => (
-            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <div 
-                style={{ 
-                  width: "14px", 
-                  height: "14px", 
-                  backgroundColor: item.color, 
-                  marginRight: "8px",
-                  borderRadius: "2px"
-                }}
-              />
-              <div style={{ marginRight: "8px" }}>{item.name}:</div>
-              <div style={{ fontWeight: "bold" }}>
-                {item.percentage.toFixed(1)}% ({item.value})
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div style={{ marginTop: "20px" }}>
-        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>Enerji Tüketimi Özeti:</div>
-        <div>Ortalama Enerji Tüketimi: {routeId === "route1" ? "0.25 kWh/km" : "0.31 kWh/km"}</div>
-        <div>Toplam Tahmini Enerji: {routeId === "route1" ? "18.7 kWh" : "24.2 kWh"}</div>
-        <div>Menzil Etkisi: {routeId === "route1" ? "-15%" : "-22%"}</div>
-      </div>
-    </div>
-  );
-};
 
 // New OrderStatusPieChart Component Definition
-const OrderStatusPieChart = ({ orders }) => {
-  if (!orders || orders.length === 0) {
-    return <p>Sipariş verisi bulunamadı</p>;
-  }
-
-  // Define status categories
-  const statusCategories = {
-    delivered: {
-      label: "Teslim Edildi",
-      color: "#4CAF50",  // Green
-      count: 0
-    },
-    inTransit: {
-      label: "Yolda",
-      color: "#2196F3",  // Blue
-      count: 0
-    },
-    canceled: {
-      label: "İptal Edildi",
-      color: "#F44336",  // Red
-      count: 0
-    },
-    pending: {
-      label: "Beklemede",
-      color: "#FF9800",  // Orange
-      count: 0
-    },
-    unassigned: {
-      label: "İptal edildi",
-      color: "#FA1B1B",  // Gray
-      count: 0
-    }
-  };
-
-
-  // Count orders by status (this would use real data in production)
-  // For demo purposes, we'll generate random counts
-  const totalOrders = orders.length;
-  
-  // Using a fixed distribution for demonstration
-  statusCategories.delivered.count = Math.floor(totalOrders * 0.65);
-    statusCategories.inTransit.count = Math.floor(totalOrders * 0.15);
-    statusCategories.canceled.count = Math.floor(totalOrders * 0.08);
-    statusCategories.pending.count = Math.floor(totalOrders * 0.07);
-    statusCategories.unassigned.count = totalOrders - statusCategories.delivered.count - 
-                                       statusCategories.inTransit.count - 
-                                       statusCategories.canceled.count - 
-                                       statusCategories.pending.count;
-  
-    // Prepare data for pie chart
-    const statusData = Object.values(statusCategories).filter(category => category.count > 0);
-    const total = statusData.reduce((sum, item) => sum + item.count, 0);
-  
-    // Calculate percentages and angles
-    const segments = [];
-    let cumulativeAngle = 0;
-  
-    statusData.forEach(item => {
-      const percentage = (item.count / total) * 100;
-      const angle = (percentage / 100) * 360;
-      
-      segments.push({
-        ...item,
-        percentage,
-        startAngle: cumulativeAngle,
-        endAngle: cumulativeAngle + angle
-      });
-      
-      cumulativeAngle += angle;
-    });
-  
-    // Render the pie chart
-    return (
-      <div style={{ padding: "10px" }}>
-        <h3>Sipariş Durumu Dağılımı</h3>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ position: "relative", width: "150px", height: "150px" }}>
-            {segments.map((segment, index) => {
-              const startAngle = segment.startAngle * Math.PI / 180;
-              const endAngle = segment.endAngle * Math.PI / 180;
-              
-              // Calculate path for pie segment
-              const x1 = 75 + 75 * Math.cos(startAngle);
-              const y1 = 75 + 75 * Math.sin(startAngle);
-              const x2 = 75 + 75 * Math.cos(endAngle);
-              const y2 = 75 + 75 * Math.sin(endAngle);
-              
-              const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
-              
-              const pathData = [
-                `M 75 75`,
-                `L ${x1} ${y1}`,
-                `A 75 75 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                `Z`
-              ].join(' ');
-              
-              return (
-                <svg key={index} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-                  <path d={pathData} fill={segment.color} />
-                </svg>
-              );
-            })}
-          </div>
-          
-          <div style={{ marginLeft: "20px", flex: 1 }}>
-            {segments.map((item, index) => (
-              <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                <div 
-                  style={{ 
-                    width: "14px", 
-                    height: "14px", 
-                    backgroundColor: item.color, 
-                    marginRight: "8px",
-                    borderRadius: "2px"
-                  }}
-                />
-                <div style={{ marginRight: "8px" }}>{item.label}:</div>
-                <div style={{ fontWeight: "bold" }}>
-                  {item.percentage.toFixed(1)}% ({item.count})
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-  
   export default function FleetMonitoring() {
     const [alerts, setAlerts] = useState([]);
     const [isPerformanceMode, setIsPerformanceMode] = useState(false); // **Performance toggle için state**
@@ -320,15 +45,98 @@ const OrderStatusPieChart = ({ orders }) => {
     const [selectedRoute, setSelectedRoute] = useState("route1"); // Default route selection
     const [isSimulationRunning, setIsSimulationRunning] = useState(false);
     const [simulationStatus, setSimulationStatus] = useState("");
+    const [routeOptions, setRouteOptions] = useState([]);
+    const [performanceData, setPerformanceData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [showDetailDialog, setShowDetailDialog] = useState(false);
+    const [shapContributions, setShapContributions] = useState([]);
+    const [shapLabels, setShapLabels] = useState([]);
+    const [shapPrediction, setShapPrediction] = useState(null);
+    
+      
+      
 
     // **MongoDB'den Uyarıları Çek**
+    // useEffect(() => {
+    //   fetch(API_URL)
+    //     .then((response) => response.json())
+    //     .then((data) => setAlerts(data))
+    //     .catch((error) => console.error("Hata:", error));
+    // }, []);
+
     useEffect(() => {
-      //fetch(API_URL)
-      //  .then((response) => response.json())
-      //  .then((data) => setAlerts(data))
-      //  .catch((error) => console.error("Hata:", error));
+      fetch(API_URL)
+        .then((res) => res.json())
+        .then((data) => setAlerts(data))
+        .catch((err) => console.error(err));
+  
+      const fetchData = () => {
+        fetch(API_PERFORMANCE)
+          .then((res) => res.json())
+          .then((data) => {
+            setPerformanceData(data);
+            const uniqueRoutes = Array.from(new Set(data.map(item => item.route_id)));
+            setRouteOptions(uniqueRoutes);
+            if (!selectedRoute && uniqueRoutes.length > 0) {
+              setSelectedRoute(uniqueRoutes[0]);
+            }
+          })
+          .catch((err) => console.error(err));
+      };
+  
+      fetchData();
+      const interval = setInterval(fetchData, 5000);
+      return () => clearInterval(interval);
+    }, [selectedRoute]);
+
+    useEffect(() => {
+      const filtered = performanceData.filter(item => item.route_id === selectedRoute);
+      setFilteredData(filtered);
+    }, [performanceData, selectedRoute]);
+
+    const fetchSHAP = async () => {
+      if (filteredData.length === 0) return;
+    
+      const latest = filteredData.at(-1);
+    
+      const inputData = {
+        slope: latest?.slope || 0,
+        avg_vehicle_speed: latest?.avg_vehicle_speed || 0,
+        avg_Acceleration: latest?.avg_Acceleration || 0,
+        avg_Total_Mass: latest?.avg_Total_Mass || 0,
+        timestamp: latest?.timestamp
+      };
+    
+      try {
+        const response = await fetch(API_PREDICT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(inputData),
+        });
+    
+        const data = await response.json();
+        if (response.ok) {
+          setShapContributions([...data.shap_values]);
+          setShapLabels(["slope", "avg_vehicle_speed", "avg_Acceleration", "avg_Total_Mass"]);
+          setShapPrediction(data.prediction);
+        }
+      } catch (error) {
+        console.error("SHAP verisi alınamadı:", error);
+      }
+    };
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        fetchSHAP(); // Her 5 saniyede SHAP hesapla
+      }, 5000);
+      return () => clearInterval(interval);
     }, []);
   
+    useEffect(() => {
+      fetchSHAP();
+    }, [selectedRoute, performanceData]);
+
+
     // **Uyarıyı Çöz**
     const handleResolve = async (id) => {
       try {
@@ -418,26 +226,26 @@ const OrderStatusPieChart = ({ orders }) => {
     };
   
     // **Performans izleme**
-    const renderPerformanceContent = () => {
-      switch (activeTab) {
-        case "Rota":
-          return (
-            <div style={{ height: "200px", backgroundColor: "#e0f7fa", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
-              {/* Route chart */}
-              <TaskCompletionChart routes={routess["Simulated Annealing"] || []} />
-            </div>
-          );
-        case "Sipariş":
-          return (
-            <div style={{ height: "200px", backgroundColor: "#fce4ec", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
-              {/* Order status pie chart */}
-              <OrderStatusPieChart orders={orders} />
-            </div>
-          );
-        default:
-          return null;
-      }
-    };
+    // const renderPerformanceContent = () => {
+    //   switch (activeTab) {
+    //     case "Rota":
+    //       return (
+    //         <div style={{ height: "200px", backgroundColor: "#e0f7fa", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
+    //           {/* Route chart */}
+    //           <TaskCompletionChart routes={routess["Simulated Annealing"] || []} />
+    //         </div>
+    //       );
+    //     case "Sipariş":
+    //       return (
+    //         <div style={{ height: "200px", backgroundColor: "#fce4ec", padding: "16px", borderRadius: "8px", overflowY: "auto" }}>
+    //           {/* Order status pie chart */}
+    //           <OrderStatusPieChart orders={orders} />
+    //         </div>
+    //       );
+    //     default:
+    //       return null;
+    //   }
+    // };
   
     const routeColors = {
       "Simulated Annealing": "blue",
@@ -471,6 +279,7 @@ const OrderStatusPieChart = ({ orders }) => {
         <div style={{ flex: 1, padding: "16px", backgroundColor: "#f0f0f0", height: "100vh" }}>
           <div style={{ height: "50%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none", marginBottom: "16px", backgroundColor: "#fff", padding: "8px", borderRadius: "8px" }}>
             <h2>Uyarılar</h2>
+    
             <div>
               <label>
                 <input type="checkbox" checked={showInfo} onChange={() => setShowInfo(!showInfo)} />
@@ -481,19 +290,19 @@ const OrderStatusPieChart = ({ orders }) => {
                 Warning
               </label>
             </div>
-  
+    
             <div>
               <h3>Error</h3>
               {renderAlertsByCategory("Error")}
             </div>
-  
+    
             {showWarning && (
               <div>
                 <h3>Warning</h3>
                 {renderAlertsByCategory("Warning")}
               </div>
             )}
-  
+    
             {showInfo && (
               <div>
                 <h3>Info</h3>
@@ -501,171 +310,133 @@ const OrderStatusPieChart = ({ orders }) => {
               </div>
             )}
           </div>
-  
-          <div style={{ height: "50%", marginBottom: "16px", backgroundColor: "#fff", padding: "16px", borderRadius: "8px" }}>
-            <h2 style={{ marginBottom: "12px" }}>Performans İzleme</h2>
-            <div style={{ maxHeight: "80%", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-              <style>
-                {`
-                  .scrollable-div::-webkit-scrollbar {
-                    display: none;
-                  }
-                `}
-              </style>
-  
-              <div style={{ display: "flex", justifyContent: "space-around", padding: "12px", background: "#f4f4f4", borderRadius: "8px" }}>
-                {[{ name: "Rota", icon: <DirectionsCarIcon /> }, { name: "Sipariş", icon: <ShoppingCartIcon /> }].map((tab) => (
-                  <div key={tab.name} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }} onClick={() => setActiveTab(tab.name)}>
-                    <IconButton color={activeTab === tab.name ? "primary" : "default"}>{tab.icon}</IconButton>
-                    <Typography variant="caption" style={{ fontSize: "12px", color: activeTab === tab.name ? "#007BFF" : "#555" }}>{tab.name}</Typography>
-                    <Button variant="contained" size="small" color="primary" style={{ marginTop: "8px" }} onClick={() => setOpenDialog(true)}>Detay</Button>
-                  </div>
-                ))}
-              </div>
-  
-              <div style={{ marginTop: "16px" }}>{renderPerformanceContent()}</div>
+    
+          {/* <div>
+            <EnergyPredictor />
+          </div> */}
+    
+          <div style={{ height: "50%", backgroundColor: "#fff", padding: 16, borderRadius: 8 }}>
+            <h2>Performans İzleme</h2>
+            <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
+              <Button variant={activeTab === "rota" ? "contained" : "outlined"} startIcon={<DirectionsCarIcon />} onClick={() => setActiveTab("rota")}>ROTA</Button>
+              <Button variant={activeTab === "siparis" ? "contained" : "outlined"} startIcon={<ShoppingCartIcon />} onClick={() => setActiveTab("siparis")}>SİPARİŞ</Button>
             </div>
-  
-            {/* Pop-up Dialog */}
-            <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-              <DialogTitle style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="h6">Detay Bilgisi</Typography>
-                <IconButton onClick={() => setOpenDialog(false)} size="small">
-                  <CloseIcon />
-                </IconButton>
-              </DialogTitle>
-              <DialogContent>
-                { activeTab === "Rota" ? (
-                  <div style={{ padding: "20px" }}>
-                    <h3>Rota Performans Detayları</h3>
-                    
-                    {/* Route selection dropdown */}
-                    <FormControl variant="outlined" size="small" style={{ marginBottom: "20px", minWidth: "200px" }}>
-                      <InputLabel id="route-select-label">Rota Seçin</InputLabel>
-                      <Select
-                        labelId="route-select-label"
-                        id="route-select"
-                        value={selectedRoute}
-                        onChange={handleRouteChange}
-                        label="Rota Seçin"
-                      >
-                        <MenuItem value="route1">Rota 1 </MenuItem>
-                        <MenuItem value="route2">Rota 2 </MenuItem>
+    
+            {activeTab === "rota" && (
+              <div>
+                <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
+                  <InputLabel>Rota Seç</InputLabel>
+                  <Select value={selectedRoute} onChange={(e) => setSelectedRoute(e.target.value)} label="Rota Seç">
+                    {routeOptions.map((route) => (
+                      <MenuItem key={route} value={route}>{route}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+    
+                {shapPrediction !== null && (
+                  <Typography style={{ fontWeight: "bold", marginBottom: 8 }}>
+                    Tahmin Edilen Enerji Tüketimi: {shapPrediction.toFixed(2)} kWh
+                  </Typography>
+                )}
+    
+                <RouteEnergyConsumptionChart shapData={shapContributions} labels={shapLabels} />
+    
+                <Button variant="outlined" onClick={() => setShowDetailDialog(true)} style={{ marginTop: 12 }}>Detayları Göster</Button>
+    
+                <Dialog open={showDetailDialog} onClose={() => setShowDetailDialog(false)} maxWidth="sm" fullWidth>
+                  <DialogTitle>Rota Detayları</DialogTitle>
+                  <DialogContent>
+                    <FormControl fullWidth size="small" style={{ marginBottom: 12 }}>
+                      <InputLabel>Rota Seç</InputLabel>
+                      <Select value={selectedRoute} onChange={(e) => setSelectedRoute(e.target.value)} label="Rota Seç">
+                        {routeOptions.map((route) => (
+                          <MenuItem key={route} value={route}>{route}</MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
-                    
-                    <div style={{ display: "flex", flexWrap: "wrap" }}>
-                      {/* Left column */}
-  
-
-
-                      {/* Right column - Energy Consumption Chart */}
-                      <div style={{ flex: "1 1 50%", minWidth: "300px" }}>
-                                            <RouteEnergyConsumptionChart routeId={selectedRoute} />
-                                          </div>
-                                        </div>
-
-                                        <div style={{ marginTop: "20px" }}>
-                                          <h4>Rota Bilgileri - {selectedRoute === "route1" ? "Rota 1 " : "Rota 2 "}</h4>
-                                          <div style={{ display: "flex", flexWrap: "wrap" }}>
-                                            <div style={{ flex: "1 1 50%", minWidth: "250px" }}>
-                                              <ul>
-                                                <li>Toplam Mesafe: {selectedRoute === "route1" ? "108.5 km" : "453.2 km"}</li>
-                                                <li>Tahmini Süre: {selectedRoute === "route1" ? "1 saat 25 dakika" : "5 saat 10 dakika"}</li>
-                                                <li>Ortalama Hız: {selectedRoute === "route1" ? "75 km/s" : "85 km/s"}</li>
-                                                <li>Toplam Durak: {selectedRoute === "route1" ? "4" : "7"}</li>
-                                              </ul>
-                                            </div>
-                                            <div style={{ flex: "1 1 50%", minWidth: "250px" }}>
-                                              <ul>
-                                                <li>Trafik Yoğunluğu: {selectedRoute === "route1" ? "Orta" : "Yüksek"}</li>
-                                                <li>Eğim Profili: {selectedRoute === "route1" ? "Dalgalı" : "Düz ve Dağlık"}</li>
-                                                <li>Enerji Verimlilik Puanı: {selectedRoute === "route1" ? "85/100" : "72/100"}</li>
-                                              </ul>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ) : activeTab === "Sipariş" ? (
-                                      <div style={{ padding: "20px" }}>
-                                        <h3>Sipariş Durumu Detayları</h3>
-                                        <div style={{ width: "100%", height: "300px", display: "flex", justifyContent: "center" }}>
-                                          <OrderStatusPieChart orders={orders} />
-                                        </div>
-                                        <div style={{ marginTop: "20px" }}>
-                                          <h4>Sipariş İstatistikleri</h4>
-                                          <ul>
-                                            <li>Toplam sipariş sayısı: {orders.length}</li>
-                                            <li>Ortalama teslimat süresi: 45 dakika</li>
-                                            <li>İptal oranı: 8.0%</li>
-                                            <li>Zamanında teslimat oranı: 92.5%</li>
-                                            <li>Bu ayki toplam sipariş: 1,458</li>
-                                          </ul>
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <Typography>Detay bilgisi bulunamadı.</Typography>
-                                    )}
-                                  </DialogContent>
-                                  <DialogActions>
-                                    <Button onClick={() => setOpenDialog(false)} color="primary">Kapat</Button>
-                                  </DialogActions>
-                                </Dialog>
-                              </div>
-                            
-                              {/* New Statistics Section with SUMO Start Button and Status Component */}
-                              <div style={{ height: "23%", backgroundColor: "#fff", padding: "8px", borderRadius: "8px", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-                                <div>
-                                  <h2>Simulation Control</h2>
-                                </div>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                                  {/* SUMO Start Button */}
-                                  <button
-                                    onClick={startSumoSimulation}
-                                    disabled={isSimulationRunning}
-                                    style={{
-                                      padding: "10px",
-                                      backgroundColor: isSimulationRunning ? "#cccccc" : "#2196F3",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "5px",
-                                      cursor: isSimulationRunning ? "not-allowed" : "pointer",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      gap: "8px"
-                                    }}
-                                  >
-                                    
-                                  </button>
-
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Map Section */}
-                            <div style={{ flex: 3 }}>
-                              {isPerformanceMode ? (
-                                <FleetMonitoringPerformanceMap
-                                  vehicles={vehicles}
-                                  chargingStations={chargingStations}
-                                  orders={orders}
-                                  plannedRoutes={plannedRoutes}
-                                  completedRoutes={completedRoutes}
-                                  routeColors={routeColors}
-                                />
-                              ) : (
-                                <FleetMonitoringMap
-                                  vehicles={vehicles}
-                                  chargingStations={chargingStations}
-                                  orders={orders}
-                                  plannedRoutes={plannedRoutes}
-                                  completedRoutes={completedRoutes}
-                                  routeColors={routeColors}
-                                />
-                              )}
-                            </div>
-                          </div>
-                        );
-                      }
-
+    
+                    <RouteEnergyConsumptionChart shapData={shapContributions} labels={shapLabels} />
+    
+                    {filteredData.length > 0 ? (
+                      <>
+                        <Typography variant="body2">Ortalama Enerji Tüketimi: {filteredData.at(-1).avg_energy_consumption_kwh_km} kWh/km</Typography>
+                        <Typography variant="body2">Toplam Tahmini Enerji: {filteredData.at(-1).estimated_total_energy_kwh} kWh</Typography>
+                        <Typography variant="body2">Menzil Etkisi: {filteredData.at(-1).range_effect_percent}%</Typography>
+    
+                        <Typography variant="subtitle1" style={{ marginTop: 8, fontWeight: "bold" }}>Rota Bilgileri</Typography>
+                        <Typography variant="body2">Toplam Mesafe: {filteredData.at(-1).total_distance_km} km</Typography>
+                        <Typography variant="body2">Tahmini Süre: {Math.floor(filteredData.at(-1).estimated_duration_min / 60)} saat {filteredData.at(-1).estimated_duration_min % 60} dakika</Typography>
+                        <Typography variant="body2">Ortalama Hız: {filteredData.at(-1).speed_kmh} km/s</Typography>
+                        <Typography variant="body2">Toplam Durak: {filteredData.at(-1).stop_count}</Typography>
+                        <Typography variant="body2">Trafik Yoğunluğu: {filteredData.at(-1).traffic_level}</Typography>
+                        <Typography variant="body2">Eğim Profili: {filteredData.at(-1).slope_profile}</Typography>
+                        <Typography variant="body2">Enerji Verimlilik Puanı: {filteredData.at(-1).efficiency_score}/100</Typography>
+                      </>
+                    ) : (
+                      <Typography>Veri bulunamadı.</Typography>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setShowDetailDialog(false)}>Kapat</Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
+            )}
+    
+            {activeTab === "siparis" && (
+              <div>
+                <OrderStatusPieChart orders={orders} />
+              </div>
+            )}
+          </div>
+    
+          <div style={{ height: "23%", backgroundColor: "#fff", padding: "8px", borderRadius: "8px", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+            <div>
+              <h2>Simulation Control</h2>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <button
+                onClick={startSumoSimulation}
+                disabled={isSimulationRunning}
+                style={{
+                  padding: "10px",
+                  backgroundColor: isSimulationRunning ? "#cccccc" : "#2196F3",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: isSimulationRunning ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px"
+                }}
+              >
+                {isSimulationRunning ? "Simülasyon Başladı" : "Simülasyonu Başlat"}
+              </button>
+            </div>
+          </div>
+        </div>
+    
+        <div style={{ flex: 3 }}>
+          {isPerformanceMode ? (
+            <FleetMonitoringPerformanceMap
+              vehicles={vehicles}
+              chargingStations={chargingStations}
+              orders={orders}
+              plannedRoutes={plannedRoutes}
+              completedRoutes={completedRoutes}
+              routeColors={routeColors}
+            />
+          ) : (
+            <FleetMonitoringMap
+              vehicles={vehicles}
+              chargingStations={chargingStations}
+              orders={orders}
+              plannedRoutes={plannedRoutes}
+              completedRoutes={completedRoutes}
+              routeColors={routeColors}
+            />
+          )}
+        </div>
+      </div>
+    );}
