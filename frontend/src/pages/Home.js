@@ -147,19 +147,20 @@ const Home = () => {
       link: '/fleet-monitoring'
     },
     {
-      title: 'EV Charging Management',
-      description: 'Manage charging status and schedules for electric vehicles',
-      icon: <BatteryChargingFullIcon />,
-      color: '#4caf50',
-      link: '/ev-charging'
-    },
-    {
       title: 'Performance Monitoring',
       description: 'Track fleet performance in real-time with advanced analytics',
       icon: <AssessmentIcon />,
       color: '#f44336',
       link: '/performance-monitoring'
     },
+    {
+      title: 'EV Charging Management',
+      description: 'Manage charging status and schedules for electric vehicles',
+      icon: <BatteryChargingFullIcon />,
+      color: '#4caf50',
+      link: '/ev-charging'
+    },
+    
     {
       title: 'Demand Planning',
       description: 'Forecast demand and plan capacity efficiently',

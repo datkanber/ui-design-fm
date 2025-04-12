@@ -8,21 +8,17 @@ import CompareIcon from "@mui/icons-material/Compare";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DeleteIcon from "@mui/icons-material/Delete"; 
 import MapIcon from "@mui/icons-material/Map";
-import CustomerPool from "./RouteOptimization/CustomerPool";
-import RouteOptimizationMap from "./RouteOptimization/RouteOptimizationMap";
-import { ComparisonResults, ComparisonChart } from "./RouteOptimization/MultiAlgorithmComparison";
-import OptimizationForm from "./RouteOptimization/OptimizationForm";
+import CustomerPool from "./CustomerPool";
+import RouteOptimizationMap from "./RouteOptimizationMap";
+import { ComparisonResults, ComparisonChart } from "./MultiAlgorithmComparison";
+import OptimizationForm from "./OptimizationForm";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DescriptionIcon from "@mui/icons-material/Description";
-import RouteDetailPanel from "./RouteDetailPanel"; 
+import RouteDetailPanel from "../RouteDetailPanel"; 
 import axios from "axios";
-import { parseRouteXML } from '../utils/xmlParser';
-import RouteAnalysisDashboard from './RouteOptimization/RouteAnalysisDashboard';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
+import { parseRouteXML } from '../../utils/xmlParser';
+import RouteAnalysisDashboard from './RouteAnalysisDashboard';
+
 
 export default function Layout({
     customers,
@@ -42,7 +38,6 @@ export default function Layout({
 }) {
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [openRouteDetail, setOpenRouteDetail] = useState(false);
-    
     // States for ESOGU task optimization
     const [selectedTask, setSelectedTask] = useState('');
     const [isOptimizing, setIsOptimizing] = useState(false);
@@ -54,6 +49,7 @@ export default function Layout({
     const [clearSuccess, setClearSuccess] = useState(false);
     const [route4VehicleUrl, setRoute4VehicleUrl] = useState(null);
     const [viewMode, setViewMode] = useState("normal"); // normal veya route4vehicle
+    // eslint-disable-next-line no-unused-vars
     const [responseFiles, setResponseFiles] = useState([]);
     const [route4PlanUrl, setRoute4PlanUrl] = useState(null);
     const [routePlanData, setRoutePlanData] = useState(null);
@@ -61,10 +57,12 @@ export default function Layout({
     const [planDataError, setPlanDataError] = useState(null);
     // State for scenario selection
     const [availableScenarios, setAvailableScenarios] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [selectedScenario, setSelectedScenario] = useState(null); // Add this line to fix the error
     const [processingScenario, setProcessingScenario] = useState(null);
     const [processedScenarios, setProcessedScenarios] = useState([]);
     const [scenarioProgress, setScenarioProgress] = useState({ current: 0, total: 0 });
+    // eslint-disable-next-line no-unused-vars
     const [showScenarioSelector, setShowScenarioSelector] = useState(false);
     // ESOGU task and route data persistence
     useEffect(() => {
@@ -172,7 +170,7 @@ export default function Layout({
         if (route4VehicleUrl || route4PlanUrl) {
             checkFileExistence();
         }
-    }, []);
+    }, [route4PlanUrl, route4VehicleUrl]);
 
     // Load available scenarios from localStorage
     useEffect(() => {
@@ -201,7 +199,7 @@ export default function Layout({
         loadScenarios();
     }, []);
     
-    // Handle scenario selection change
+    // eslint-disable-next-line no-unused-vars
     const handleScenarioChange = (event) => {
         const scenarioId = event.target.value;
         const selected = availableScenarios.find(s => s.id.toString() === scenarioId.toString());

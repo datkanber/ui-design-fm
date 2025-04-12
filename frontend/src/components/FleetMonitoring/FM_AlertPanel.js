@@ -37,7 +37,7 @@ export default function Alert({ type, message, details, source, timestamp, resol
         return { backgroundColor: "#ffffff", color: "#000000", icon, iconColor, sourceColor };
     }
   };
-
+  // eslint-disable-next-line no-unused-vars
   const { backgroundColor, color, icon, iconColor, sourceColor } = getAlertStyle(type, source);
 
   return (

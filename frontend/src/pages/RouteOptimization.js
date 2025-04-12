@@ -6,7 +6,7 @@ import { routes as staticRoutes } from '../data/routes';
 import '../assets/styles/global.css';
 import 'leaflet/dist/leaflet.css';
 
-import Layout from "../components/Layout"; // 🔥 Sadece gerekli bileşeni import ediyoruz.
+import Layout from "../components/RouteOptimization/Layout"; // 🔥 Sadece gerekli bileşeni import ediyoruz.
 import { customers as staticCustomers } from "../data/customers";
 
 export default function RouteOptimization() {

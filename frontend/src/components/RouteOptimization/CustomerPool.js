@@ -252,6 +252,38 @@ export default function CustomerPool({ customers: initialCustomers }) {
     setTaskError('');
   };
 
+  const saveResponseToPublicOutput = async (data, contentType, filename) => {
+    try {
+      const blob = new Blob([data], { type: contentType });
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      const saveResponse = await axios.post('http://localhost:3001/save-file', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      console.log('File saved to public/output:', saveResponse.data);
+      return saveResponse.data.path;
+    } catch (error) {
+      console.error('Error saving file to public/output:', error);
+      return null;
+    }
+  };
+
+  const saveZipToPublicOutput = async (data, filename) => {
+    try {
+      const blob = new Blob([data], { type: 'application/zip' });
+      const formData = new FormData();
+      formData.append('zipFile', blob, filename);
+      const saveResponse = await axios.post('http://localhost:3001/save-zip', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      console.log('Zip saved and extracted to public/output:', saveResponse.data);
+      return saveResponse.data;
+    } catch (error) {
+      console.error('Error saving zip to public/output:', error);
+      return null;
+    }
+  };
+
   const handleTaskConfirm = async () => {
     if (!selectedTask) {
       setTaskError('Please select a task');
@@ -270,23 +302,145 @@ export default function CustomerPool({ customers: initialCustomers }) {
     alert(`Task ${selectedTask} selected successfully! Click "Start Optimize" in the Optimization panel to process.`);
     handleCloseEsoguModal();
   };
+  //   setIsLoading(true);
+  //   try {
+  //     // Load task data using the imported function
+  //     // const taskDataResponse = await loadTaskData(selectedTask);
+  //     const formData = new FormData();
+  //     const filesToFetch = [
+  //       { path: `/esogu_dataset/Info4Tasks/newesoguv32-${selectedTask.toLowerCase()}-ds1.xml`, name: `newesoguv32-${selectedTask.toLowerCase()}-ds1.xml` },
+  //       { path: '/esogu_dataset/Info4Environment/Info4Environment.xml', name: 'Info4Environment.xml' },
+  //       { path: '/esogu_dataset/Info4ChargingStation/Info4ChargingStation.xml', name: 'Info4ChargingStation.xml' },
+  //       { path: '/esogu_dataset/Info4Vehicle/FC_Info4Vehicle.xml', name: 'FC_Info4Vehicle.xml' },
+  //       { path: '/esogu_dataset/Map4Environment/Map4Environment.xml', name: 'Map4Environment.xml' },
+  //       { path: '/esogu_dataset/Input4Algorithm/Input.xml', name: 'Input.xml' }
+  //     ];
+      
+  //     for (const file of filesToFetch) {
+  //       const response = await fetch(file.path);
+  //       const blob = await response.blob();
+  //       formData.append('input_files', blob, file.name);
+  //     }
+      
+  //     formData.append('taskType', selectedTask);
+      
+  //     const response = await axios.post('http://localhost:8000/start_alns', formData, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //       responseType: 'blob'
+  //     });
+      
+
+      
+  //     console.log('Algorithm response:', response);
+  //     const savedFiles = [];
+    
+  //     if (response.headers['content-type'] === 'application/zip') {
+  //       let filename = `output_${selectedTask}_${new Date().getTime()}.zip`;
+  //       const contentDisposition = response.headers['content-disposition'];
+  //       if (contentDisposition) {
+  //         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+  //         if (filenameMatch) {
+  //           filename = filenameMatch[1];
+  //         }
+  //       }
+  //       const saveResult = await saveZipToPublicOutput(response.data, filename);
+  //       if (saveResult) {
+  //         savedFiles.push({ name: filename, path: saveResult.zipPath, type: 'application/zip' });
+  //       }
+  //     } else if (response.headers['content-type'].includes('application/json')) {
+  //       const jsonResponse = JSON.parse(new TextDecoder().decode(response.data));
+  //       if (jsonResponse.xmlFiles) {
+  //         for (const [filename, content] of Object.entries(jsonResponse.xmlFiles)) {
+  //           const blob = base64ToBlob(content, 'application/xml');
+  //           const filePath = await saveResponseToPublicOutput(blob, 'application/xml', filename);
+  //           if (filePath) {
+  //             savedFiles.push({ name: filename, path: filePath, type: 'application/xml' });
+  //           }
+  //         }
+  //       }
+  //       if (jsonResponse.jsonFile) {
+  //         const jsonContent = JSON.stringify(jsonResponse.jsonFile);
+  //         const filename = `output_${selectedTask}_${new Date().getTime()}.json`;
+  //         const filePath = await saveResponseToPublicOutput(jsonContent, 'application/json', filename);
+  //         if (filePath) {
+  //           savedFiles.push({ name: filename, path: filePath, type: 'application/json' });
+  //         }
+  //       }
+  //       if (jsonResponse.customers) {
+  //         setCustomers(jsonResponse.customers);
+  //         setOriginalCustomers(jsonResponse.customers);
+  //         setIsNewDataAdded(true);
+  //       }
+  //     } else {
+  //       const contentType = response.headers['content-type'] || 'application/octet-stream';
+  //       const fileExtension = getFileExtensionFromMimeType(contentType);
+  //       let filename = `output_${selectedTask}_${new Date().getTime()}.${fileExtension}`;
+  //       const contentDisposition = response.headers['content-disposition'];
+  //       if (contentDisposition) {
+  //         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+  //         if (filenameMatch) {
+  //           filename = filenameMatch[1];
+  //         }
+  //       }
+  //       const filePath = await saveResponseToPublicOutput(response.data, contentType, filename);
+  //       if (filePath) {
+  //         savedFiles.push({ name: filename, path: filePath, type: contentType });
+  //       }
+  //     }
+      
+  //     setDownloadedFiles(savedFiles);
+  //     alert('Algorithm executed successfully! Files have been saved to public/output directory.');
+      
+  //   } catch (error) {
+  //     console.error('Error processing task data:', error);
+  //     setTaskError('Failed to process task data. Please try again.');
+  //   } finally {
+  //     setIsLoading(false);
+  //     handleCloseEsoguModal();
+  //   }
+  // };
+
+  // const base64ToBlob = (base64, mimeType) => {
+  //   const byteCharacters = atob(base64);
+  //   const byteArrays = [];
+  //   for (let i = 0; i < byteCharacters.length; i += 512) {
+  //     const slice = byteCharacters.slice(i, i + 512);
+  //     const byteNumbers = new Array(slice.length);
+  //     for (let j = 0; j < slice.length; j++) {
+  //       byteNumbers[j] = slice.charCodeAt(j);
+  //     }
+  //     const byteArray = new Uint8Array(byteNumbers);
+  //     byteArrays.push(byteArray);
+  //   }
+  //   return new Blob(byteArrays, { type: mimeType });
+  // };
+
+  // const getFileExtensionFromMimeType = (mimeType) => {
+  //   const extensions = {
+  //     'application/json': 'json',
+  //     'application/xml': 'xml',
+  //     'application/octet-stream': 'bin',
+  //     'text/plain': 'txt'
+  //   };
+  //   return extensions[mimeType] || 'bin';
 
   return (
     <Card
       sx={{
         borderRadius: "14px",
-        padding: "16px",
+        padding: "19px",
         backgroundColor: "#FFFFFF",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
         border: "1px solid #E0E0E0",
-        height: "100%",
+        height: "90vh",
         width: "100%",
+        maxWidth: "750px",
+        margin: "auto",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden" // Taşmaları engelliyoruz
       }}
     >
-      <CardContent sx={{ flex: "0 0 auto", pb: 1 }}>
+      <CardContent sx={{ flex: "0 1 auto", paddingBottom: "16px" }}>
         {/* Filtering Area */}
         <Box sx={{ mb: 2 }}>
           <Grid container spacing={2}>
@@ -466,7 +620,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
           <Box sx={{ width: '5%' }}></Box>
           <Box sx={{ width: '30%', fontWeight: 600, fontSize: '0.75rem', color: '#555' }}>Time Window</Box>
           <Box sx={{ height: '20px', borderRight: '1px solid #ccc', mx: 1 }}></Box>
-          <Box sx={{ width: '45%', fontWeight: 600, fontSize: '0.75rem', color: '#555', textAlign: "center", }}>Customer</Box>
+          <Box sx={{ width: '45%', fontWeight: 600, fontSize: '0.75rem', color: '#555' }}>Customer</Box>
           <Box sx={{ height: '20px', borderRight: '1px solid #ccc', mx: 1 }}></Box>
           <Box sx={{ width: '20%', fontWeight: 600, fontSize: '0.75rem', color: '#555', textAlign: 'right' }}>Amount</Box>
         </Box>
@@ -515,7 +669,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
                       </Typography>
                     </Box>
                     <Box sx={{ height: '24px', borderRight: '1px solid #e0e0e0', mx: 1 }}></Box>
-                    <Box sx={{ width: '45%', textAlign: "start", paddingLeft: 3 }}>
+                    <Box sx={{ width: '45%' }}>
                       <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
                         {customer.name}
                         {customer.tasks && customer.tasks.length > 0 && (
@@ -532,7 +686,7 @@ export default function CustomerPool({ customers: initialCustomers }) {
                       </Typography>
                     </Box>
                     <Box sx={{ height: '24px', borderRight: '1px solid #e0e0e0', mx: 1 }}></Box>
-                    <Box sx={{ width: '20%', textAlign: "center" }}>
+                    <Box sx={{ width: '20%', textAlign: "right" }}>
                       <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
                         {customer.demand} adet
                       </Typography>

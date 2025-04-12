@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   MapContainer, 
   TileLayer, 
@@ -50,6 +50,7 @@ export default function RouteOptimizationMap({
   viewMode,
   route4VehicleUrl
 }) {
+  // eslint-disable-next-line no-unused-vars
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -258,6 +259,7 @@ export default function RouteOptimizationMap({
   };
 
   // Aracın yönünü hesaplayan fonksiyon
+  // eslint-disable-next-line no-unused-vars
   const calculateBearing = (start, end) => {
     if (!start || !end) return 0;
 
@@ -274,6 +276,7 @@ export default function RouteOptimizationMap({
   };
 
   // Yönüne göre doğru oku seçen fonksiyon
+  // eslint-disable-next-line no-unused-vars
   const getArrowIcon = (angle) => {
     let arrowImg = arrowRight;
     if (angle >= 45 && angle < 135) {

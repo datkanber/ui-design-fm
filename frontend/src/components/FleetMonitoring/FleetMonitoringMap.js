@@ -19,7 +19,9 @@ import stopsData from "../../data/stops.js";
 import "../../assets/styles/RouteInfoPanel.css";
 
 export default function FleetMonitoringMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
+  // eslint-disable-next-line no-unused-vars
   const [selectedRoute, setSelectedRoute] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isRouteVisible, setIsRouteVisible] = useState(false);
   

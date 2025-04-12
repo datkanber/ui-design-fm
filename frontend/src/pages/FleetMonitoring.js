@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import { IconButton, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import PersonIcon from "@mui/icons-material/Person";
 import CloseIcon from "@mui/icons-material/Close";
 import FleetMonitoringMap from "../components/FleetMonitoring/FleetMonitoringMap";
 import FleetMonitoringPerformanceMap from "../components/FleetMonitoring/FleetMonitoringPerformanceMap";
@@ -13,7 +12,6 @@ import { vehicles } from "../data/vehicles";
 import { chargingStations } from "../data/chargingStations";
 import { orders } from "../data/orders";
 import { routes } from "../data/routes";
-import { drivers } from "../data/drivers";
 import { routess } from "../data/routess"; // Import the new routess data
 
 // Example of different types of alerts
@@ -301,11 +299,13 @@ const OrderStatusPieChart = ({ orders }) => {
   
   export default function FleetMonitoring() {
     const [alerts, setAlerts] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [isPerformanceMode, setIsPerformanceMode] = useState(false); // **Performance toggle için state**
     const [activeTab, setActiveTab] = useState("Rota"); // Başlangıçta Rota sekmesi aktif
     const [selectedId, setSelectedId] = useState(null);
     const [showInfo, setShowInfo] = useState(true); // Info göster/gizle
     const [showWarning, setShowWarning] = useState(true); // Warning göster/gizle
+    // eslint-disable-next-line no-unused-vars
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedRoute, setSelectedRoute] = useState("route1"); // Default route selection
@@ -411,11 +411,11 @@ const OrderStatusPieChart = ({ orders }) => {
       "OR-Tools": "red",
       "Completed": "green",
     };
-  
+    // eslint-disable-next-line no-unused-vars
     const handleSelect = (id) => {
       setSelectedId(id);
     };
-  
+    // eslint-disable-next-line no-unused-vars
     const getCardStyle = (id) => ({
       padding: "10px",
       margin: "10px 0",

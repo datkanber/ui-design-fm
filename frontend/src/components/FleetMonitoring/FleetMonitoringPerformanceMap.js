@@ -18,14 +18,15 @@ import check from "../../assets/icons/check.png";
 import cancel from "../../assets/icons/cancel.png";
 import waiting from "../../assets/icons/waiting.png";
 import stationRed from "../../assets/icons/station_red.png";
-import stopsData from "../../data/stops.js";
 import "../../assets/styles/RouteInfoPanel.css";
 import RouteDetailPanel from "./FM_RouteDetailPanel.js"; 
 
 
 export default function FleetMonitoringPerformanceMap({ vehicles, chargingStations, orders, plannedRoutes, completedRoutes, routeColors, height = 900 }) {
   const [selectedRoute, setSelectedRoute] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isRouteVisible, setIsRouteVisible] = useState(false); // Yeni state
 
   const handleRouteClick = (route, vehicle) => {
@@ -36,7 +37,7 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
     setIsPanelOpen(true);
     setIsRouteVisible(true);  // Rota tıklandığında görünür yapıyoruz
   };
-  
+  // eslint-disable-next-line no-unused-vars
   const handleStopContainerClose = () => {
     setIsRouteVisible(false);  // Stop container'ını gizlemek için state'i false yapıyoruz
   };
@@ -67,6 +68,7 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
       className: "arrow-icon",
     });
   };
+  // eslint-disable-next-line no-unused-vars
     const getStatusIcon = (status) => {
     if (status === "DELIVERED") {
       return <img src={check} alt="Delivered" style={{ width: '20px', height: '20px' }} />;
@@ -81,7 +83,7 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
     }
     return null; // Default case for when the status does not match any condition
   };
-
+// eslint-disable-next-line no-unused-vars
   const getBorderColor = (status) => {
     switch (status) {
       case "DELIVERED":
@@ -131,12 +133,10 @@ export default function FleetMonitoringPerformanceMap({ vehicles, chargingStatio
           <LayerGroup>
             {chargingStations.map((station) => {
               let iconUrl = stationIconImg; // Default icon
-              let iconColor = "green"; // Default color for available stations
               
               // Change icon and color based on the station's status
               if (station.status === "occupied") {
                 iconUrl = stationRed;
-                iconColor = "red"; // Color for occupied stations
               }
 
               // Use the color/icon in the marker

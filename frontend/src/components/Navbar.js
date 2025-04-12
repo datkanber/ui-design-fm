@@ -11,7 +11,11 @@ import {
   X,
   Sun,
   Moon,
-  GitBranch // FlowChart yerine GitBranch kullanıldı
+  GitBranch,
+  Wrench,
+  Battery,
+  Box,
+  TrendingUp
 } from "lucide-react";
 import roadmapLogo from "../assets/icons/roadmap.gif";
 
@@ -42,9 +46,29 @@ export default function Navbar({ alertBlink, toggleChat, darkMode, setDarkMode }
       icon: <Truck size={20} strokeWidth={2} /> 
     },
     { 
+      path: "/maintenance", 
+      label: "Maintenance", 
+      icon: <Wrench size={20} strokeWidth={2} /> 
+    },
+    { 
+      path: "/ev-charging", 
+      label: "EV Charging", 
+      icon: <Battery size={20} strokeWidth={2} /> 
+    },
+    { 
       path: "/orders", 
       label: "Orders", 
       icon: <Package size={20} strokeWidth={2} /> 
+    },
+    { 
+      path: "/inventory", 
+      label: "Inventory", 
+      icon: <Box size={20} strokeWidth={2} /> 
+    },
+    { 
+      path: "/demand-planning", 
+      label: "Demand Planning", 
+      icon: <TrendingUp size={20} strokeWidth={2} /> 
     },
     { 
       path: "/performance-monitoring", 
@@ -54,7 +78,7 @@ export default function Navbar({ alertBlink, toggleChat, darkMode, setDarkMode }
     { 
       path: "/bpmn-process", 
       label: "Process Designer", 
-      icon: <GitBranch size={20} strokeWidth={2} /> // FlowChart yerine GitBranch kullanıldı
+      icon: <GitBranch size={20} strokeWidth={2} /> 
     }
   ];
 
